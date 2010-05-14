@@ -74,6 +74,8 @@ public class ParseTrainingData extends ParseLoadData
 						load.setQuality(getLoadQuality(sub));
 					}
 				}
+				if (Math.abs(load.val) < 1E-10)
+					System.err.println("Load at " + load.getDate() + " is not available");
 			//}
 		}
 	}

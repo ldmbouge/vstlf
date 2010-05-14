@@ -26,27 +26,49 @@
 package edu.uconn.vstlf.shutil;
 
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import edu.uconn.vstlf.database.perst.*;
 
 public class RunTraining {
 
-	static String _USAGE = "USAGE:\n\tjava -jar uconn-vstlf.jar train <lowBank> <highBank> <xmlFile> "+
-	 "\n\n\t\t lowBank, highBank in [0,11] : the program will train ANN banks for the offsets in the specified interval" +
-	 "\n\t\t xmlFile : 5minute load file.  XML.  (see manual for XML format) \n\n" +
+	static String _USAGE = "USAGE:\n\tjava -jar uconn-vstlf.jar train <lowBank> <highBank> <xmlFile>   or"+
+	 "\n \tjava -jar uconn-vstlf.jar train <lowBank> <highBank> <xmlFile> \"<startDate yyyy/MM/dd>\" \"<endDate yyyy/MM/dd>\"\n\n\t\t lowBank, highBank in [0,11] : the program will train ANN banks for the offsets in the specified interval" +
+	 "\n\t\t xmlFile : 5minute load file.  XML.  (see manual for XML format)" +
+	 "\n\t\t startDate, endDate : the training period\n\n" + 
 	 "\tThe specified set of neural network banks will be trained over the time period contained in 'xmlFile'.\n" +
 	 "\tIt is assumed that the current directory contains a folder called 'anns/'.  If the contents\n\n\t\t" +
 	 "(some subset of {bank0.ann, bank1.ann, bank2.ann, ... , bank11.ann})\n\n\t" +
 	 "include the '.ann' files corresponding to the set of banks to be trained, then the existing networks will be used as a\n\t" +
 	 "starting point for further training.\n\n";
 	
+	public static Date parseDate(String str) {
+		try {
+			DateFormat df = new SimpleDateFormat("yyyy/MM/dd - HH:mm:ss");
+			Date d = df.parse(str);
+			return d;
+		}
+		catch (Exception e) {
+		}
+		
+		try {
+			DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
+			Date d = df.parse(str);
+			return d;
+		}
+		catch (Exception e) {
+		}
+		
+		return null;
+	}
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		edu.uconn.vstlf.data.Calendar cal = new edu.uconn.vstlf.data.Calendar("America/New_York");
 		String xmlFile = null; int lo=0, hi=0; Date st, ed;
-		if (args.length != 3) { 					//check # of args
+		if (args.length != 3 && args.length != 5) { 					//check # of args
 			System.out.println(_USAGE);
 			System.exit (-1);
 		}
@@ -78,13 +100,26 @@ public class RunTraining {
 					break;
 			}
 			tempFile.deleteOnExit();
-			System.out.println("Extracting 5m load signal from "+ xmlFile);
-			PerstPowerDB ppdb = PerstPowerDB.fromXML(tfName, 300, xmlFile);
+			
+			//get file extension name
+			String ext = xmlFile.substring(xmlFile.lastIndexOf('.')+1).toLowerCase();
+			
+			PerstPowerDB ppdb;
+			if (ext.equals("xml")) {
+				System.out.println("Extracting 5m load signal from "+ xmlFile);
+				ppdb = PerstPowerDB.fromXML(tfName, 300, xmlFile);
+			}
+			else if (ext.equals("pod")) {
+				ppdb = new PerstPowerDB(xmlFile, 300);
+				tfName = xmlFile;
+			}
+			else 
+				throw new Exception("Don't accept data source with '" + ext + "' as extension");
 			ppdb.open();
 			st = cal.endDay(ppdb.first("filt"));
 			ed = cal.beginDay(ppdb.last("filt"));
 			ppdb.close();
-			if(cal.addYearsTo(st, 1).before(ed)){
+			if(cal.addYearsTo(st, 1).after(ed)){
 				System.out.println("WARNING:  The file '"+xmlFile+"' contains less than one year of data.\n" +
 						"It is recommended that you use at least one continuous year of load signal to train your neural nets.\n" +
 						"Would you like to continue the training on these limited data? (Y/n)");
@@ -100,6 +135,18 @@ public class RunTraining {
 			if(!new BufferedReader(new InputStreamReader(System.in)).readLine().equals("Y")){
 				System.out.println("Aborting...");
 				System.exit(0);
+			}
+			if (args.length == 5) {
+				Date strt = parseDate(args[3]);
+				Date end = parseDate(args[4]);
+				if (strt == null)
+					System.err.println("Cannot parse date " + args[3]);
+				else if (end == null)
+					System.err.println("Cannot parse date " + args[4]);
+				else {
+					st = strt;
+					ed = end;
+				}
 			}
 			edu.uconn.vstlf.batch.VSTLFTrainer.train(tfName, st, ed, lo, hi);
 			System.out.println("Training Complete");

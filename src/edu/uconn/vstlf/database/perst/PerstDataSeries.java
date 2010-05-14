@@ -45,7 +45,6 @@ public class PerstDataSeries extends Persistent {
     	_seq.addAll(set);
     }
     
-    public String getName() { return _name;}
     public boolean has(Date t){
     	return _seq.has(t);
     }

@@ -10,12 +10,14 @@
 	<path id="vstlf.classpath">
 		<pathelement location="bin"/>
 		<pathelement location="lib/perst15.jar"/>
+		<pathelement location="lib/junit.jar"/>
 	</path>
 
 	<!-- DESTROY:  DELETE THE CURRENTLY EXISTING JAR -->
 	<target name="destroy">
 		<delete file="uconn-vstlf.jar"/>
 	</target>
+	<assertions><enable/></assertions>
 
 	<!-- BUILD:  JAVAC FROM 'src' TO 'bin' -->
 	<target name="build">

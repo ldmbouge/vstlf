@@ -45,7 +45,11 @@ public class Run {
 		
 		"audit\t\t\tGet a report on the error results of a previously run (or currently running) real-time system\n\n\t\t" + 
 		
-		"reset\t\t\tErase the current directory's VSTLF history\n\n";
+		"reset\t\t\tErase the current directory's VSTLF history\n\n\t\t" +
+		
+		"build-perst\t\tBuild a perst database from xml files\n\n\t\t" + 
+		
+		"gen5m\t\t\tGenerate 5 minute loads from a perst database containing 4 second loads\n\n";
 		
 	
 	public static void main(String[] args) {
@@ -73,6 +77,12 @@ public class Run {
 		}
 		else if(cmd.equals("reset")){
 			Reset.main(null);
+		}
+		else if(cmd.equals("build-perst")){
+			RunFromXMLToPerst.main(cargs);
+		}
+		else if(cmd.equals("gen5m")) {
+			RunGenerate5M.main(cargs);
 		}
 		else{
 			System.out.println(_USAGE);

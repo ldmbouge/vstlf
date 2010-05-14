@@ -86,6 +86,7 @@ public class PerstPowerDB extends PowerDB {
 			k++;
 			if(!lt.equals(last)){
 				//System.err.println(t+"\t"+v/k + "\t" + k);
+				db.addLoadNL("load", t, v/k);
 				db.addLoadNL("raw",t, v/k);
 				db.addLoadNL("filt",t, v/k);
 				v = 0;
@@ -104,11 +105,6 @@ public class PerstPowerDB extends PowerDB {
 	public synchronized void open(){
 		_db.open(_table, Storage.DEFAULT_PAGE_POOL_SIZE);
 		_fields = (FieldIndex<PerstDataSeries>)_db.getRoot();
-		for(PerstDataSeries s : _fields) {
-			Date from = s.first();
-			Date to   = s.last();
-			System.out.format("Key name: %10s  [%s --> %s]\n", s.getName(),from,to);
-		}
 		if (_fields == null) {
 			_db.beginThreadTransaction(Storage.READ_WRITE_TRANSACTION);
             _fields = _db.createFieldIndex(PerstDataSeries.class, "_name", true);
@@ -194,8 +190,7 @@ public class PerstPowerDB extends PowerDB {
 
 	public synchronized Date begin(String s){
 		_db.beginThreadTransaction(Storage.READ_ONLY_TRANSACTION);
-		PerstDataSeries ds = _fields.get(s);
-		Date f = ds.first();
+		Date f = _fields.get(s).first();
 		Date r = (f==null)?null:new Date(f.getTime()-_inc*1000);
 		_db.endThreadTransaction();
 		return r;

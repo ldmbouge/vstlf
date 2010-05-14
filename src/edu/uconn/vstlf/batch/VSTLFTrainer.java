@@ -27,6 +27,10 @@ package edu.uconn.vstlf.batch;
 
 import java.util.Date;
 import java.util.Vector;
+import java.util.logging.FileHandler;
+import java.util.logging.Handler;
+import java.util.logging.Logger;
+
 import edu.uconn.vstlf.data.Calendar;
 import edu.uconn.vstlf.data.doubleprecision.*;
 import edu.uconn.vstlf.database.PowerDB;
@@ -36,6 +40,8 @@ import edu.uconn.vstlf.neuro.*;
 import com.web_tomorrow.utils.suntimes.*;
 
 public class VSTLFTrainer {		
+	static private Logger trainLog = Logger.getLogger("trainLog");
+	
 	//////////////////////////////////////////////////////////
 	//Number of decomposition levels  0 to 4/////////////////
 	static int _lvls = 2;
@@ -127,14 +133,14 @@ public class VSTLFTrainer {
 					}
 					out[_lvls] = _denorm[_lvls].imageOf(out[_lvls]);
 					Series prev = loadHist.getLoad("filt", cal.addHoursTo(ts, -11), cal.addHoursTo(ts, 0))
-										  .daub4Separation(_lvls, _db8LD,_db8HD,_db8LR,_db8HR)[_lvls];
+										  .daub4Separation(_lvls, _db4LD,_db4HD,_db4LR,_db4HR)[_lvls];
 					out[_lvls] = out[_lvls].undifferentiate(prev.suffix(1).element(1));
 					pred = pred.plus(out[_lvls]);
 					Series act = loadHist.getLoad("filt", cal.addHoursTo(ts, -10), cal.addHoursTo(ts, 1));
 					
 					
 					//Separate the actual load.////////////
-					Series[] real = act.daub4Separation(_lvls, _db8LD,_db8HD,_db8LR,_db8HR);
+					Series[] real = act.daub4Separation(_lvls, _db4LD,_db4HD,_db4LR,_db4HR);
 					Series sumAct = new Series(12);
 					for(int i = 0;i<=_lvls;i++){
 						real[i] = real[i].subseries(121, 132);
@@ -205,6 +211,9 @@ public class VSTLFTrainer {
 								   int th, int tlh, int tllh, int tlllh, int tllll,
 								   double eh, double elh, double ellh, double elllh, double ellll, int lo, int up){
 		try{
+			Handler hf = new FileHandler("train.log");
+			trainLog.addHandler(hf);
+			
 			for(int offs=lo;offs<=up;offs++){
 				System.out.println("Training System for offset: "+ 5*offs +" minutes." );
 				///////////////////////////////////////////////////////////////////////////////////
@@ -342,7 +351,10 @@ public class VSTLFTrainer {
 		//System.err.println("---------USING-------"+t);
 		//get load		
 		Series prevHour = pdb.getLoad("filt", cal.addHoursTo(t, -11), t);
-		for(int w = 2;w<10;w++)prevHour = prevHour.patchSpikesLargerThan(500, w);
+		CheckLoadIntegrity("Input data set", prevHour, cal.addHoursTo(t, -11));
+		Series beforePatchPrevHour = prevHour;
+		prevHour = patchSpikesLargerThan(prevHour, 500, 2, 10);
+		LogSpikes(beforePatchPrevHour, prevHour, cal.addHoursTo(t, -11), t, 500, trainLog);
 		Series[] phComps = prevHour.daub4Separation(_lvls,_db4LD,_db4HD,_db4LR,_db4HR);
 		Series[] inputSet = new Series[_lvls+1];
 		for(int i = 0;i<_lvls;i++){
@@ -360,17 +372,152 @@ public class VSTLFTrainer {
 	public static Series[] targetSetFor(Date t,Calendar cal, PowerDB pdb)throws Exception{
 		Series[] targetSet = new Series[_lvls+1];
 		Series load = pdb.getLoad("filt", cal.addHoursTo(t, -10), cal.addHoursTo(t, 1));
-		for(int w = 2;w<10;w++)load = load.patchSpikesLargerThan(500, w);
+		CheckLoadIntegrity("Target data set", load, cal.addHoursTo(t, -10));
+		Series beforePatchLoad = load;
+		load = patchSpikesLargerThan(load, 500, 2, 10);
+		LogSpikes(beforePatchLoad, load, cal.addHoursTo(t, -10), cal.addHoursTo(t, 1), 500, trainLog);
 		Series[] components = load.daub4Separation(_lvls,_db4LD,_db4HD,_db4LR,_db4HR);
 		for(int i = 0;i<_lvls;i++){
 			targetSet[i] = _norm[i].imageOf(components[i].suffix(12));
 		}
-		Series prev = pdb.getLoad("filt", cal.addHoursTo(t, -11), cal.addHoursTo(t, -0)).daub4Separation(_lvls, _db4LD,_db4HD,_db4LR,_db4HR)[_lvls];
+		Series prev = pdb.getLoad("filt", cal.addHoursTo(t, -11), cal.addHoursTo(t, -0));
+		CheckLoadIntegrity("Target data set", prev, cal.addHoursTo(t, -11));
+		prev = prev.daub4Separation(_lvls, _db4LD,_db4HD,_db4LR,_db4HR)[_lvls];
 		components[_lvls] = prev.append(components[_lvls].suffix(12));
 		targetSet[_lvls] = _norm[_lvls].imageOf(components[_lvls].differentiate().suffix(12));
 		return targetSet;
 	}
 	
+	private static Series patchSpikesLargerThan(Series s, 
+			double threshold, int minWidth, int maxWidth) throws Exception
+	{		
+		Series patchedS = new Series(s.array(), false);
+		for (int width = minWidth; width < maxWidth; ++width) {
+
+			Series[] diffs = new Series[maxWidth - minWidth]; // the differences using low pass filters
+			for (int w = minWidth; w < maxWidth; ++w) {
+				int off = w - minWidth;
+				diffs[off] = patchedS.minus(patchedS.lowPassFR(w));
+			}
+			
+			double[] array = new double[patchedS.length()]; 
+			for(int i=1; i <= patchedS.length(); ++i) {
+				if (Math.abs( diffs[width - minWidth].element(i) ) > threshold){
+					
+					int st = i-1;
+					int [] eds = new int[maxWidth - minWidth];
+					// Initialize the end points
+					for (int eds_i = 0; eds_i < eds.length; ++eds_i)
+						eds[eds_i] = i+1;
+
+					// Calculate the end point of spikes for different windows
+					for (int w = minWidth; w < maxWidth; ++w) {
+						int off = w - minWidth;
+						Series diff = diffs[off];	
+						
+						while (eds[off] <= patchedS.length() &&
+								Math.abs(diff.element(eds[off])) > threshold) { 
+							++eds[off];
+						}
+					}
+					
+					// Find the longest sequence of spikes in the window of the shortest length
+					int fitWidth = minWidth;
+					for (int w = minWidth + 1; w < maxWidth; ++w) {
+						int off = w - minWidth;
+						int fitOff = fitWidth - minWidth;
+						if (eds[off] > eds[fitOff])
+							fitWidth = w;
+					}
+					
+					// Patch the spike with the window of an appropriate length
+					int fitOff = fitWidth - minWidth;
+					int ed = eds[fitOff];
+					if (ed > patchedS.length()) {
+						// end of the spike point is out of range
+						ed = patchedS.length();
+						array[ed-1] = patchedS.element(st) + (ed-st)*(patchedS.element(st)-patchedS.element(st-1));
+					}
+					else 
+						// end of the spike point is in range
+						array[ed-1] = patchedS.element(ed);
+					
+					// Patch the spike
+					for(int j=st+1,k=1;j<=ed;j++,k++)
+						array[j-1] = patchedS.element(st)+ k*(array[ed-1]-patchedS.element(st))/(ed-st);
+					
+					i = eds[fitOff];
+				}
+				else {
+					// Normal point
+					array[i-1] = patchedS.element(i);
+				}
+			} // int i
+			patchedS = new Series(array,false);
+		}	// int width
+			
+		return patchedS;
+	}
+	
+	private static void LogSpikes(Series unpatched, Series patched, 
+			Date from, Date to, double threshold, Logger lgr) throws Exception
+	{
+		int i = 1;
+		do {
+			// Find the start point of a spike
+			int st = i;
+			
+			while ( st <= unpatched.length() && 
+					Math.abs(unpatched.element(st) - patched.element(st)) <= threshold )
+				++st;
+			
+			if (st > unpatched.length())
+				break;
+			
+			// Find the end point of a spike
+			int ed = st;
+			while ( ed <= unpatched.length() &&
+					Math.abs(unpatched.element(ed) - patched.element(ed)) > threshold )
+				++ed;
+			
+			if (ed > unpatched.length())
+				ed = unpatched.length();
+			else
+				ed = ed - 1;
+			
+			// Log the spike
+			Calendar cal = new Calendar("America/New_York");
+			String s = "Spike starting from " + cal.addMinutesTo(from, st*5) + " to " +
+				cal.addMinutesTo(from, ed*5) + ":\n";
+			s = s + "\tBefore patch:\t";
+			for (int t = st; t <= ed; ++t)
+				s = s + unpatched.element(t) + ", ";
+			s = s + "\n\tAfter patch:\t";
+			for (int t = st; t <= ed; ++t)
+				s = s + patched.element(t) + ", ";
+			
+			lgr.warning(s);
+			
+			//
+			i = ed + 1;
+		} while (i <= unpatched.length());
+	}
+	
+	// 
+	private static void CheckLoadIntegrity(String tag, Series s, Date strt) throws Exception
+	{
+		Calendar cal = new Calendar("America/New_York");
+		strt = cal.beginBlock(300,strt);
+		Double nan = Double.NaN;
+		for (int i = 0; i < s.length(); ++i) {
+			if (nan.equals(s.element(i+1))) {
+				//String errMsg = "Load on " + cal.addSecondsTo(strt, (i+1)*300) + " does not exist";
+				String errMsg = tag + ": traning data on " + cal.addSecondsTo(strt, (i+1)*300) + " does not exist. Try to adjust the training range.";
+				//System.err.println(errMsg);
+				throw new Exception(errMsg);
+			}
+		}
+	}
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	//Constants
 	//////////////////////////////////////////////////////////////////////////////////////
