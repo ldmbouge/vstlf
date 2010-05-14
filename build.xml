@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project basedir="." default="all" name="vstlf">
+
+	<property environment="env"/>
+	<property name="debuglevel" value="source,lines,vars"/>
+	<property name="target" value="1.6"/>
+	<property name="source" value="1.6"/>
+
+	<path id="vstlf.classpath">
+		<pathelement location="bin"/>
+		<pathelement location="lib/perst15.jar"/>
+	</path>
+
+	<!-- DESTROY:  DELETE THE CURRENTLY EXISTING JAR -->
+	<target name="destroy">
+		<delete file="uconn-vstlf.jar"/>
+	</target>
+
+	<!-- BUILD:  JAVAC FROM 'src' TO 'bin' -->
+	<target name="build">
+		<mkdir dir="bin"/>
+		<copy includeemptydirs="false" todir="bin">
+			<fileset dir="src">
+				<exclude name="**/*.launch"/>
+				<exclude name="**/*.java"/>
+			</fileset>
+		</copy>
+		<echo message="${ant.project.name}: ${ant.file}"/>
+		<javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
+			<src path="src"/>
+			<classpath refid="vstlf.classpath"/>
+		</javac>
+	</target>
+
+	<!-- PACK:  EXPORT THE PROJECT INTO AN ALL INCLUSIVE JAR FILE -->
+	<target name="pack">
+		<jar destfile="uconn-vstlf.jar" basedir="bin">
+			<manifest>
+				<attribute name="Main-Class" value="edu.uconn.vstlf.shutil.Run"/>
+			</manifest>
+			<zipfileset src="lib/perst15.jar" includes="**/*"/>
+		</jar>
+	</target>
+
+	<!-- CLEAN:  DELETE THE 'bin' DIRECTORY FROM FILE SYSTEM -->
+	<target name="clean">
+		<delete dir="bin"/>
+	</target>
+
+	<!-- ALL:  DESTROY, BUILD, PACK, CLEAN -->
+	<target depends="destroy, build, pack, clean" name="all">
+		<echo message="Compilation complete.  Result is in 'uconn-vstlf.jar'"/>
+	</target>
+
+</project>

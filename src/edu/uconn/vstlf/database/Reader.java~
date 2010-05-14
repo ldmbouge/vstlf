@@ -1,0 +1,35 @@
+package edu.uconn.vstlf.database;
+import java.util.Date;
+import edu.uconn.vstlf.data.*;
+import edu.uconn.vstlf.data.doubleprecision.*;
+import edu.uconn.vstlf.database.perst.*;
+
+public class Reader {
+
+	public static void main(String[] args) {
+		try{
+			int inc = 4;
+			System.out.format("#arguments: %d\n",args.length);
+			for(int k=0;k < args.length;k++)
+				System.out.format("arg[%d] = %s\n",k,args[k]);
+			String name = "4s_Jun2008-9.pod";
+			Calendar cal = new Calendar("America/New_York");
+			Date st;     // = cal.newDate(2009, 0, 1, 0, 0, 0);
+			Date ed;    // = cal.newDate(2009, 3, 1, 0, 0, 0);
+			PowerDB pdb = new PerstPowerDB(name,inc);
+			pdb.open();
+			System.out.println("'"+name+"' contains("+pdb.begin("raw")
+                                              +", "+pdb.last("raw")+"]");
+			st = pdb.begin("raw");
+			ed = pdb.last("raw");
+			Series load = pdb.getLoad("raw",st, ed);
+			pdb.close();
+			for(int i = 1;i<=load.length();i++){
+				System.out.println(i+"\t"+load.element(i));
+			}
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+}
