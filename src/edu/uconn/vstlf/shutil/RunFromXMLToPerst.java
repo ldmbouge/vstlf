@@ -87,8 +87,7 @@ public class RunFromXMLToPerst {
 					}
 				}
 			
-				Vector<File> xmlFiles = new Vector<File>();
-				xmlFiles = listFiles(inf);
+				Vector<File> xmlFiles = listFiles(inf);
 
 				for (int i = 0; i < xmlFiles.size(); ++i) {
 					PerstPowerDB.fromXML(outf.getName(), inc, xmlFiles.elementAt(i).getPath());

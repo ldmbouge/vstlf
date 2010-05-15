@@ -35,7 +35,7 @@ public class RunGenerate5M {
 	static public void main(String[] args)
 	{
 		if (args.length != 2 && args.length != 4) {
-			System.out.println("USEAGE: \n\tjava -jar uconn-vstlf.jar gen5m <indbName> <outdbName>   or"+
+			System.out.println("USAGE: \n\tjava -jar uconn-vstlf.jar gen5m <indbName> <outdbName>   or"+
 	 "\n \tjava -jar uconn-vstlf.jar gen5m <indbName> <outdbName> \"<startDate yyyy/MM/dd>\" \"<endDate yyyy/MM/dd>\"");
 		}
 		else {

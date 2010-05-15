@@ -53,18 +53,53 @@ public class PerstPowerDB extends PowerDB {
 
 	public static PerstPowerDB fromXML(String outFile, int inc, String inFile)throws Exception{
 		Calendar cal = new Calendar("America/New_York");
-		System.err.println("Parsing XML");
+		//System.err.println("Parsing XML");
 		ParseTrainingData d = new ParseTrainingData();
 		d.parseData(inFile);
 		ParseParameters p = d.getParseParameters();
 		int xInc = Integer.parseInt(p.getResolution());
-		System.err.println(xInc);
+		//System.err.println(xInc);
 		if (inc < xInc || inc%xInc > 0)
 			throw new Exception("The input resolution does not divide the requested resolution");
 		LinkedList<LoadData> loadData = d.getHistory();
-		System.err.println("Sorting List");
+		//System.err.println("Sorting List");
 		Collections.sort(loadData);
-		System.err.println("Adding to " + outFile);
+		boolean first = true;
+		Date    prev = null;
+		double  edge;
+		LoadData[] array = new LoadData[loadData.size()];
+		loadData.toArray(array);
+		for(int k=0;k<array.length;k++) {
+			LoadData n = array[k];
+			if (first) {
+				prev = n.getDate();
+				edge = n.getValue();
+			} else {
+				assert(k>=1);
+				Date now = cal.lastTick(inc, cal.addSecondsTo(prev, inc));
+				if (!now.equals(n.getDate())) {
+					System.err.format("We have a gap: expecting: %s got: %s\n",now, n.getDate());
+				}
+				if (n.getValue() == 0.0) {
+					System.err.format("Load of %f at %s\n",n.getValue(),n.getDate());
+					int k2 = k;
+					while (k2 < array.length && array[k2].getValue() == 0) k2++;
+					if (k2 < array.length) {
+						double lEdge = array[k-1].getValue();
+						double rEdge = array[k2].getValue();
+						int    nbPts = (k2-1) - k + 1;
+						double slope = (rEdge - lEdge) / nbPts;
+						for(int i=k;i < k2;i++) {
+							System.err.format("Fixing load at %s from %f to %f  [%f,%f]\n",array[i].getDate(),array[i].getValue(),lEdge + slope * (i-k),lEdge,rEdge); 
+							array[i].setValue(lEdge + slope * (i-k));
+						}
+					} else System.err.format("Couldn't find a non-zero value in the entire suffix. Import is bad\n");			
+				}
+				prev = now;
+			}
+			first = false;
+		}
+		//System.err.println("Adding to " + outFile);
 		PerstPowerDB db = new PerstPowerDB(outFile,inc);
 		db.open();
 		Date t = cal.lastTick(xInc, cal.addSecondsTo(loadData.element().getDate(),-1));
