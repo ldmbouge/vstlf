@@ -28,11 +28,8 @@ package edu.uconn.vstlf.shutil;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
-import java.util.Date;
 import java.util.Vector;
 
-import edu.uconn.vstlf.data.Calendar;
-import edu.uconn.vstlf.data.doubleprecision.Series;
 import edu.uconn.vstlf.database.perst.PerstPowerDB;
 
 public class RunFromXMLToPerst {
@@ -43,13 +40,13 @@ public class RunFromXMLToPerst {
 			File [] subFiles = dir.listFiles();
 			for (int i = 0; i < subFiles.length; ++i) {
 				File f = subFiles[i];
-				if (f.isFile())
+				
+				if (f.isFile() && !f.getName().endsWith("~"))
 					files.add(f);
 				else if (f.isDirectory())
 					files.addAll(listFiles(f));
 			}
-		}
-		else
+		} else
 			files.add(dir);
 		
 		return files;
@@ -90,8 +87,14 @@ public class RunFromXMLToPerst {
 				Vector<File> xmlFiles = listFiles(inf);
 
 				for (int i = 0; i < xmlFiles.size(); ++i) {
-					PerstPowerDB.fromXML(outf.getName(), inc, xmlFiles.elementAt(i).getPath());
-					System.out.println("End of importing "+xmlFiles.elementAt(i).getPath());
+					PerstPowerDB theDB = PerstPowerDB.fromXML(outf.getName(), inc, xmlFiles.elementAt(i).getPath());
+					if (theDB!=null) {
+						System.out.print(".");
+						System.out.flush();
+					} else {
+						System.err.println("\nFailed importing "+xmlFiles.elementAt(i).getPath());
+						break;
+					}
 				}
 				
 			}

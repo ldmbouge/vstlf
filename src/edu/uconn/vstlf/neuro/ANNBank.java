@@ -41,6 +41,7 @@ public class ANNBank{
 		
 	}
 	
+	@SuppressWarnings("unchecked")
 	public ANNBank(String file)throws Exception{
 		Storage db = StorageFactory.getInstance().createStorage();
 		db.open(file, Storage.DEFAULT_PAGE_POOL_SIZE);

@@ -35,13 +35,11 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
-import java.awt.geom.Point2D;
 import java.awt.event.*;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.Vector;
 import java.text.*;
-import javax.swing.*;
 import javax.swing.event.*;
 import com.web_tomorrow.utils.suntimes.*;
 

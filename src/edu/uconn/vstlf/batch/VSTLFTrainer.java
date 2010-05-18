@@ -115,6 +115,7 @@ public class VSTLFTrainer {
 				catch(Exception e){
 					throw new Exception("No ANNs have been trained");
 				}
+				@SuppressWarnings("unused")
 				long t0 = System.currentTimeMillis();
 				///////////////////////////////////////////////////////////////////////////////
 				//Run forecast test

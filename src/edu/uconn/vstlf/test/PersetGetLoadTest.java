@@ -31,9 +31,7 @@ import java.util.Date;
 import org.junit.*;
 
 import edu.uconn.vstlf.data.Calendar;
-import edu.uconn.vstlf.data.doubleprecision.Series;
 import edu.uconn.vstlf.database.perst.PerstPowerDB;
-import edu.uconn.vstlf.shutil.RunFromXMLToPerst;
 
 public class PersetGetLoadTest {
 	@Test public void Test() throws Exception

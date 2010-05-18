@@ -29,11 +29,14 @@ import java.awt.Font;
 import java.awt.Dimension;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
 
 class DistributionFrame extends ForecastFrame implements IDistributionFrame
 {
-   final int _xOffset = /*67*/5, _yOffset = 5;
+   /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5897639208579780830L;
+	final int _xOffset = /*67*/5, _yOffset = 5;
 
    public DistributionFrame(DefaultTableModel model, String titleBar)
    {

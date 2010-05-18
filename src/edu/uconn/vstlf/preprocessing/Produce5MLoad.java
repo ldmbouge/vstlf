@@ -37,8 +37,8 @@ import edu.uconn.vstlf.realtime.VSTLF5MPoint;
 public class Produce5MLoad {
 	private String _pst4SDBName, _pst5MDBName;
 	private Calendar _cal;
-	private PCBuffer<VSTLF4SPoint> _4SBuf = new PCBuffer<VSTLF4SPoint>(6000);
-	private PCBuffer<VSTLF5MPoint> _5MBuf = new PCBuffer<VSTLF5MPoint>(4000);
+	private PCBuffer<VSTLF4SPoint> _4SBuf = new PCBuffer<VSTLF4SPoint>(200);
+	private PCBuffer<VSTLF5MPoint> _5MBuf = new PCBuffer<VSTLF5MPoint>(200);
 	private String _inLoadType;
 	private String [] _outLoadType;
 
@@ -102,7 +102,7 @@ public class Produce5MLoad {
 		
 		Date st = indb.first(_inLoadType);
 		Date ed = indb.last(_inLoadType);
-		
+		System.out.format("Converting 4s signal between %s - %s\n", st,ed);
 		executeImpl(indb, outdb, st, ed);
 		outdb.close();
 		indb.close();

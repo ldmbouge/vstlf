@@ -27,10 +27,6 @@ package edu.uconn.vstlf.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Checkbox;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Graphics;
-import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -69,7 +65,7 @@ public class LoadPlotFrame extends JPanel {
 			cb.addItemListener(new ItemListener() {
 				public void itemStateChanged(ItemEvent e) {
 				    int state = e.getStateChange();
-			    	_pane.enableCurve(c,state == e.SELECTED);
+			    	_pane.enableCurve(c,state == ItemEvent.SELECTED);
 				}
 			});
 			_pane.enableCurve(c,cb.getState());

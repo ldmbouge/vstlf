@@ -27,42 +27,31 @@ package edu.uconn.vstlf.database.xml;
 import edu.uconn.vstlf.data.Calendar;
 
 import java.util.Date;
-
-
 import java.util.LinkedList;
 import java.util.Iterator;
 import java.text.SimpleDateFormat;
-import org.xml.sax.SAXParseException;
 import java.text.ParseException;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-public class ParseLoadData
-{
+
+public class ParseLoadData {
 	LinkedList<LoadData> historyData = new LinkedList<LoadData>();
 	LoadData currentData = null;
 	SimpleDateFormat format =  null;
 	int historyInterval = 300;
 	Calendar cal ;
-	public ParseLoadData()
-	{
+	Document xmlDoc;
+	public ParseLoadData(String fileName) throws Exception {
         this.format =  new SimpleDateFormat("M/dd/yyyy h:mm:ss a");
         this.cal = new Calendar("America/New_York");
+		xmlDoc = DOMUtil.parse(fileName);
 	}
-	public void setHistoryInterval(int in)
-	{
-		this.historyInterval = in;
-	}
-	public int getHistoryInterval()
-	{
-		return this.historyInterval;
-	}
-	public void parseData(String fileName)
-		throws Exception
-	{
+	public void setHistoryInterval(int in)	{ historyInterval = in;}
+	public int getHistoryInterval()	        { return historyInterval;}
+	public void parseData() throws Exception {
 
-		Document xmlDoc = DOMUtil.parse(fileName);
 		NodeList nodeList = xmlDoc.getElementsByTagName("data");
 		//System.out.println("Parsing Complete.  Found " + nodeList.getLength() + " <data> nodes in file '" + fileName + "'");
 		// note there should only be one <data> node in the XML file that contains both the current data and 24 hours of five min data
@@ -75,33 +64,26 @@ public class ParseLoadData
 		  }
 		}
 	}
-	double getLoadValue(NamedNodeMap nodeMap)
-		throws NumberFormatException
-	{
+	double getLoadValue(NamedNodeMap nodeMap) throws NumberFormatException {
 		Node currentDataValueNode = nodeMap.getNamedItem("val");
 		String nodeVal = currentDataValueNode.getNodeValue();
 		return getLoadValue(nodeVal.trim());
 	}
-	double getLoadValue(String value)
-		throws NumberFormatException
-	{
+	double getLoadValue(String value) throws NumberFormatException {
 		return Double.parseDouble(value.trim());
 	}
-	Date getLoadTime(NamedNodeMap nodeMap)
-		throws ParseException
-	{
+	Date getLoadTime(NamedNodeMap nodeMap) throws ParseException {
 		Node currentDataTimeNode = nodeMap.getNamedItem("c");
 		String nodeVal = currentDataTimeNode.getNodeValue();
 		return this.format.parse(nodeVal.trim());
 
 	}
-	protected void processRawHistory(String rawHistory, NamedNodeMap nodeMap)
-		throws NumberFormatException, ParseException
+	protected void processRawHistory(String rawHistory, NamedNodeMap nodeMap) throws NumberFormatException, ParseException
 	{
 		historyData = new LinkedList<LoadData>();
 		if (rawHistory == "")
 			return;
-
+		System.out.format("RAW:[%s]\n", rawHistory);
 		// get history start/end times
 		Node historyStartNode = nodeMap.getNamedItem("hs");
 		String nodeVal = historyStartNode.getNodeValue();
@@ -123,7 +105,6 @@ public class ParseLoadData
 		long start = historyStart.getTime();
 		for (int i=splitStringArr.length-1; i>=0; i--) {
 			//System.out.println("History[" + i + "] =" + splitStringArr[i]);
-
 			historyData.add(new LoadData(getLoadValue(splitStringArr[i].trim()),  true,  startTime));
 			startTime = this.cal.addSecondsTo(startTime, this.historyInterval);
 		}
@@ -157,8 +138,8 @@ public class ParseLoadData
 			System.exit(0);
 		}
 		try {
-			ParseLoadData d = new ParseLoadData();
-			d.parseData(in[0]);
+			ParseLoadData d = new ParseLoadData(in[0]);
+			d.parseData();
 			System.out.println("Current Load Data = " + d.getCurrentData().toString());
 
 			LinkedList<LoadData> loadData = d.getHistory();

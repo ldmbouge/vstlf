@@ -56,6 +56,7 @@ public class Store5MLoad implements Runnable {
 	public void run()
 	{
 		_db.startTransaction();
+		int k=0;
 		while (true) {
 			VSTLF5MPoint p = _input.consume();
 			
@@ -66,7 +67,9 @@ public class Store5MLoad implements Runnable {
 			
 			for (int i = 0; i < _loadType.length; ++i)
 				_db.addLoadNL(_loadType[i], p.getStamp(), p.getValue());
-			System.err.println("Load on " + p.getStamp() + " stored");
+			k++;
+			if (k % (12*24)==0)
+				System.err.println("Load on " + p.getStamp() + " stored");
 		}
 		_db.endTransaction();
 	}

@@ -339,6 +339,7 @@ public class SimpleFeedForwardANN {
 		System.err.println("\tDone.");
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void save(String file, int id){
 		Vector<WeightObj> currV = new Vector<WeightObj>(), pastV = new Vector<WeightObj>();
 		for(int lid = 0;lid<_nbLayers;lid++){
@@ -368,6 +369,7 @@ public class SimpleFeedForwardANN {
 		db.close();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static SimpleFeedForwardANN load(String file, int id)throws Exception{
 		Storage db = StorageFactory.getInstance().createStorage();
 		db.open(file, Storage.DEFAULT_PAGE_POOL_SIZE);

@@ -32,7 +32,12 @@ import edu.uconn.vstlf.data.Calendar;
 class HistoryTableModel extends ForecastTableModel implements IHistoryFrame
 {
 
-  public HistoryTableModel()
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 756625670419244670L;
+
+	public HistoryTableModel()
    {
 		super();
 		setRowCount( 12 * 12 );  // 12 five minute history values * 12 hours

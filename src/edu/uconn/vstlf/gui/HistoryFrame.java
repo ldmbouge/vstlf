@@ -26,7 +26,6 @@
 package edu.uconn.vstlf.gui;
 
 import java.awt.Font;
-import java.awt.Dimension;
 
 import javax.swing.ListSelectionModel;
 import javax.swing.table.TableColumn;
@@ -35,7 +34,11 @@ import javax.swing.table.DefaultTableModel;
 
 class HistoryFrame extends ForecastFrame implements IHistoryFrame
 {
-   final int _xOffset = /*67*/5, _yOffset = 5;
+   /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8827477516485956595L;
+	final int _xOffset = /*67*/5, _yOffset = 5;
 
    public HistoryFrame(DefaultTableModel model, String titleBar)
    {

@@ -31,7 +31,12 @@ import java.util.Date;
 class FourSecondHistoryTableModel extends HistoryTableModel implements IHistoryFrame
 {
 
-  public FourSecondHistoryTableModel()
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2060759807919402851L;
+
+	public FourSecondHistoryTableModel()
    {
 		super();
 		setRowCount(0 );

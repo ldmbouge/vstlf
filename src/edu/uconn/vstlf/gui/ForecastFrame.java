@@ -27,9 +27,6 @@ package edu.uconn.vstlf.gui;
 
 import java.awt.Font;
 import java.awt.BorderLayout;
-import java.awt.Dimension;
-
-import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
@@ -40,7 +37,11 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 class ForecastFrame extends JPanel implements IForecastFrame {
-   final int _xOffset = 675, _yOffset = 5;
+   /**
+	 * 
+	 */
+	private static final long serialVersionUID = -9024312580212773129L;
+	final int _xOffset = 675, _yOffset = 5;
    JTable _table = null;
    TableRowSorter<TableModel> sorter = null;
 

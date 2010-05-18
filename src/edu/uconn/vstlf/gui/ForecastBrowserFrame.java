@@ -25,7 +25,6 @@
 
 package edu.uconn.vstlf.gui;
 
-import java.awt.Dimension;
 import java.awt.Font;
 import java.util.Date;
 import javax.swing.*;
@@ -38,7 +37,6 @@ import javax.swing.table.TableRowSorter;
 
 import edu.uconn.vstlf.data.*;
 import edu.uconn.vstlf.database.*;
-import edu.uconn.vstlf.database.perst.*;
 
 public class ForecastBrowserFrame extends JPanel implements IForecastFrame,ListSelectionListener
 {

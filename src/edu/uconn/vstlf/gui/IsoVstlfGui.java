@@ -27,12 +27,10 @@ package edu.uconn.vstlf.gui;
 import javax.swing.*;
 
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.Date;
 import java.util.LinkedList;
-import java.util.Vector;
 
 import edu.uconn.vstlf.data.*;
 import edu.uconn.vstlf.data.doubleprecision.*;
@@ -57,6 +55,11 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 {	
 	// VSTLF related objects
 		
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5834770566430868929L;
+
 	int _TICK_INTERVAL = 4000;
 	
 	//////////////////////////////////////////////////
@@ -81,7 +84,7 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 	String _dbName = ".vstlf";
 	String _currentDataFileName = "current_data.xml";
 	String _historyDataFileName = "24_hour_data.xml";
-	GetLoadData _loadData = new GetLoadData();
+	private GetLoadData _loadData = new GetLoadData();
 	boolean _coldStart;
 	String _coldStartSrcType;
 	String _currDataSrcType;
@@ -284,7 +287,8 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 		   _und = new Series(12);
 		   _nbErr = 0;
 		   Date statDate = _db.last("stats");
-		   Function maxi = new MaxFunction(), mini = new MinFunction(),
+		   @SuppressWarnings("unused")
+		Function maxi = new MaxFunction(), mini = new MinFunction(),
 	 				mae = new MAEFunction(), mape = new MAPEFunction(),
 	 				sqr = new SquaringFunction(), sqrt = new SqrtFunction();
 		   if(statDate==null){

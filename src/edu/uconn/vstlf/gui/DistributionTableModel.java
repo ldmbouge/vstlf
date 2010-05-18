@@ -25,14 +25,14 @@
 
 package edu.uconn.vstlf.gui;
 
-import java.util.Date;
+class DistributionTableModel extends ForecastTableModel implements IDistributionFrame {
 
-import edu.uconn.vstlf.data.Calendar;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -4299026705803404218L;
 
-class DistributionTableModel extends ForecastTableModel implements IDistributionFrame
-{
-
-  public DistributionTableModel()
+	public DistributionTableModel()
    {
 		super();
 		setRowCount( 12);  // 12 five minute history values * 12 hours

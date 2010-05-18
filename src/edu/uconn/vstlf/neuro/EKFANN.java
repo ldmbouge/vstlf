@@ -25,7 +25,6 @@
 
 package edu.uconn.vstlf.neuro;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Vector;
 import org.garret.perst.*;
@@ -406,7 +405,7 @@ public class EKFANN implements Serializable{
 		System.err.println("Training");
 		long st = System.currentTimeMillis();
 		long dt = maxSeconds*1000;
-		double[] zip = new double[_output[0].length-1];
+		//double[] zip = new double[_output[0].length-1];
 		if(in.length!=tg.length) throw new Exception("You must have the same number of in and tg");
 		int e = 0;
 		do{
@@ -428,6 +427,7 @@ public class EKFANN implements Serializable{
 	/////////////////////////////////////////////////////////////////////////////
 	
 	
+	@SuppressWarnings("unchecked")
 	public void save(String file){
 		//Open storage
 		Storage db = StorageFactory.getInstance().createStorage();
@@ -519,6 +519,7 @@ public class EKFANN implements Serializable{
 		db.close();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static EKFANN load(String file) throws Exception {
 		//open storage
 		Storage db = StorageFactory.getInstance().createStorage();

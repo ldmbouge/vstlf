@@ -1,6 +1,4 @@
 package com.web_tomorrow.utils.suntimes;
-import java.util.*;
-import java.io.*;
 
 /**
 Java class for representing a time as a simple triple of numbers (hours,

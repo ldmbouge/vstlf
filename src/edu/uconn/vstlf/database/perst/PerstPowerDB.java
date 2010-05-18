@@ -25,11 +25,11 @@
 
 package edu.uconn.vstlf.database.perst;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Collection;
-import java.util.Collections;
 import org.garret.perst.*;
 import org.garret.perst.TimeSeries.Tick;
 
@@ -53,51 +53,64 @@ public class PerstPowerDB extends PowerDB {
 
 	public static PerstPowerDB fromXML(String outFile, int inc, String inFile)throws Exception{
 		Calendar cal = new Calendar("America/New_York");
+		SimpleDateFormat dateFormat =  new SimpleDateFormat("M/dd/yyyy h:mm:ss a");
+
 		//System.err.println("Parsing XML");
-		ParseTrainingData d = new ParseTrainingData();
-		d.parseData(inFile);
-		ParseParameters p = d.getParseParameters();
+		ParseTrainingData d = new ParseTrainingData(inFile);
+		d.parseData();
+		ParseParameters p = d.getParameters();
+		Date startDate = cal.lastTick(inc,dateFormat.parse(p.getStartTime()));
+		Date endDate = cal.lastTick(inc, dateFormat.parse(p.getEndTime()));
+		//System.out.format("Importing %s to %s\n", startDate,endDate);
 		int xInc = Integer.parseInt(p.getResolution());
 		//System.err.println(xInc);
 		if (inc < xInc || inc%xInc > 0)
 			throw new Exception("The input resolution does not divide the requested resolution");
 		LinkedList<LoadData> loadData = d.getHistory();
+		Date prev = null;
+		for(LoadData n : loadData) {
+			//System.out.format("at %d got: %s\n",j++,n.getDate());
+			n.setDate(cal.lastTick(inc,n.getDate()));// align the date			
+			if (prev != null && !prev.before(n.getDate()))
+				System.err.format("\ntimestamp were not in increasing order! last=%s  now=%s\n", prev,n.getDate());
+			prev = n.getDate();
+		}
 		//System.err.println("Sorting List");
-		Collections.sort(loadData);
-		boolean first = true;
-		Date    prev = null;
-		double  edge;
+		//Collections.sort(loadData);  // Can't sort! This would destroy the ordering for imports with DST transition days!
 		LoadData[] array = new LoadData[loadData.size()];
+		int secInDay = 24 * 60 * 60;
+		if  (secInDay/inc != loadData.size())
+			System.out.format("\nExpecting a vector of %d entries. Got a vector of %d\n",secInDay/inc,loadData.size());
 		loadData.toArray(array);
-		for(int k=0;k<array.length;k++) {
+		for(int k=1;k<array.length;k++) {
 			LoadData n = array[k];
-			if (first) {
-				prev = n.getDate();
-				edge = n.getValue();
-			} else {
-				assert(k>=1);
-				Date now = cal.lastTick(inc, cal.addSecondsTo(prev, inc));
-				if (!now.equals(n.getDate())) {
-					System.err.format("We have a gap: expecting: %s got: %s\n",now, n.getDate());
-				}
-				if (n.getValue() == 0.0) {
-					System.err.format("Load of %f at %s\n",n.getValue(),n.getDate());
-					int k2 = k;
-					while (k2 < array.length && array[k2].getValue() == 0) k2++;
-					if (k2 < array.length) {
-						double lEdge = array[k-1].getValue();
-						double rEdge = array[k2].getValue();
-						int    nbPts = (k2-1) - k + 1;
-						double slope = (rEdge - lEdge) / nbPts;
-						for(int i=k;i < k2;i++) {
-							System.err.format("Fixing load at %s from %f to %f  [%f,%f]\n",array[i].getDate(),array[i].getValue(),lEdge + slope * (i-k),lEdge,rEdge); 
-							array[i].setValue(lEdge + slope * (i-k));
-						}
-					} else System.err.format("Couldn't find a non-zero value in the entire suffix. Import is bad\n");			
-				}
-				prev = now;
+			assert(k>=1);
+			Date now = cal.lastTick(inc, cal.addSecondsTo(array[k-1].getDate(), inc));
+			if (!now.equals(n.getDate())) {
+				System.err.format("We have a gap: expecting: %s got: %s\n",now, n.getDate());
 			}
-			first = false;
+			if (n.getValue() == 0.0) {
+				System.err.format("Load of %f at %s\n",n.getValue(),n.getDate());
+				int k2 = k;
+				while (k2 < array.length && array[k2].getValue() == 0) k2++;
+				if (k2 < array.length) {
+					double lEdge = array[k-1].getValue();
+					double rEdge = array[k2].getValue();
+					if (lEdge == 0.0 || rEdge == 0.0) {
+						System.err.format("\nCan't fix load in [%s : %s]. One endpoint is 0. [%f,%f]\n",array[k-1].getDate(),array[k2].getDate(),lEdge,rEdge);
+						return null;
+					}
+					int    nbPts = (k2-1) - k + 1;
+					double slope = (rEdge - lEdge) / nbPts;
+					for(int i=k;i < k2;i++) {
+						System.err.format("\nFixing load at %s from %f to %f  [%f,%f]\n",array[i].getDate(),array[i].getValue(),lEdge + slope * (i-k),lEdge,rEdge); 
+						array[i].setValue(lEdge + slope * (i-k));
+					}
+				} else {
+					System.err.format("Couldn't find a non-zero value in the entire suffix. Import is bad\n");
+					return null;
+				}
+			}
 		}
 		//System.err.println("Adding to " + outFile);
 		PerstPowerDB db = new PerstPowerDB(outFile,inc);
@@ -136,6 +149,7 @@ public class PerstPowerDB extends PowerDB {
 	}
 
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public synchronized void open(){
 		_db.open(_table, Storage.DEFAULT_PAGE_POOL_SIZE);

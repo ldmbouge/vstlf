@@ -28,77 +28,34 @@ import java.util.LinkedList;
 
 import edu.uconn.vstlf.data.Calendar;
 import edu.uconn.vstlf.database.PowerDB;
-import edu.uconn.vstlf.database.perst.PerstPowerDB;
-
 import java.util.Iterator;
-import java.io.File;
 
-public class GetLoadData
-{
-	ParseLoadData loadParser = new ParseLoadData();
+public class GetLoadData {
+	ParseLoadData loadParser;
 	Calendar cal;
 	int historyInterval = 300;
 
-	public GetLoadData()
-	{
-		this.loadParser = new ParseLoadData();
-		this.loadParser.setHistoryInterval(this.historyInterval);
+	public GetLoadData() {
+		loadParser = null;
+		cal = null;
 	}
-	public void setHistoryInterval(int in)
-	{
-		this.historyInterval = in;
-	}
-	public int getHistoryInterval()
-	{
-		return this.historyInterval;
-	}
-	public void getData(String file, boolean url)
-		throws Exception
-	{
+	public void setHistoryInterval(int in)	{ historyInterval = in;}
+	public int getHistoryInterval()         { return historyInterval;}
+	public void getData(String file, boolean url) throws Exception {
 		if (url)
 			file = FileDownload.download(file);
-
-		this.loadParser.parseData(file);
-
+		this.loadParser = new ParseLoadData(file);
+		this.loadParser.setHistoryInterval(this.historyInterval);
 	}
 
-	public LinkedList<LoadData> getHistory()
-	{
+	public LinkedList<LoadData> getHistory() {
 		return this.loadParser.getHistory();
 	}
-	public LoadData getCurrentData()
-	{
+	public LoadData getCurrentData() {
 		return this.loadParser.getCurrentData();
 	}
 	
-	/*
-	public void createPowerDb(LinkedList<LoadData> history, String rawFive, String filterFive)
-	{
-		File f = new File(rawFive);
-		if(f.exists()) if(!f.delete()) {System.err.println("???"); System.exit(0);}
-		f = new File(filterFive);
-		if(f.exists()) if(!f.delete()) {System.err.println("???"); System.exit(0);}
-
-		PowerDB perst = new PerstPowerDB(rawFive, this.historyInterval);
-		PowerDB perst1 = new PerstPowerDB(filterFive, this.historyInterval);
-		perst.open();
-		perst1.open();
-		Iterator<LoadData> iter = history.iterator();
-		while (iter.hasNext()) {
-			//System.out.println(iter.next().toString());
-			LoadData load = iter.next();
-			perst.addLoad(load.getDate(), load.getValue());
-			perst1.addLoad(load.getDate(), load.getValue());
-
-		}
-		System.out.println("TIMES\t\t"+perst.begin()+"\t\t"+perst.last());
-		System.out.println("TIMES\t\t"+perst1.begin()+"\t\t"+perst1.last());
-		perst.close();
-		perst1.close();
-	}//*/
-
-	public void fillPowerDb(LinkedList<LoadData> history, PowerDB db)
-	{
+	public void fillPowerDb(LinkedList<LoadData> history, PowerDB db) {
 		Iterator<LoadData> iter = history.iterator();
 		db.startTransaction();
 		while (iter.hasNext()) {
@@ -109,22 +66,4 @@ public class GetLoadData
 		}
 		db.endTransaction();
 	}
-
-	/*
-	public static void main(String[] args)
-	{
-		try {
-			GetLoadData loadData = new GetLoadData();
-			// get current data
-			loadData.getData("current_data.xml", false);
-			System.out.println("Current Load:  " + loadData.getCurrentData().toString());
-			loadData.getData("24_hour_data.xml", false);
-			loadData.createPowerDb(loadData.getHistory(), "iso5MinLoadRaw.pod", "iso5MinLoadFiltered.pod");
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-
-		}
-	}//*/
-	
 }

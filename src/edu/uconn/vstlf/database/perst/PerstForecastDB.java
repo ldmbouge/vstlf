@@ -43,6 +43,7 @@ public class PerstForecastDB{
 		_table = table;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public synchronized void open() throws Exception {
 		_db.open(_table, 32*1024*1024);
 		_fields = (FieldIndex<PerstForecastSeries>)_db.getRoot();

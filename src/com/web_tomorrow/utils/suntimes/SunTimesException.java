@@ -1,6 +1,4 @@
 package com.web_tomorrow.utils.suntimes;
-import java.util.*;
-import java.io.*;
 
 /**
 This exception is thrown to indicate a problem with 
@@ -10,9 +8,13 @@ times of the year.
 
 (c)2001 Kevin Boone/Web-Tomorrow, all rights reserved
 */
-public class SunTimesException extends Exception
-{
-public SunTimesException()
+public class SunTimesException extends Exception {
+/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6679424439309121412L;
+
+	public SunTimesException()
   {
   super ("Problem calculating sunrise/sunset times");
   } 

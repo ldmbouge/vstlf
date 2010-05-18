@@ -306,6 +306,7 @@ private void enforceMinimumSize(Component comp,
     }
 }
 //--- Std
+@SuppressWarnings("unused")
 private static void print(String text) {
     System.out.println(text);
 }

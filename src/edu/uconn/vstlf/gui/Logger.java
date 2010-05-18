@@ -24,33 +24,25 @@
 ***********************************************************************/
 
 package edu.uconn.vstlf.gui;
-import java.util.*;
-public class Logger
-{
+public class Logger {
 	LogFrame _frame;
 	public Logger(LogFrame frame) {_frame = frame;}
 	synchronized void addMessage(String in)
 	{
-		Date d = new Date();
 		StringBuffer buf = new StringBuffer();
-		//buf.append(d.toString()).append("\n\t").append(in).append("\n");
 		buf.append(in).append("\n");
 		_frame.addMessage(buf.toString());
-		//System.out.println(buf.toString());
 	}
-	synchronized void addMessage(String in, boolean end)
-	{
-		//Date d = new Date();
+	synchronized void addMessage(String in, boolean end) {
 		StringBuffer buf = new StringBuffer();
 		buf.append(in);
 		if (end)
 			buf.append("\n");
 
 		_frame.addMessage(buf.toString());
-		//System.out.println(buf.toString());
 	}
 	
-	public String toString(){
+	public String toString() {
 		return _frame.toString();
 	}
 

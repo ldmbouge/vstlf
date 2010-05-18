@@ -1,6 +1,4 @@
 package com.web_tomorrow.utils.suntimes;
-import java.util.*;
-import java.io.*;
 
 /**
 Java class for calculating sunset and sunrise times.
@@ -199,8 +197,8 @@ private static double getCosLocalHourAngle (double sunTrueLongitude, double lati
 /**
 Gets the cosine of the Sun's local hour angle for default zenith
 */
-private static double getCosLocalHourAngle (double sunTrueLongitude, 
-      double latitude)
+@SuppressWarnings("unused")
+private static double getCosLocalHourAngle (double sunTrueLongitude,double latitude)
   {
   return getCosLocalHourAngle (sunTrueLongitude, latitude, ZENITH);
   }

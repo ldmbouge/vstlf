@@ -62,11 +62,9 @@ package edu.uconn.vstlf.database.xml;
 * any nuclear facility.
  */
 
-import java.io.IOException;
 import java.io.File;
 
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.DocumentBuilder;
 
 import javax.xml.transform.TransformerConfigurationException;
@@ -77,9 +75,6 @@ import javax.xml.transform.Result;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
-
-import org.xml.sax.SAXParseException;
-import org.xml.sax.SAXException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;

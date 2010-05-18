@@ -30,6 +30,10 @@ import java.awt.*;
 
 public class Plot extends JPanel {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8621507166564614742L;
 	Series _s;
 	double _lo,_up;
 	

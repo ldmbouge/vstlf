@@ -28,7 +28,6 @@ package edu.uconn.vstlf.shutil;
 import java.io.*;
 import java.text.*;
 import java.util.Date;
-import edu.uconn.vstlf.*;
 import edu.uconn.vstlf.realtime.IsoVstlf;
 
 public class RunHeadless {

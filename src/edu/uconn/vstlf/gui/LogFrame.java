@@ -30,7 +30,11 @@ import java.awt.*;
 import java.io.*;
 
 public class LogFrame extends JPanel {
-    //static int openFrameCount = 0;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -7430016531702059484L;
+	//static int openFrameCount = 0;
     final int xOffset = 660, yOffset = 445;
 	JTextArea textArea;
 	public LogFrame() {

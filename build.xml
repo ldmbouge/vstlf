@@ -36,7 +36,7 @@
 	</target>
 
 	<!-- PACK:  EXPORT THE PROJECT INTO AN ALL INCLUSIVE JAR FILE -->
-	<target name="pack">
+	<target name="pack" depends="build">
 		<jar destfile="uconn-vstlf.jar" basedir="bin">
 			<manifest>
 				<attribute name="Main-Class" value="edu.uconn.vstlf.shutil.Run"/>
