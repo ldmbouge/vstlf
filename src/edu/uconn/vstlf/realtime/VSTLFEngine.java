@@ -56,6 +56,9 @@ public class VSTLFEngine {
 		_fsp.start();
 		_fmp.start();
 	}
+	public void stop() {
+		_obs.produce(new VSTLFObservationPoint());
+	}
 	public void startup() {
 		startup(new Date(System.currentTimeMillis()));
 	}

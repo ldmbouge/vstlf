@@ -64,7 +64,7 @@ public class Store5MLoad implements Runnable {
 			if (p == _eois) {
 				break;
 			}
-			
+			//System.out.format("Storing %f @ %s\n",p.getValue(),p.getStamp());
 			for (int i = 0; i < _loadType.length; ++i)
 				_db.addLoadNL(_loadType[i], p.getStamp(), p.getValue());
 			k++;

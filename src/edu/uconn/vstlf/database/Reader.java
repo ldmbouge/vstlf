@@ -25,6 +25,8 @@
 
 package edu.uconn.vstlf.database;
 import java.util.Date;
+import java.util.HashMap;
+
 import edu.uconn.vstlf.data.*;
 import edu.uconn.vstlf.data.doubleprecision.*;
 import edu.uconn.vstlf.database.perst.*;
@@ -32,29 +34,22 @@ import edu.uconn.vstlf.database.perst.*;
 public class Reader {
 
 	public static void main(String[] args) {
+		HashMap<String,Command> map = new HashMap<String,Command>();
+		map.put("info",new GetInfo());
+		map.put("serie",new DumpSerie());
 		try{
 			System.out.format("#arguments: %d\n",args.length);
 			for(int k=0;k < args.length;k++)
 				System.out.format("arg[%d] = %s\n",k,args[k]);
-			String name = args[0];
-			int inc = Integer.parseInt(args[1]);
-			Calendar cal = new Calendar("America/New_York");
-			Date st;     // = cal.newDate(2009, 0, 1, 0, 0, 0);
-			Date ed;    // = cal.newDate(2009, 3, 1, 0, 0, 0);
-			PowerDB pdb = new PerstPowerDB(name,inc);
-			pdb.open();
-			System.out.println("'"+name+"' contains("+pdb.begin("load")
-                                              +", "+pdb.last("load")+"]");
-			st = pdb.begin("load");
-			ed = pdb.last("load");
-			Series load = pdb.getLoad("filt",st, ed);
-			pdb.close();
-			Date cur = (Date)st.clone();
-			for(int i = 1;i<=load.length();i++){				
-				double cl = load.element(i);
-				if (cl < 1000)
-					System.out.format("%7d  %s load:%f\n",i,cur,cl);
-				cur = cal.addMinutesTo(cur, 5);
+			Command todo = args.length > 0 ? map.get(args[0]) : null;
+			if (todo!=null) 
+				todo.execute(args);			
+			else {
+				System.out.format("usage is: Reader [info|serie] ...\n" +
+								  "\twith the command specific arguments:\n" +
+								  "\tReader info <filename>\n"+
+								  "\tReader serie <filename> <seriename> <increment>\n");
+					
 			}
 		}
 		catch(Exception e){

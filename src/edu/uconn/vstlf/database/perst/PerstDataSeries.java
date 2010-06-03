@@ -73,5 +73,7 @@ public class PerstDataSeries extends Persistent {
     public Date last(){
     	return _seq.getLastTime();
     }
-
+    public int getSize() {
+    	return _seq.size();
+    }
 }

@@ -30,7 +30,9 @@ import java.util.Date;
 public class VSTLF5MPoint extends VSTLFObservationPoint {
 	
 	int _nbObs;
-	
+	public VSTLF5MPoint() {
+		super();
+	}
 	public VSTLF5MPoint(Date at,double val, int nbObs) {
 		super(at,val);
 		_nbObs = nbObs;

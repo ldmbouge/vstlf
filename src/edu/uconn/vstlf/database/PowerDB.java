@@ -81,4 +81,6 @@ public abstract class PowerDB {
 	public abstract Series getMaxOvr() throws Exception;
 	
 	public abstract Series getMaxUnd() throws Exception;
+
+	public abstract String getInfo();
 }

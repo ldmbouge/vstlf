@@ -28,6 +28,9 @@ import java.util.Date;
 
 
 public class VSTLF4SPoint extends VSTLFObservationPoint {
+	public VSTLF4SPoint() {
+		super();
+	}
 	public VSTLF4SPoint(Date at, double val) {
 		super(at,val);
 	}

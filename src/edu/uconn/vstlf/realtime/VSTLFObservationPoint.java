@@ -30,6 +30,10 @@ import java.util.Date;
 public class VSTLFObservationPoint extends VSTLFMessage {
 	protected Date _at;
 	protected double _val;
+	public VSTLFObservationPoint() {
+		_at = null;
+		_val = 0.0;
+	}
 	public VSTLFObservationPoint(Date at, double val) {
 		_at = at;
 		_val = val;
@@ -39,6 +43,9 @@ public class VSTLFObservationPoint extends VSTLFMessage {
 	}
 	public Date getStamp() {
 		return _at;
+	}
+	public boolean isValid() { 
+		return _at != null;
 	}
 	public String toString() {
 		return Double.toString(_val) + " at: " + _at.toString();

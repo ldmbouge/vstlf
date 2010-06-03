@@ -88,9 +88,9 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 	boolean _coldStart;
 	String _coldStartSrcType;
 	String _currDataSrcType;
-	PowerDB _db;
-	
+	PowerDB _db;	
 	PowerDB _currDB;
+	Pulse   _inputBeat;
 	
 	Series _aveP;
 	Series _ave;
@@ -101,6 +101,7 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 	Series _sum;
 	Series _sumOfSquares;
 	int _nbErr;
+	Date _end4SInput;
 
 	// swing object variables
 	JDesktopPane _desktop = null;
@@ -166,6 +167,9 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 		if(!_currDataSrcType.equals("xml")){
 			_currDB = new PerstPowerDB(_currentDataFileName,4);
 			_currDB.open();
+			_logger.addMessage("source DB has:" + _currDB.getInfo());
+			_end4SInput = _currDB.last("load");
+			_logger.addMessage("Input ends @" + _end4SInput);
 		}
 		_logger.addMessage("Openning new working DB...");
 		setupDatabases();
@@ -194,7 +198,7 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 		this._engine.setMaximumDataLag(60);
 		final Date ts = _cal.lastTick(4, _TEST_TIME);
 		_pulseTime = ts;
-		new Pulse (_engine.getUpdateRate(), this, ts);  // 250		
+		_inputBeat = new Pulse (_engine.getUpdateRate(), this, ts);  // This creates a thread that calls the run() method on a schedule (every ts msec). 	
 		_engine.startCollecting(_cal.addSecondsTo(ts, 0));
 		_prevTick= _cal.lastTick(300, _TEST_TIME);
 		
@@ -218,7 +222,7 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 					else{
 						PerstPowerDB tempDB = new PerstPowerDB(_historyDataFileName,300);
 						tempDB.open();
-						Date tst = tempDB.begin("load");
+						Date tst = tempDB.first("load");
 						_logger.addMessage("Init DB contains data in -\t("+tst+", "+tempDB.last("load")+"]");
 						tst = _cal.addHoursTo(_prevTick, -12);
 						_logger.addMessage("Extracting data in -\t("+tst+", "+_prevTick+"]");
@@ -226,7 +230,7 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 						tempDB.close();
 						history = new LinkedList<LoadData>();
 						for(int i = 1;i<=temp.length();i++){
-							history.addLast(new LoadData(temp.element(i),true,_cal.addMinutesTo(tst, 5*i)));
+							history.addLast(new LoadData(temp.element(i),true,_cal.addMinutesTo(tst, 5*(i))));
 						}
 					}
 					_db.fill("raw", history);
@@ -288,7 +292,7 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 		   _nbErr = 0;
 		   Date statDate = _db.last("stats");
 		   @SuppressWarnings("unused")
-		Function maxi = new MaxFunction(), mini = new MinFunction(),
+		   Function maxi = new MaxFunction(), mini = new MinFunction(),
 	 				mae = new MAEFunction(), mape = new MAPEFunction(),
 	 				sqr = new SquaringFunction(), sqrt = new SqrtFunction();
 		   if(statDate==null){
@@ -390,18 +394,29 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
       _mainFrame.addTab("History Table", _historyFrame);
    }
 
-// PulseAction implementation
+   /**
+    * This is the entry-point for the pulsating thread. 
+    * The run method first update the pulse time and proceeds with the retrieval 
+    * of the next 4 second data point. It then invokes the addObserveration method of
+    * the engine to record the observation. This is the routine that must be modified to
+    * hook up to a different data source.  
+    */
 	public boolean run(Date at) {
 		_pulseTime = _cal.addSecondsTo(_pulseTime, 4);
 		at = _pulseTime;
 		LoadData currentData;
 		try {	
+			if (at.after(_end4SInput)) {
+				_engine.stop();
+				return false;
+			}
 			if(_currDataSrcType.equals("xml")){
 				this._loadData.getData(this._currentDataFileName, false);
 				currentData = this._loadData.getCurrentData();
 			} else{
 				currentData = new LoadData(_currDB.getLoad("load", at),true,at);
-			}			
+			}
+			//_logger.addMessage("currentData at [" + at.toString() + "] is " + (currentData==null ? "null" : currentData.toString()));
 			_engine.addObservation(this, currentData.getDate(), currentData.getValue());
 			// update the toolbars
 			if(_UPDATE_GUI){

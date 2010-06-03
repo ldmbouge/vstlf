@@ -258,7 +258,7 @@ public class PerstPowerDB extends PowerDB {
 		int inc = _inc*1000;
 		_db.beginThreadTransaction(Storage.READ_ONLY_TRANSACTION);
 		Iterator<Tick> i = _fields.get(s).iterator(strt, end);
-		int lng = (int)((long)(end.getTime()-strt.getTime())/(long)inc);
+		int lng = (int)((long)(end.getTime()-strt.getTime())/(long)inc);// + 1;
 		double[] load = new double[lng];
 		for(int k=lng-1;k>=0;k--)
 			load[k] = Double.NaN;
@@ -267,13 +267,15 @@ public class PerstPowerDB extends PowerDB {
 			PerstDataPoint p = (PerstDataPoint)i.next();
 			p.setTime(cal.lastTick(1, new Date(p.getTime())));
 			//System.err.println("Time: "+p.getTime() + "("+new Date(p.getTime())+")\tValue: "+p.getValue());
-			off = (p.getTime()-strt.getTime())/inc - 1;
+			off = (p.getTime()-strt.getTime())/inc - 1; // [ldm] -1 makes no sense to me.
 			if(off!=lastOff+1){
 				//System.err.println("Missing 5mData.");
 				//System.err.println(off+"\t\t"+lastOff);
 			}
-			if(off<-1)throw new Exception("Some kind of integer overflow occured.");
-			if(off>=0)load[(int)off] = p.getValue();
+			if (off< 0) continue;
+			if (off >= load.length) 
+				throw new Exception("Writing past the end of the load array");
+			load[(int)off] = p.getValue();
 			lastOff = off;
 		}
 		_db.endThreadTransaction();
@@ -516,5 +518,16 @@ public class PerstPowerDB extends PowerDB {
 		return s.toString();
 	}
 
-
+	public String getInfo() {
+		StringBuffer sb = new StringBuffer();
+		for(PerstDataSeries ds : _fields) {
+			sb.append("serie[");
+			sb.append(ds._name).append("]");
+			sb.append(" from:").append(ds.first());
+			sb.append(" to: ").append(ds.last());
+			sb.append(" nbo: ").append(ds.getSize());
+			sb.append("\n");
+		}
+		return sb.toString();
+	}
 }

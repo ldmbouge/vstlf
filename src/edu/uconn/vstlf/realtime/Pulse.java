@@ -67,4 +67,7 @@ public class Pulse {
         	}
         },new Date());
     }
+    public void stop() {
+    	timer.cancel();
+    }
 }

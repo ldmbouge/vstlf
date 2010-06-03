@@ -76,29 +76,14 @@ public class Series {
 	 * @param i
 	 * @throws Exception
 	 */
-	/*
-	public double element(int i)throws Exception{
-		try{
-			if(i<1) 
-				return _array[0-i];
-			int n = _array.length;
-			if(i > n) 
-				return _array[(n)-(i-n)];
-			return _array[i-1];
-		}
-		catch(Exception e){
-			throw new Exception("Series has no "+i+"th element.  ");
-		}
-	}
-	*/
-	
-	
-	public double element(int i)throws Exception{
+	public double element(int i) throws Exception{
 		try{return _array[i-1];}
 		catch(Exception e){
-			if(i<1) return _array[0-i]; //return 2*_array[0]-(_array[1-i]);
+			if(i<1) 
+				return _array[0-i]; //return 2*_array[0]-(_array[1-i]);
 			int n = _array.length;
-			if(i>n) return _array[(n)-(i-n)];//return 2*_array[n-1]-(_array[(n-1)-(i-n)]);
+			if(i>n) 
+				return _array[(n)-(i-n)];//return 2*_array[n-1]-(_array[(n-1)-(i-n)]);
 			throw new Exception("Series has no "+i+"th element.  ");
 		}
 	}
@@ -112,12 +97,7 @@ public class Series {
 			if(i>n) return 2*_array[n-1]-(_array[(n-1)-(i-n)]);
 			throw new Exception("Series has no "+i+"th element.  ");
 		}
-	}
-	
-	
-	
-	
-	
+	}	
 	
 	/**
 	 * Returns the ith element of this series.  If i does not appear in the 

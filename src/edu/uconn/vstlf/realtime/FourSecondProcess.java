@@ -84,10 +84,20 @@ public class FourSecondProcess extends Thread {
 				Vector<VSTLFObservationPoint> v;
 				if(_rate < 4000){
 					v = new Vector<VSTLFObservationPoint>();
-					v.add(_input.consume());
+					VSTLFObservationPoint thePoint = _input.consume();
+					if (!thePoint.isValid())  {
+						_4s.produce(new VSTLF4SPoint());
+						return false;  // stop it all
+					}
+					v.add(thePoint);
 				}
 				else{
 					v = _input.consumeAll();
+					for(VSTLFObservationPoint pt : v)
+						if (!pt.isValid()) {
+							_4s.produce(new VSTLF4SPoint());
+							return false;       // stop it all.
+						}
 				}
         		//System.out.format("AT: %s  [v.size: %d]\n", _at,v.size());
         		//Ignore any observations that are stamped more then <maxLag> seconds ago
@@ -134,6 +144,10 @@ public class FourSecondProcess extends Thread {
 		_lastAggTime = cal.lastTick(300, _at);
 		while(!done) {//A new point will come every four seconds
 			VSTLF4SPoint thePoint = _4s.consume(); //take it out,
+			if (!thePoint.isValid()) {
+				_output.produce(new VSTLF5MPoint());
+				break;
+			}
 			addAndMicroFilter(thePoint);	//add it to the vector to be aggregated
 		}
 	}

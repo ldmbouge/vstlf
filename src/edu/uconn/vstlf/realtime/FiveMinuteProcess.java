@@ -86,6 +86,9 @@ public class FiveMinuteProcess extends Thread {
 		boolean done = false;
 		while(!done) {
 			VSTLF5MPoint thePoint = _input.consume();						//Get next 5mPoint
+			if (!thePoint.isValid()) {				
+				break;
+			}
 			Date t = thePoint.getStamp(); double v = thePoint.getValue(); int n = thePoint.getNumObs();
 			_db.addLoad("raw", t, v);												//Store it in the DB
 			_db.commit();
