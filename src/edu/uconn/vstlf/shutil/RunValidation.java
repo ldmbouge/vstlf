@@ -34,12 +34,12 @@ import edu.uconn.vstlf.database.perst.PerstPowerDB;
 public class RunValidation {
 
 	static String _USAGE = "USAGE:\n\tjava -jar uconn-vstlf.jar validate <lowBank> <highBank> <xmlFile> "+
-	 "\n\n\t\t lowBank, highBank in [0,11] : the program will test ANN banks for the offsets in the specified interval" +
-	 "\n\t\t xmlFile : 5minute load file.  XML.  (see manual for XML format) \n\n" +
-	 "\tThe specified set of neural network banks will be validated over the time period contained in 'xmlFile'.\n" +
-	 "\tIt is assumed that the current directory contains a folder called 'anns/', and that the contents\n\n\t\t" +
-	 "(some subset of {bank0.ann, bank1.ann, bank2.ann, ... , bank11.ann})\n\n\t" +
-	 "include the '.ann' files corresponding to the set of banks to be tested.\n\n";
+	 "\n\n\t lowBank, highBank in [0,11]:\tthe program will test ANN banks for the\n\t\t\t\t\toffsets in the specified interval" +
+	 "\n\n\t xmlFile:\t\t\t5minute load file.  XML.\n\t\t\t\t\t(see manual for XML format) \n\n" +
+	 "\tThe specified set of neural network banks will be validated over the\ntime period contained in 'xmlFile'." +
+	 "It is assumed that the current directory\ncontains a folder called 'anns/'.  If the contents\n\n\t" +
+	 "(some subset of {bank0.ann, bank1.ann, bank2.ann, ... , bank11.ann})\n\n" +
+	 "include the '.ann' files corresponding to the set of banks to be trained.\n\n";
 
 	
 	/**

@@ -2,3 +2,5 @@
 *.class
 .log*
 uconn-vstlf.jar
+*.DS_Store
+bin

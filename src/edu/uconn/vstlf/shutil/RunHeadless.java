@@ -33,8 +33,8 @@ import edu.uconn.vstlf.realtime.IsoVstlf;
 public class RunHeadless {
 
 	
-	static String _USAGE = "usage:\n\tjava edu.uconn.vstlf.shutil.RunGUI <currentDataFile> <24hrDataFile>"+
-		 						 "\n\t\tjava edu.uconn.vstlf.shutil.RunGUI <currentDataFile> <24hrDataFile> \"<testDate yyyy/MM/dd - HH:mm:ss>\" <clockInterval>";
+	static String _USAGE = "usage:\n\tjava -jar uconn-vstlf.jar run <currentDataFile> <24hrDataFile>"+
+		 						 "\n\tjava -jar uconn-vstlf.jar run <currentDataFile> <24hrDataFile> \"<testDate yyyy/MM/dd - HH:mm:ss>\" <clockInterval>";
 	
 	/**
 	 * @param args

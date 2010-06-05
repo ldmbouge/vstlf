@@ -34,13 +34,14 @@ import edu.uconn.vstlf.database.perst.*;
 public class RunTraining {
 
 	static String _USAGE = "USAGE:\n\tjava -jar uconn-vstlf.jar train <lowBank> <highBank> <xmlFile>   or"+
-	 "\n \tjava -jar uconn-vstlf.jar train <lowBank> <highBank> <xmlFile> \"<startDate yyyy/MM/dd>\" \"<endDate yyyy/MM/dd>\"\n\n\t\t lowBank, highBank in [0,11] : the program will train ANN banks for the offsets in the specified interval" +
-	 "\n\t\t xmlFile : 5minute load file.  XML.  (see manual for XML format)" +
-	 "\n\t\t startDate, endDate : the training period\n\n" + 
-	 "\tThe specified set of neural network banks will be trained over the time period contained in 'xmlFile'.\n" +
-	 "\tIt is assumed that the current directory contains a folder called 'anns/'.  If the contents\n\n\t\t" +
-	 "(some subset of {bank0.ann, bank1.ann, bank2.ann, ... , bank11.ann})\n\n\t" +
-	 "include the '.ann' files corresponding to the set of banks to be trained, then the existing networks will be used as a\n\t" +
+	 "\n \tjava -jar uconn-vstlf.jar train <lowBank> <highBank> <xmlFile> \"<startDate yyyy/MM/dd>\" \"<endDate yyyy/MM/dd>\""+
+	 "\n\n\t lowBank, highBank in [0,11]:\tthe program will train ANN banks for\n\t\t\t\t\tthe offsets in the specified interval" +
+	 "\n\n\t xmlFile:\t\t\t5minute load file.  XML.\n\t\t\t\t\t(see manual for XML format)" +
+	 "\n\n\t startDate, endDate:\t\tthe training period\n\n" + 
+	 "\tThe specified set of neural network banks will be trained over the\ntime period contained in 'xmlFile'." +
+	 "It is assumed that the current\ndirectory contains a folder called 'anns/'.  If the contents\n\n\t" +
+	 "(some subset of {bank0.ann, bank1.ann, bank2.ann, ... , bank11.ann})\n\n" +
+	 "include the '.ann' files corresponding to the set of banks to be trained,\nthen the existing networks will be used as a\n" +
 	 "starting point for further training.\n\n";
 	
 	public static Date parseDate(String str) {

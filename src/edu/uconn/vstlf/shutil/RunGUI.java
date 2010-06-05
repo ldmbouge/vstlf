@@ -35,8 +35,8 @@ import java.text.*;
 
 public class RunGUI {
 
-	static String _USAGE = "usage:\n\tjava edu.uconn.vstlf.shutil.RunGUI <currentDataFile> <24hrDataFile>"+
-						   		 "\n\tjava edu.uconn.vstlf.shutil.RunGUI <currentDataFile> <24hrDataFile> \"<testDate yyyy/MM/dd - HH:mm:ss>\" <clockInterval>";
+	static String _USAGE = "usage:\n\tjava -jar uconn-vstlf.jar run-gui <currentDataFile> <24hrDataFile>"+
+						   		 "\n\tjava -jar uconn-vstlf.jar run-gui <currentDataFile> <24hrDataFile> \"<testDate yyyy/MM/dd - HH:mm:ss>\" <clockInterval>";
 	/**
 	 * @param args
 	 */

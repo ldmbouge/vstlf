@@ -31,17 +31,17 @@ public class Run {
 	
 		"USAGE:\n\tjava -jar uconn-vstlf.jar [command [cmd ... spcfc ... args ...]]\n\n\t" +
 	
-		"Issue a specific command with no arguments for detailed usage information\n\n\t" +
+		"Issue a specific command with no arguments for detailed usage \n\t\t\tinformation.\n\n\t" +
 		
-		"Valid commands are:\n\t" +
-		"train\t\tUse historical load data to generate neural nets that can be used in real-time VSTLF\n\t" +
-		"validate\tUse historical load data to test the quality of networks trained using the 'train' command\n\t" +
-		"run\t\tRun the real-time VSTLF system (headless.  output through xml stream)\n\t" +
-		"run-gui\t\tRun the real-time VSTLF system (requires this machine to support graphics via Java Swing)\n\t" +		
-		"audit\t\tGet a report on the error results of a previously run (or currently running) real-time system\n\t" + 		
-		"reset\t\tErase the current directory's VSTLF history\n\t" +		
-		"build-perst\tBuild a perst database from xml files\n\t" + 		
-		"gen5m\t\tGenerate 5 minute loads from a perst database containing 4 second loads\n\n";
+		"Valid commands are:\n\n\t" +
+		"train\t\tUse historical load data to generate neural nets that \n\t\t\t\tcan be used in real-time VSTLF\n\n\t" +
+		"validate\tUse historical load data to test the quality of \n\t\t\t\tnetworks trained using the 'train' command\n\n\t" +
+		"run\t\tRun the real-time VSTLF system (headless.  output \n\t\t\t\tthrough xml stream)\n\n\t" +
+		"run-gui\t\tRun the real-time VSTLF system (requires this machine \n\t\t\t\tto support graphics via Java Swing)\n\n\t" +		
+		"audit\t\tGet a report on the error results of a previously run \n\t\t\t\t(or currently running) real-time system\n\n\t" + 		
+		"reset\t\tErase the current directory's VSTLF history\n\n\t" +		
+		"build-perst\tBuild a perst database from xml files\n\n\t" + 		
+		"gen5m\t\tGenerate 5 minute loads from a perst database containing\n\t\t\t\t 4 second loads\n\n";
 		
 	
 	public static void main(String[] args) {

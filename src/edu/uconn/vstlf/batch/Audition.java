@@ -180,26 +180,31 @@ public class Audition {
 	}
 	
 	public static void printOptions(){
-		System.out.println("Possible command line arguments:\t\t(You're seeing this because there were no args.)");
+		System.out.println("Possible command line arguments:\n\t\t(You're seeing this because there were no args.)");
 		
-		System.out.println("\t'n<name>'\t\tIndicates the name of the history file to audit.");
-		System.out.println("\t\t\t\t(default is '.vstlf'");
+		System.out.println("\t'n<name>'\tIndicates the name of the history file to audit.");
+		System.out.println("\t\t\t\t(default is '.vstlf')\n");
 		
-		System.out.println("\t's'\t\tIndicates that a stats table summarizing historical error should be shown.");
+		System.out.println("\t's'\t\tIndicates that a stats table summarizing historical");
+		System.out.println("\t\t\t\terror should be shown.\n");
 		
-		System.out.println("\t'g'\t\tIndicates error histograms (ASCII ART) should be included in output.");
+		System.out.println("\t'g'\t\tIndicates error histograms (ASCII ART) should be");
+		System.out.println("\t\t\t\t included in output.\n");
 		
-		System.out.println("\t'm<#0-12>'\t\tIndicates a month.  Only data from that month appear in error summary.");
-		System.out.println("\t\t\t\t(default is 0, meaning that all months are included");
+		System.out.println("\t'm<#0-12>'\tIndicates a month.  Only data from that month");
+		System.out.println("\t\t\t\tappear in error summary.(default is 0, meaning ");
+		System.out.println("\t\t\t\tthatall months are included)\n");
 		
-		System.out.println("\t'h<#0-24>'\t\tIndicates an hour of the day.  Only data from that hour appear in error summary.");
-		System.out.println("\t\t\t\t(default is 0, meaning that all hours are included");
+		System.out.println("\t'h<#0-24>'\tIndicates an hour of the day.  Only data from");
+		System.out.println("\t\t\t\tthat hour appear in error summary. (default");
+		System.out.println("\t\t\t\tis 0, meaning that all hours are included)\n");
 		
-		System.out.println("\t'e<#>'\t\tIndicates the error threshold above which the related forecast is detailed in output.");
-		System.out.println("\t\t\t\t(default is 10000");
+		System.out.println("\t'e<#>'\t\tIndicates the error threshold above which the");
+		System.out.println("\t\t\t\trelated forecast is detailed in output.");
+		System.out.println("\t\t\t\t(use with 's' or 'g')(default is 10000)\n");
 		
-		System.out.println("\t'!'\t\tIgnores all subsequent arguments.");
-		System.out.println("\t\t\t\t(good for suppressing this usage statement, among other things.");
+		System.out.println("\t'!'\t\tIgnores all subsequent arguments.  (good for suppressing");
+		System.out.println("\t\t\t\t this usage statement, among other things.)\n");
 		
 		System.out.println("\n");
 	}
