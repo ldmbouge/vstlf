@@ -41,7 +41,8 @@ public class Run {
 		"audit\t\tGet a report on the error results of a previously run \n\t\t\t\t(or currently running) real-time system\n\n\t" + 		
 		"reset\t\tErase the current directory's VSTLF history\n\n\t" +		
 		"build-perst\tBuild a perst database from xml files\n\n\t" + 		
-		"gen5m\t\tGenerate 5 minute loads from a perst database containing\n\t\t\t\t 4 second loads\n\n";
+		"gen5m\t\tGenerate 5 minute loads from a perst database containing\n\t\t\t\t 4 second loads\n\n\t" +
+		"config\t\tGet and set parameters for the algorithm feeding the neural\n\t\t\t\t nets\n\n";
 		
 	
 	public static void main(String[] args) {
@@ -75,6 +76,9 @@ public class Run {
 		}
 		else if(cmd.equals("gen5m")) {
 			RunGenerate5M.main(cargs);
+		}
+		else if(cmd.equals("config")){
+			RunConfig.main(cargs);
 		}
 		else{
 			System.out.println(_USAGE);
