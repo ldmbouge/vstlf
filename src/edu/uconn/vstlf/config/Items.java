@@ -42,7 +42,8 @@ public enum Items{
 	MaxLoad("maxload","28000"),
 	TimeZone("timezone","America/New_York"),
 	Longitude("longitude","-72.6166667"),
-	Latitude("latitude", "42.2041667");
+	Latitude("latitude", "42.2041667"),
+	TestMode("testmode", "false");
 	
 	private static String _filename = "./anns/config";
 
@@ -97,6 +98,9 @@ public enum Items{
 	}
 	
 	public static synchronized void save(String filename)throws Exception{
+		File dir = new File("anns");
+		if(!dir.exists())
+			dir.mkdirs();
 		PrintWriter out = new PrintWriter(filename);
 		out.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 		out.println("<vstlf:config>");

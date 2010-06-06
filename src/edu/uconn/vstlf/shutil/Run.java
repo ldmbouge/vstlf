@@ -30,10 +30,8 @@ import java.io.*;
 
 public class Run {
 	
-	static boolean TESTBUILD = true;
-
-	static String _USAGE = 
-	
+	static String USAGE(){
+		return
 		"USAGE:\n\tjava -jar uconn-vstlf.jar [command [cmd ... spcfc ... args ...]]\n\n\t" +
 	
 		"Issue a specific command with no arguments for detailed usage \n\t\t\tinformation.\n\n\t" +
@@ -48,28 +46,35 @@ public class Run {
 		"build-perst\tBuild a perst database from xml files\n\n\t" + 		
 		"gen5m\t\tGenerate 5 minute loads from a perst database containing\n\t\t\t\t 4 second loads\n\n\t" +
 		"config\t\tGet and set parameters for the algorithm feeding the\n\t\t\t\tneural nets\n\n" +
-		(TESTBUILD)?"\ntest\t\tRun the suite of unit tests.\n\n" : "";
-		
+		((Items.TestMode.value().equals("true"))?"\ttest\t\tRun the suite of unit tests.\n\n" : "");
+	}
+	
 	
 	public static void main(String[] args) {
+		//Try to load the config file.//////////////////////////////
+		Exception baditems = null;
+		try{
+			Items.load(Items.file());
+		}
+		catch(Exception ex){
+			baditems = ex;
+		}
+		
 		//Parse the command.////////////////////////////////////////
 		if(args.length==0){
-			System.out.println(_USAGE);
+			System.out.println(USAGE());
 			System.exit(0);
 		}
 		String cmd = args[0];
 		String[] cargs = new String[args.length-1];
 		System.arraycopy(args, 1, cargs, 0, cargs.length);
 		
-		//Try to load the config file.//////////////////////////////
-		try{
-			Items.load(Items.file());
-		}
-		catch(Exception ex){
+		//Handle the case of a bad config file
+		if(baditems != null){
 			try{
 				if(!cmd.equals("config") && cargs.length > 0){
 					System.out.println("WARNING! Could not find the config file because:\n");
-					System.out.println(ex.getMessage());
+					System.out.println(baditems.getMessage());
 					System.out.println("\nYou should create one (using 'config') before trying other commands.\n");
 					System.exit(0);
 				}
@@ -107,11 +112,11 @@ public class Run {
 		else if(cmd.equals("config")){
 			RunConfig.main(cargs);
 		}
-		else if(cmd.equlas("test")){
+		else if(cmd.equals("test")){
 			RunUnitTests.main(cargs);
 		}
 		else{
-			System.out.println(_USAGE);
+			System.out.println(USAGE());
 		}
 	}
 
