@@ -29,6 +29,8 @@ import edu.uconn.vstlf.config.Items;
 import java.io.*;
 
 public class Run {
+	
+	static boolean TESTBUILD = true;
 
 	static String _USAGE = 
 	
@@ -45,7 +47,8 @@ public class Run {
 		"reset\t\tErase the current directory's VSTLF history\n\n\t" +		
 		"build-perst\tBuild a perst database from xml files\n\n\t" + 		
 		"gen5m\t\tGenerate 5 minute loads from a perst database containing\n\t\t\t\t 4 second loads\n\n\t" +
-		"config\t\tGet and set parameters for the algorithm feeding the\n\t\t\t\tneural nets\n\n";
+		"config\t\tGet and set parameters for the algorithm feeding the\n\t\t\t\tneural nets\n\n" +
+		(TESTBUILD)?"\ntest\t\tRun the suite of unit tests.\n\n" : "";
 		
 	
 	public static void main(String[] args) {
@@ -103,6 +106,9 @@ public class Run {
 		}
 		else if(cmd.equals("config")){
 			RunConfig.main(cargs);
+		}
+		else if(cmd.equlas("test")){
+			RunUnitTests.main(cargs);
 		}
 		else{
 			System.out.println(_USAGE);
