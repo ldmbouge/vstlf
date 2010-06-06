@@ -425,8 +425,6 @@ public class Series {
 		Series nw = new Series(length());
 		System.arraycopy(this._array, 0, nw._array, 0, this._array.length);
 		double inc, abs, recdir, maxInc = 2*t;
-		
-		//nw.set(1, element(1));		// i forgot to copy the first element
 		for(int i=2;i<=length();i++){		//loop through the series
 			inc = nw.element(i) - nw.element(i-1);
 			abs = Math.abs(inc);
@@ -448,19 +446,13 @@ public class Series {
 				if(i>length()){					//if it never shot back, extrapolate from st
 					ed = length();
 					nw.set(ed, nw.element(st) + (ed-st)*(nw.element(st)-nw.element(st-1)));
-					//System.err.println("off");
 				}
 				else{							//otherwise, interpolate between st and ed
 					ed = i;
-					//nw.set(ed, nw.element(ed));
-				}//System.out.format("%d\n%d\n%d\n", st,mid,ed);
-				//System.out.println(nw);
+				}
 				for(int j=st+1,k=1;j<=ed;j++,k++)
 					nw.set(j, nw.element(st)+ k*(nw.element(ed)-nw.element(st))/(ed-st));
 			}
-			/*else{						//if no spike, just copy
-				nw.set(i, element(i));
-			}*/
 		}
 		
 		return nw;
