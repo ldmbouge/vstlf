@@ -56,7 +56,7 @@ public class AddDBContent {
 		outdb.open();
 		
 		outdb.startTransaction();
-		Calendar cal = new Calendar("America/New_York");
+		Calendar cal = new Calendar();
 		for (int i = 0; i < types.length; ++i) {
 			String loadType = types[i];
 			Date st = cal.addSecondsTo(indb.first(loadType), -interval);

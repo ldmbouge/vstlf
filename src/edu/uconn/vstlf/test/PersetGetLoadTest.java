@@ -38,7 +38,7 @@ public class PersetGetLoadTest {
 	{
 		PerstPowerDB db = new PerstPowerDB("5m_2007-Mar2009.pod", 300);
 		db.open();
-		Calendar cal = new Calendar("America/New_York");
+		Calendar cal = new Calendar();
 		Date s = cal.newDate(2008, 0, 1, 0, 0, 0);
 		Date t = cal.newDate(2008, 0, 2, 0, 0, 0);
 		db.getLoad("filt", s, t);

@@ -63,7 +63,7 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 	int _TICK_INTERVAL = 4000;
 	
 	//////////////////////////////////////////////////
-	Calendar _cal = new Calendar("America/New_York");
+	Calendar _cal = new Calendar();
 	///////////////////////////////////////////////////
 	//Set the Pulse/Startup time.
 	//Specify a historical date like ...

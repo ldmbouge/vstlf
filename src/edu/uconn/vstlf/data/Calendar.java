@@ -28,6 +28,9 @@ package edu.uconn.vstlf.data;
 import java.util.TimeZone;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import edu.uconn.vstlf.config.Items;
 public class Calendar extends GregorianCalendar {
 	
 	/**
@@ -48,7 +51,8 @@ public class Calendar extends GregorianCalendar {
 	}
 	
 	public Calendar(){
-		super();
+		super(TimeZone.getTimeZone(Items.TimeZone.value()));
+		set(MILLISECOND,getActualMinimum(MILLISECOND));
 	}
 	
 	public synchronized Date newDate(int yr, int mo, int dy, int hr, int min, int sec){
@@ -59,6 +63,12 @@ public class Calendar extends GregorianCalendar {
 		set(_min, min);
 		set(_sec, sec);
 		return new Date(getTime().getTime());
+	}
+	
+	public synchronized DateFormat getDateFormat(String format){
+		DateFormat df = new SimpleDateFormat(format);
+		df.setTimeZone(this.getTimeZone());
+		return df;
 	}
 	
 	public Date now(){

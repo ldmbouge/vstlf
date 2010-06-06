@@ -29,7 +29,9 @@ import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import edu.uconn.vstlf.data.Calendar;
 import edu.uconn.vstlf.database.perst.*;
+import edu.uconn.vstlf.config.Items;
 
 public class RunTraining {
 
@@ -46,7 +48,7 @@ public class RunTraining {
 	
 	public static Date parseDate(String str) {
 		try {
-			DateFormat df = new SimpleDateFormat("yyyy/MM/dd - HH:mm:ss");
+			DateFormat df = new Calendar().getDateFormat("yyyy/MM/dd - HH:mm:ss");
 			Date d = df.parse(str);
 			return d;
 		}
@@ -54,7 +56,7 @@ public class RunTraining {
 		}
 		
 		try {
-			DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
+			DateFormat df = new Calendar().getDateFormat("yyyy/MM/dd");
 			Date d = df.parse(str);
 			return d;
 		}
@@ -67,7 +69,7 @@ public class RunTraining {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		edu.uconn.vstlf.data.Calendar cal = new edu.uconn.vstlf.data.Calendar("America/New_York");
+		Calendar cal = new Calendar();
 		String xmlFile = null; int lo=0, hi=0; Date st, ed;
 		if (args.length != 3 && args.length != 5) { 					//check # of args
 			System.out.println(_USAGE);

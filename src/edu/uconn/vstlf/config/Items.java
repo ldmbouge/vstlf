@@ -13,17 +13,18 @@ import org.w3c.dom.NodeList;
 
 public enum Items{
 	
-	MinLoad("minload","0"),
+	MinLoad("minload","5000"),
 	MaxLoad("maxload","28000"),
 	TimeZone("timezone","America/New_York"),
-	Longitude("longitude","-72.25"),
-	Latitude("latitude", "41.85");
+	Longitude("longitude","-72.6166667"),
+	Latitude("latitude", "42.2041667");
 	
 	private static String _filename = "./anns/config";
 
 	
 	private String _key;
 	private String _defaultValue;
+	
 	private Items(String key, String defaultValue){
 		_key = key;
 		_defaultValue = defaultValue;
@@ -33,6 +34,9 @@ public enum Items{
 		return _key;
 	}
 	
+	public String value(){
+		return get(this);
+	}
 	
 	public static String file(){
 		return _filename;

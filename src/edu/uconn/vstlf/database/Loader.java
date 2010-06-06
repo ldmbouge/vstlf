@@ -36,7 +36,7 @@ public class Loader {
 	 */
 	public static void main(String[] args) {
 		try{
-			Calendar cal = new Calendar("America/New_York");
+			Calendar cal = new Calendar();
 			Date st = cal.newDate(2008, 5, 1, 0, 0, 0);
 			Date ed = cal.newDate(2009, 5, 6, 0, 0, 0);
 			String name = "4s_Jun2008-9.pod";

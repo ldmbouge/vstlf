@@ -30,7 +30,7 @@ import edu.uconn.vstlf.data.Calendar;
 import edu.uconn.vstlf.data.doubleprecision.*;
 import edu.uconn.vstlf.database.*;
 import edu.uconn.vstlf.neuro.*;
-
+import edu.uconn.vstlf.config.Items;
 import com.web_tomorrow.utils.suntimes.*;
 
 public class FiveMinuteProcess extends Thread {
@@ -40,15 +40,15 @@ public class FiveMinuteProcess extends Thread {
 	private PowerDB _db;
 	private ANNBank[] _annBanks;
 	private Calendar _cal,_gmt;
-	static NormalizingFunction[] _norm = {new NormalizingFunction(-500,500,0,1), //h
+	NormalizingFunction[] _norm = {new NormalizingFunction(-500,500,0,1), //h
 		   								  new NormalizingFunction(-500,500,0,1),	//lh
 		   								  new NormalizingFunction(-.1,.1,0,1)}, 
 		   						 _denorm = {new NormalizingFunction(0,1,-500,500),
 										    new NormalizingFunction(0,1,-500,500),//ditto
 										    new NormalizingFunction(0,1,-.1,.1)};
-    static NormalizingFunction 
-    	_normAbs = new NormalizingFunction(5000,28000,0,1),
-		_denormAbs = new NormalizingFunction(0,1,5000,28000);
+    NormalizingFunction 
+    	_normAbs,
+		_denormAbs;
 	
 												
     static double _rootThree = Math.sqrt(3);
@@ -67,7 +67,7 @@ public class FiveMinuteProcess extends Thread {
 		_input = buf;		
 		_notif = notif;
 		_db = db;
-		_cal = new Calendar("America/New_York");
+		_cal = new Calendar();
 		_gmt = new Calendar("GMT");
 		_annBanks = new ANNBank[12];
 		for(int i = 0;i<12;i++){
@@ -77,6 +77,10 @@ public class FiveMinuteProcess extends Thread {
 				_notif.produce(new VSTLFExceptionMessage(e));
 			}
 		}
+		double minload = new Double(Items.MinLoad.value());
+		double maxload = new Double(Items.MaxLoad.value());
+		_normAbs = new NormalizingFunction(minload,maxload,0,1);
+		_denormAbs = new NormalizingFunction(0,1,minload,maxload);
 		_doFilter = true;
 		_filterThreshold = 200;
 		_useSimDay = false;
@@ -207,7 +211,9 @@ public class FiveMinuteProcess extends Thread {
 		int zYr = _gmt.getYear(t);
 		int zMonth = _gmt.getMonth(t)+1;
 		int zDay = _gmt.getDate(t);
-		Time zTime = SunTimes.getSunsetTimeUTC(zYr, zMonth, zDay, -72.6166667, 42.2041667, SunTimes.CIVIL_ZENITH);
+		double longitude = new Double(Items.Longitude.value());
+		double latitude = new Double(Items.Latitude.value());
+		Time zTime = SunTimes.getSunsetTimeUTC(zYr, zMonth, zDay, longitude, latitude, SunTimes.CIVIL_ZENITH);
 		Date zDate = _gmt.newDate(zYr, zMonth-1, zDay, zTime.getHour(), zTime.getMinute(), zTime.getSecond());
 		zDate = cal.lastTick(300, zDate);
 		int tHour = cal.getHour(t), zHour = cal.getHour(zDate);

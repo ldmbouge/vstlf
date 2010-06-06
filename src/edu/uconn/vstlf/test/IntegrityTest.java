@@ -53,7 +53,7 @@ public class IntegrityTest {
 	
 	static public Boolean checkIntegrity(PerstPowerDB db, String loadType, int inc) throws Exception
 	{
-		Calendar cal = new Calendar("America/New_York");
+		Calendar cal = new Calendar();
 		Date st = cal.addSecondsTo(db.first(loadType), -inc);
 		Date ed = db.last(loadType);
 		System.out.println("Load starts from " + db.first(loadType) + " to " + ed);

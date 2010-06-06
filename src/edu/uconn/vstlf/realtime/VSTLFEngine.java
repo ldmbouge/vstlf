@@ -43,7 +43,7 @@ public class VSTLFEngine {
 		_obs = new PCBuffer<VSTLFObservationPoint>();
 		_fiveMinute = new PCBuffer<VSTLF5MPoint>();
 		_notif      = new PCBuffer<VSTLFMessage>(1024);
-		_cal        = new Calendar("America/New_York");
+		_cal        = new Calendar();
 		_db	= db;//"RawFiveMinuteLoad.pod";
 		_fsp = new FourSecondProcess(_notif,_obs,_fiveMinute);
 		_fmp = new FiveMinuteProcess(_notif,_fiveMinute,_db);

@@ -25,7 +25,7 @@
 
 package edu.uconn.vstlf.database.perst;
 
-import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -52,9 +52,9 @@ public class PerstPowerDB extends PowerDB {
 	}
 
 	public static PerstPowerDB fromXML(String outFile, int inc, String inFile)throws Exception{
-		Calendar cal = new Calendar("America/New_York");
-		SimpleDateFormat dateFormat =  new SimpleDateFormat("M/dd/yyyy h:mm:ss a");
-
+		Calendar cal = new Calendar();
+		DateFormat dateFormat =  cal.getDateFormat("M/dd/yyyy h:mm:ss a");
+		
 		//System.err.println("Parsing XML");
 		ParseTrainingData d = new ParseTrainingData(inFile);
 		d.parseData();
@@ -253,7 +253,7 @@ public class PerstPowerDB extends PowerDB {
 	}
 
 	public synchronized Series getLoad(String s, Date st, Date ed)throws Exception{
-		Calendar cal = new Calendar("America/New_York");
+		Calendar cal = new Calendar();
 		Date strt = cal.beginBlock(_inc,st), end = cal.beginBlock(_inc,ed);
 		int inc = _inc*1000;
 		_db.beginThreadTransaction(Storage.READ_ONLY_TRANSACTION);
@@ -287,7 +287,7 @@ public class PerstPowerDB extends PowerDB {
 	}
 
 	public double getLoad(String s, Date t)throws Exception{
-		Calendar cal = new Calendar("America/New_York");
+		Calendar cal = new Calendar();
 		return getLoad(s, cal.addSecondsTo(t, -1),t).element(1);
 	}
 	
@@ -304,7 +304,7 @@ public class PerstPowerDB extends PowerDB {
 	
 	public void addLoadNL(String s, Date time,double load) {
 		PerstDataSeries ld = _fields.get(s);
-		Calendar cal = new Calendar("America/New_York");
+		Calendar cal = new Calendar();
 		Date t = cal.lastTick(1, time);
 		if(ld.has(t)){
 			ld.remove(t, t);
@@ -315,7 +315,7 @@ public class PerstPowerDB extends PowerDB {
 	}
 	
 	public void fill(String s, Collection<LoadData> set){
-		Calendar cal = new Calendar("America/New_York");
+		Calendar cal = new Calendar();
 		LinkedList<PerstDataPoint> list = new LinkedList<PerstDataPoint>();
 		for(LoadData d:set)
 			list.add(new PerstDataPoint(cal.lastTick(1, d.getDate()),d.getValue()));
@@ -334,7 +334,7 @@ public class PerstPowerDB extends PowerDB {
 	public synchronized void addLoad(String s, Date time, double load){		
 		_db.beginThreadTransaction(Storage.READ_WRITE_TRANSACTION);
 		PerstDataSeries ld = _fields.get(s);
-		Calendar cal = new Calendar("America/New_York");
+		Calendar cal = new Calendar();
 		Date t = cal.lastTick(1, time);
 		if(ld.has(t)){
 			ld.remove(t, t);
@@ -390,7 +390,7 @@ public class PerstPowerDB extends PowerDB {
 		PerstStatsPoint p = new PerstStatsPoint(ed,nb,sum,sumP,sos,ovr,und);
 		_db.beginThreadTransaction(Storage.READ_WRITE_TRANSACTION);
 		PerstDataSeries ld = _fields.get("stats");
-		Calendar cal = new Calendar("America/New_York");
+		Calendar cal = new Calendar();
 		Date t = cal.lastTick(1, ed);
 		if(ld.has(t)){
 			ld.remove(t, t);
@@ -453,7 +453,7 @@ public class PerstPowerDB extends PowerDB {
 	public String toString(){
 		_db.beginThreadTransaction(Storage.READ_ONLY_TRANSACTION);
 		StringBuffer s = new StringBuffer("");
-		Calendar cal = new Calendar("America/New_York");
+		Calendar cal = new Calendar();
 		s.append("RAW:\t");
 		PerstDataSeries seq = _fields.get("raw");
 		Date prev = begin("raw"), curr;

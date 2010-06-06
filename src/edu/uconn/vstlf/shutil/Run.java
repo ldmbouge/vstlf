@@ -25,6 +25,9 @@
 
 package edu.uconn.vstlf.shutil;
 
+import edu.uconn.vstlf.config.Items;
+import java.io.*;
+
 public class Run {
 
 	static String _USAGE = 
@@ -42,10 +45,11 @@ public class Run {
 		"reset\t\tErase the current directory's VSTLF history\n\n\t" +		
 		"build-perst\tBuild a perst database from xml files\n\n\t" + 		
 		"gen5m\t\tGenerate 5 minute loads from a perst database containing\n\t\t\t\t 4 second loads\n\n\t" +
-		"config\t\tGet and set parameters for the algorithm feeding the neural\n\t\t\t\t nets\n\n";
+		"config\t\tGet and set parameters for the algorithm feeding the\n\t\t\t\tneural nets\n\n";
 		
 	
 	public static void main(String[] args) {
+		//Parse the command.////////////////////////////////////////
 		if(args.length==0){
 			System.out.println(_USAGE);
 			System.exit(0);
@@ -53,7 +57,27 @@ public class Run {
 		String cmd = args[0];
 		String[] cargs = new String[args.length-1];
 		System.arraycopy(args, 1, cargs, 0, cargs.length);
-		if(cmd.equals("train")){
+		
+		//Try to load the config file.//////////////////////////////
+		try{
+			Items.load(Items.file());
+		}
+		catch(Exception ex){
+			try{
+				if(!cmd.equals("config") && cargs.length > 0){
+					System.out.println("WARNING! Could not find the config file because:\n");
+					System.out.println(ex.getMessage());
+					System.out.println("\nYou should create one (using 'config') before trying other commands.\n");
+					System.exit(0);
+				}
+			}
+			catch(Exception f){
+				f.printStackTrace();
+			}
+		}
+		
+		//Execute the command///////////////////////////////////////////
+		if(cmd.equals("train")){	
 			RunTraining.main(cargs);
 		}
 		else if(cmd.equals("validate")){

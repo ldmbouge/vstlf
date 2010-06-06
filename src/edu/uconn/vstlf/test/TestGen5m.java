@@ -47,7 +47,7 @@ import edu.uconn.vstlf.shutil.RunTraining;
 public class TestGen5m {
 	private PCBuffer<VSTLF4SPoint> _4SBuf = new PCBuffer<VSTLF4SPoint>(100000);
 	private PCBuffer<VSTLF5MPoint> _5MBuf = new PCBuffer<VSTLF5MPoint>(100000);
-	private Calendar _cal = new Calendar("America/New_York");
+	private Calendar _cal = new Calendar();
 
 	@Test public void TestPrimitive() throws Exception
 	{
@@ -104,7 +104,7 @@ public class TestGen5m {
 		String indbName = "4s_Jun2008-9.pod", outdbName = "tstDb.pod";
 		File f = new File(outdbName);
 		f.deleteOnExit();
-		Calendar cal =  new Calendar("America/New_York");
+		Calendar cal =  new Calendar();
 		Produce5MLoad producer = new Produce5MLoad(indbName, outdbName, cal, "load", new String[]{"filt"});
 		Date st = RunTraining.parseDate("2009/01/01");
 		Date ed = RunTraining.parseDate("2009/01/02");

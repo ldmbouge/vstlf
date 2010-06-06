@@ -42,7 +42,7 @@ public class RunGenerate5M {
 			
 			try {
 				String indbName = args[0], outdbName = args[1];
-				Produce5MLoad producer = new Produce5MLoad(indbName, outdbName, new Calendar("America/New_York"),
+				Produce5MLoad producer = new Produce5MLoad(indbName, outdbName, new Calendar(),
 						"raw", new String[]{"load", "raw", "filt"});
 				if (args.length == 2) {
 					producer.execute();

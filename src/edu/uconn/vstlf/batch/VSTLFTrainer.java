@@ -36,6 +36,7 @@ import edu.uconn.vstlf.data.doubleprecision.*;
 import edu.uconn.vstlf.database.PowerDB;
 import edu.uconn.vstlf.database.perst.*;
 import edu.uconn.vstlf.neuro.*;
+import edu.uconn.vstlf.config.Items;
 
 import com.web_tomorrow.utils.suntimes.*;
 
@@ -67,7 +68,7 @@ public class VSTLFTrainer {
 				///////////////////////////////////////////////////////////////////////////////////
 				//Initialize db and cal et cetera
 				///////////////////////////////////////////////////////////////////////////////////
-				Calendar cal = new Calendar("America/New_York");
+				Calendar cal = new Calendar();
 				PowerDB loadHist = new PerstPowerDB(loadFile,300);
 				loadHist.open();
 				///////////////////////////////////////////////////////////////////////////////////
@@ -102,8 +103,10 @@ public class VSTLFTrainer {
 				}
 				_norm[_lvls] = normalizers[4];
 				_denorm[_lvls] = denormalizers[4];
-				_normAbs = new NormalizingFunction(5000,28000,0,1);
-				_denormAbs = new NormalizingFunction(0,1,5000,28000);
+				double minload = new Double(Items.MinLoad.value());
+				double maxload = new Double(Items.MaxLoad.value());
+				_normAbs = new NormalizingFunction(minload,maxload,0,1);
+				_denormAbs = new NormalizingFunction(0,1,minload,maxload);
 				lyrSz[_lvls] = layerSizes[4];
 				///////////////////////////////////////////////////////////////////////////////
 				//Load ANNs
@@ -220,7 +223,7 @@ public class VSTLFTrainer {
 				///////////////////////////////////////////////////////////////////////////////////
 				//Initialize db and cal et cetera
 				///////////////////////////////////////////////////////////////////////////////////
-				Calendar cal = new Calendar("America/New_York");
+				Calendar cal = new Calendar();
 				PowerDB loadHist = new PerstPowerDB(loadFile,300);
 				loadHist.open();
 				///////////////////////////////////////////////////////////////////////////////////
@@ -262,8 +265,10 @@ public class VSTLFTrainer {
 				}
 				_norm[_lvls] = normalizers[4];
 				_denorm[_lvls] = denormalizers[4];
-				_normAbs = new NormalizingFunction(5000,28000,0,1);
-				_denormAbs = new NormalizingFunction(0,1,5000,28000);
+				double minload = new Double(Items.MinLoad.value());
+				double maxload = new Double(Items.MaxLoad.value());
+				_normAbs = new NormalizingFunction(minload,maxload,0,1);
+				_denormAbs = new NormalizingFunction(0,1,minload,maxload);
 				sec[_lvls] = times[4];
 				mse[_lvls] = errors[4];
 				lyrSz[_lvls] = layerSizes[4];
@@ -335,7 +340,9 @@ public class VSTLFTrainer {
 		int zYr = _gmt.getYear(t);
 		int zMonth = _gmt.getMonth(t)+1;
 		int zDay = _gmt.getDate(t);
-		Time zTime = SunTimes.getSunsetTimeUTC(zYr, zMonth, zDay, -72.6166667, 42.2041667, SunTimes.CIVIL_ZENITH);
+		double longitude = new Double(Items.Longitude.value());
+		double latitude = new Double(Items.Latitude.value());
+		Time zTime = SunTimes.getSunsetTimeUTC(zYr, zMonth, zDay, longitude, latitude, SunTimes.CIVIL_ZENITH);
 		Date zDate = _gmt.newDate(zYr, zMonth-1, zDay, zTime.getHour(), zTime.getMinute(), zTime.getSecond());
 		zDate = cal.lastTick(300, zDate);
 		int tHour = cal.getHour(t), zHour = cal.getHour(zDate);
@@ -360,7 +367,7 @@ public class VSTLFTrainer {
 		Series[] inputSet = new Series[_lvls+1];
 		for(int i = 0;i<_lvls;i++){
 			inputSet[i] = idx.append(_norm[i].imageOf((phComps[i].subseries(121,132))));
-		}
+		}//Then differentiate and normalize the low component.
 		phComps[_lvls] = phComps[_lvls].suffix(12).prefix(1).append(phComps[_lvls].suffix(12).differentiate().suffix(11));
 		inputSet[_lvls] = _normAbs.imageOf(phComps[_lvls].prefix(1)).append(_norm[_lvls].imageOf(phComps[_lvls].suffix(11)))
 								.append(idx);
@@ -487,7 +494,7 @@ public class VSTLFTrainer {
 				ed = ed - 1;
 			
 			// Log the spike
-			Calendar cal = new Calendar("America/New_York");
+			Calendar cal = new Calendar();
 			String s = "Spike starting from " + cal.addMinutesTo(from, st*5) + " to " +
 				cal.addMinutesTo(from, ed*5) + ":\n";
 			s = s + "\tBefore patch:\t";
@@ -507,7 +514,7 @@ public class VSTLFTrainer {
 	// 
 	private static void CheckLoadIntegrity(String tag, Series s, Date strt) throws Exception
 	{
-		Calendar cal = new Calendar("America/New_York");
+		Calendar cal = new Calendar();
 		strt = cal.beginBlock(300,strt);
 		Double nan = Double.NaN;
 		for (int i = 0; i < s.length(); ++i) {
@@ -543,7 +550,7 @@ public class VSTLFTrainer {
 	public static void main(String[] args){
 		_lo = 0;//Integer.parseInt(args[0]);
 		_up = 0;//Integer.parseInt(args[1]);
-		Calendar cal = new Calendar("America/New_York");
+		Calendar cal = new Calendar();
 		Date s = cal.newDate(2007, 0, 2, 0, 0, 0);
 		Date t = cal.newDate(2008, 0, 1, 0, 0, 0);
 		//train("5m_2007-Mar2009.pod",s,t,_lo,_up);

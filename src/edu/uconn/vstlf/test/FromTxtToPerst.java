@@ -46,7 +46,7 @@ public class FromTxtToPerst {
 		DataInputStream in = new DataInputStream(fs);
 		BufferedReader br = new BufferedReader(new InputStreamReader(in));
 
-		Calendar cal = new Calendar("America/New_York");
+		Calendar cal = new Calendar();
 		
 		String line;
 		_db.startTransaction();

@@ -41,7 +41,7 @@ public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCen
 	boolean _isInput,_isOutput, _waiting = false;
 	
 	public DataStream(){
-		_cal = new Calendar("America/New_York");
+		_cal = new Calendar();
 		_bufWriter = new StringWriter();
 		_buf = _bufWriter.getBuffer();
 		_df = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");

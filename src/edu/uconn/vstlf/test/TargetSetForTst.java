@@ -39,7 +39,7 @@ public class TargetSetForTst {
 	{
 		PerstPowerDB db = new PerstPowerDB("5m_2007-Feb2010.pod", 300);
 		db.open();
-		Calendar cal = new Calendar("America/New_York");
+		Calendar cal = new Calendar();
 		Date t = RunTraining.parseDate("2009/3/19 - 10:05:00");
 		VSTLFTrainer.targetSetFor(t, cal, db);
 		db.close();

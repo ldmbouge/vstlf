@@ -45,7 +45,7 @@ class ForecastTableModel extends DefaultTableModel implements IForecastFrame
    {
 		super();
 		setRowCount( 12 );  // 12 five minute forecast values
-		_cal = new Calendar("America/New_York");
+		_cal = new Calendar();
 
 	}
 

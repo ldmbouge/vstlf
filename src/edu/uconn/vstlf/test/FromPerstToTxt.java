@@ -44,7 +44,7 @@ public class FromPerstToTxt {
 		FileOutputStream fs = new FileOutputStream(outf);
 		PrintStream ps = new PrintStream(fs);
 		
-		Calendar cal = new Calendar("America/New_York");
+		Calendar cal = new Calendar();
 		Date st = cal.addSecondsTo(start, -inc);
 		Date ed = end;
 		

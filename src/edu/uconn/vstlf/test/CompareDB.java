@@ -38,7 +38,7 @@ import edu.uconn.vstlf.database.perst.PerstPowerDB;
 public class CompareDB {
 	@Test public void Test() throws Exception
 	{
-		Calendar cal = new Calendar("America/New_York");
+		Calendar cal = new Calendar();
 		PerstPowerDB db1 = new PerstPowerDB("4sdb.pod", 4);
 		db1.open();
 		
@@ -66,7 +66,7 @@ public class CompareDB {
 	
 	@Test public void Test1() throws Exception
 	{
-		Calendar cal = new Calendar("America/New_York");
+		Calendar cal = new Calendar();
 		PerstPowerDB db1 = new PerstPowerDB("5mdb.pod", 300);
 		db1.open();
 		

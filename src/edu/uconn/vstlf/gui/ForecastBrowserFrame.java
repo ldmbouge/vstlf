@@ -60,7 +60,7 @@ public class ForecastBrowserFrame extends JPanel implements IForecastFrame,ListS
 			  true);//iconifiable
 			  */
 		setFocusable(true);
-		_cal = new Calendar("America/New_York");
+		_cal = new Calendar();
 		_db = db;
 		_table = new JTable(model);
 	    sorter = new TableRowSorter<TableModel>(model);

@@ -92,9 +92,7 @@ class HistoryTableModel extends ForecastTableModel implements IHistoryFrame
    }
    public void updateTableFilteredData(Date at, double oldValue, double NewVal)
    {
-		// MATT:  Update the filtered column for the specified date
-		// MATT:  Update the filtered column for the specified date
-	   Calendar cal = new Calendar("America/New_York");
+	   Calendar cal = new Calendar();
 	   Date d = (Date)getValueAt(0,TIME_COLUMN);
 	   int i = 0;
 	   while(!d.equals(at) && i<25){

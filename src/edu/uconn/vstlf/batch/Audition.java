@@ -150,7 +150,7 @@ public class Audition {
 			if(new File(name).exists()){
 				PerstPowerDB db = new PerstPowerDB(name,300);
 				db.open();
-				Calendar cal = new Calendar("America/New_York");
+				Calendar cal = new Calendar();
 				System.out.println("History File Contents: \n\n");
 				System.out.println(db);
 				System.out.println("\n");

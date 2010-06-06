@@ -55,7 +55,7 @@ public class RunFromXMLToPerst {
 	static public void main(String[] args)
 	{
 		if (args.length != 3) {
-			System.out.println("USEAGE: \n\tjava -jar uconn-vstlf.jar build-perst <xmlFileName> <perstDBName> <incremental interval(4 or 300)>");
+			System.out.println("USAGE: \n\tjava -jar uconn-vstlf.jar build-perst <xmlFileName> <perstDBName> <incremental interval(4 or 300)>");
 		}
 		else {
 			

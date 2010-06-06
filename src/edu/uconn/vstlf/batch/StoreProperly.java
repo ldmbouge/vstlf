@@ -50,7 +50,7 @@ public class StoreProperly {
 			PerstPowerDB dst = new PerstPowerDB(".vstlf",300);
 			dst.open();
 			dst.startTransaction();
-			Calendar cal = new Calendar("America/New_York");
+			Calendar cal = new Calendar();
 			
 			java.util.Date beg = raw.begin("load") , end;
 			Series r = raw.getLoad("load", beg,raw.last("load"));

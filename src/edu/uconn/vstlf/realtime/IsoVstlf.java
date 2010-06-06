@@ -55,7 +55,7 @@ public class IsoVstlf implements IVstlfMain, PulseAction
 	int _TICK_INTERVAL = 4000;
 	
 	//////////////////////////////////////////////////
-	Calendar _cal = new Calendar("America/New_York");
+	Calendar _cal = new Calendar();
 	///////////////////////////////////////////////////
 	//Set the Pulse/Startup time.
 	//Specify a historical date like ...
@@ -161,7 +161,7 @@ public class IsoVstlf implements IVstlfMain, PulseAction
 		//Record a fiveMinute load history
 		Series theLoad = _db.getLoad("raw", _db.begin("raw"), _db.last("raw"));
 		theLoad = theLoad.reverse();
-		final Calendar cal = new Calendar("America/New_York");
+		final Calendar cal = new Calendar();
 		final Date ts = cal.lastTick(4, _TEST_TIME);
 		new Pulse (_engine.getUpdateRate(), this, ts);  // 250		
 		_engine.startCollecting(ts);

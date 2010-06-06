@@ -29,7 +29,7 @@ import edu.uconn.vstlf.data.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Iterator;
-import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 import java.text.ParseException;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -39,13 +39,14 @@ import org.w3c.dom.NodeList;
 public class ParseLoadData {
 	LinkedList<LoadData> historyData = new LinkedList<LoadData>();
 	LoadData currentData = null;
-	SimpleDateFormat format =  null;
+	DateFormat format =  null;
 	int historyInterval = 300;
 	Calendar cal ;
 	Document xmlDoc;
 	public ParseLoadData(String fileName) throws Exception {
-        this.format =  new SimpleDateFormat("M/dd/yyyy h:mm:ss a");
-        this.cal = new Calendar("America/New_York");
+        //this.format =  new SimpleDateFormat("M/dd/yyyy h:mm:ss a");
+        this.cal = new Calendar();
+        this.format = cal.getDateFormat("M/dd/yyyy h:mm:ss a");
 		xmlDoc = DOMUtil.parse(fileName);
 	}
 	public void setHistoryInterval(int in)	{ historyInterval = in;}

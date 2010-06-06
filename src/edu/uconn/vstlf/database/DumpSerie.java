@@ -17,7 +17,7 @@ public class DumpSerie implements Command {
 		String fname = args[1];
 		String sname = args[2]; 
 		int inc = Integer.parseInt(args[3]);
-		Calendar cal = new Calendar("America/New_York");
+		Calendar cal = new Calendar();
 		Date st,ed;    
 		PowerDB pdb = new PerstPowerDB(fname,inc);
 		pdb.open();
