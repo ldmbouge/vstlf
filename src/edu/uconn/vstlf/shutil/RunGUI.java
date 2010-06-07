@@ -27,6 +27,9 @@ package edu.uconn.vstlf.shutil;
 
 import javax.swing.UIManager;
 import java.util.Date;
+import java.util.TimeZone;
+
+import edu.uconn.vstlf.config.Items;
 import edu.uconn.vstlf.gui.IsoVstlfGui;
 
 import java.io.File;
@@ -60,6 +63,7 @@ public class RunGUI {
 				if(4000%rate != 0)
 					throw new NumberFormatException();
 				DateFormat df = new SimpleDateFormat("yyyy/MM/dd - HH:mm:ss");
+				df.setTimeZone(TimeZone.getTimeZone(Items.get(Items.TimeZone)));
 				time = df.parse(args[2]);
 			}
 		}

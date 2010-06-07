@@ -67,7 +67,7 @@ public class FiveMinuteProcess extends Thread {
 		_input = buf;		
 		_notif = notif;
 		_db = db;
-		_cal = new Calendar();
+		_cal = Items.makeCalendar();
 		_gmt = new Calendar("GMT");
 		_annBanks = new ANNBank[12];
 		for(int i = 0;i<12;i++){

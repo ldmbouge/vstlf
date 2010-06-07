@@ -29,6 +29,7 @@ import java.net.*;
 import java.util.Date;
 import java.util.LinkedList;
 
+import edu.uconn.vstlf.config.Items;
 import edu.uconn.vstlf.data.*;
 import edu.uconn.vstlf.data.doubleprecision.*;
 import edu.uconn.vstlf.database.*;
@@ -55,7 +56,7 @@ public class IsoVstlf implements IVstlfMain, PulseAction
 	int _TICK_INTERVAL = 4000;
 	
 	//////////////////////////////////////////////////
-	Calendar _cal = new Calendar();
+	Calendar _cal;
 	///////////////////////////////////////////////////
 	//Set the Pulse/Startup time.
 	//Specify a historical date like ...
@@ -88,6 +89,7 @@ public class IsoVstlf implements IVstlfMain, PulseAction
 	Socket _client = null;
 	
    public IsoVstlf(boolean coldstart, String dbName, String currentDataXml, String dailyDataXml) throws Exception{
+	   _cal = Items.makeCalendar();
 		_coldStartSrcType = dailyDataXml.substring(dailyDataXml.lastIndexOf(".")+1).toLowerCase();
 		_currDataSrcType = currentDataXml.substring(currentDataXml.lastIndexOf(".")+1).toLowerCase();
 		this._coldStart = coldstart;
@@ -161,7 +163,7 @@ public class IsoVstlf implements IVstlfMain, PulseAction
 		//Record a fiveMinute load history
 		Series theLoad = _db.getLoad("raw", _db.begin("raw"), _db.last("raw"));
 		theLoad = theLoad.reverse();
-		final Calendar cal = new Calendar();
+		final Calendar cal = Items.makeCalendar();
 		final Date ts = cal.lastTick(4, _TEST_TIME);
 		new Pulse (_engine.getUpdateRate(), this, ts);  // 250		
 		_engine.startCollecting(ts);

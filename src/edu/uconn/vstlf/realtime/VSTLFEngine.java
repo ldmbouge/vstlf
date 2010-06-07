@@ -26,6 +26,7 @@
 package edu.uconn.vstlf.realtime;
 import java.util.Date;
 
+import edu.uconn.vstlf.config.Items;
 import edu.uconn.vstlf.data.Calendar;
 import edu.uconn.vstlf.database.*;
 
@@ -43,7 +44,7 @@ public class VSTLFEngine {
 		_obs = new PCBuffer<VSTLFObservationPoint>();
 		_fiveMinute = new PCBuffer<VSTLF5MPoint>();
 		_notif      = new PCBuffer<VSTLFMessage>(1024);
-		_cal        = new Calendar();
+		_cal        = Items.makeCalendar();
 		_db	= db;//"RawFiveMinuteLoad.pod";
 		_fsp = new FourSecondProcess(_notif,_obs,_fiveMinute);
 		_fmp = new FiveMinuteProcess(_notif,_fiveMinute,_db);

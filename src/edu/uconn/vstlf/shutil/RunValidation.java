@@ -29,6 +29,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Date;
 
+import edu.uconn.vstlf.config.Items;
+import edu.uconn.vstlf.data.Calendar;
 import edu.uconn.vstlf.database.perst.PerstPowerDB;
 
 public class RunValidation {
@@ -46,7 +48,7 @@ public class RunValidation {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		edu.uconn.vstlf.data.Calendar cal = new edu.uconn.vstlf.data.Calendar();
+		Calendar cal = Items.makeCalendar();
 		String xmlFile = null; int lo=0, hi=0; Date st, ed;
 		if (args.length != 3) { 					//check # of args
 			System.out.println(_USAGE);

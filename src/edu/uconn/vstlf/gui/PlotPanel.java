@@ -43,6 +43,7 @@ import java.text.*;
 import javax.swing.event.*;
 import com.web_tomorrow.utils.suntimes.*;
 
+import edu.uconn.vstlf.config.Items;
 import edu.uconn.vstlf.data.Calendar;
 
 public class PlotPanel extends Canvas implements MouseInputListener{
@@ -106,7 +107,7 @@ public class PlotPanel extends Canvas implements MouseInputListener{
 	
 	PlotPanel() {
 		super();
-		_cal = new Calendar();
+		_cal = Items.makeCalendar();
 		_model = new Vector<Plot>();
 		for(Curve c : Curve.values()) {
 			_model.add(c.ordinal(),new Plot(c.ordinal()));

@@ -35,6 +35,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
+import edu.uconn.vstlf.config.Items;
 import edu.uconn.vstlf.data.*;
 import edu.uconn.vstlf.database.*;
 
@@ -60,7 +61,7 @@ public class ForecastBrowserFrame extends JPanel implements IForecastFrame,ListS
 			  true);//iconifiable
 			  */
 		setFocusable(true);
-		_cal = new Calendar();
+		_cal = Items.makeCalendar();
 		_db = db;
 		_table = new JTable(model);
 	    sorter = new TableRowSorter<TableModel>(model);

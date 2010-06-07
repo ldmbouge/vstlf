@@ -27,6 +27,7 @@ package edu.uconn.vstlf.shutil;
 
 import edu.uconn.vstlf.config.Items;
 import java.io.*;
+import java.util.TimeZone;
 
 public class Run {
 	
@@ -55,6 +56,7 @@ public class Run {
 		Exception baditems = null;
 		try{
 			Items.load(Items.file());
+			TimeZone.setDefault(TimeZone.getTimeZone(Items.get(Items.TimeZone))); // force the chosen timezone. 
 		}
 		catch(Exception ex){
 			baditems = ex;

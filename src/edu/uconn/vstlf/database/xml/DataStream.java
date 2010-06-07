@@ -29,6 +29,7 @@ import java.util.Date;
 import java.text.*;
 import edu.uconn.vstlf.data.*;
 import edu.uconn.vstlf.realtime.*;
+import edu.uconn.vstlf.config.*;
 
 public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCenter{
 	DateFormat _df;
@@ -41,7 +42,7 @@ public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCen
 	boolean _isInput,_isOutput, _waiting = false;
 	
 	public DataStream(){
-		_cal = new Calendar();
+		_cal = Items.makeCalendar();
 		_bufWriter = new StringWriter();
 		_buf = _bufWriter.getBuffer();
 		_df = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");

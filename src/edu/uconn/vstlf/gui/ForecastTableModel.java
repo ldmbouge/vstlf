@@ -28,6 +28,7 @@ package edu.uconn.vstlf.gui;
 import javax.swing.table.DefaultTableModel;
 import java.util.Date;
 
+import edu.uconn.vstlf.config.Items;
 import edu.uconn.vstlf.data.Calendar;
 
 class ForecastTableModel extends DefaultTableModel implements IForecastFrame
@@ -45,8 +46,7 @@ class ForecastTableModel extends DefaultTableModel implements IForecastFrame
    {
 		super();
 		setRowCount( 12 );  // 12 five minute forecast values
-		_cal = new Calendar();
-
+		_cal = Items.makeCalendar();
 	}
 
    public int getColumnCount()

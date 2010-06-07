@@ -27,6 +27,7 @@ package edu.uconn.vstlf.shutil;
 
 import java.util.Date;
 
+import edu.uconn.vstlf.config.Items;
 import edu.uconn.vstlf.data.Calendar;
 import edu.uconn.vstlf.preprocessing.Produce5MLoad;
 
@@ -42,7 +43,7 @@ public class RunGenerate5M {
 			
 			try {
 				String indbName = args[0], outdbName = args[1];
-				Produce5MLoad producer = new Produce5MLoad(indbName, outdbName, new Calendar(),
+				Produce5MLoad producer = new Produce5MLoad(indbName, outdbName, Items.makeCalendar(),
 						"raw", new String[]{"load", "raw", "filt"});
 				if (args.length == 2) {
 					producer.execute();

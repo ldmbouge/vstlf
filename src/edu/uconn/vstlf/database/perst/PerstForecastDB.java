@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.Iterator;
 import org.garret.perst.*;
 
+import edu.uconn.vstlf.config.Items;
 import edu.uconn.vstlf.data.*;
 import edu.uconn.vstlf.data.doubleprecision.Series;
 public class PerstForecastDB{
@@ -95,7 +96,7 @@ public class PerstForecastDB{
 	public synchronized Series getForecast(Date t) throws Exception {
 		_db.beginThreadTransaction(Storage.READ_ONLY_TRANSACTION);
 		Iterator<PerstForecastPoint> i = _fields.get("forecasts").
-			iterator(new Calendar().addMinutesTo(t, -5), t);
+			iterator(Items.makeCalendar().addMinutesTo(t, -5), t);
 		double[] r = null;
 		while(i.hasNext()){
 			r = i.next().getValue();

@@ -36,6 +36,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import edu.uconn.vstlf.data.Calendar;
+
 public enum Items{
 	
 	MinLoad("minload","5000"),
@@ -80,7 +82,10 @@ public enum Items{
 	public static synchronized void put(Items item, String val){
 		_map.put(item._key,val);
 	}
-	
+	public static Calendar makeCalendar() {
+		Calendar cal = new Calendar(Items.get(TimeZone));
+		return cal;
+	}
 	public static synchronized void load(String filename)throws Exception{
 		File file = new File(filename);
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();

@@ -27,6 +27,7 @@ package edu.uconn.vstlf.realtime;
 import java.util.Date;
 import java.util.Vector;
 
+import edu.uconn.vstlf.config.Items;
 import edu.uconn.vstlf.data.Calendar;
 import edu.uconn.vstlf.data.doubleprecision.*;
 
@@ -78,8 +79,8 @@ public class FourSecondProcess extends Thread {
 		// on four second boundaries.
 		new Pulse(rate,new PulseAction() { // 250
 			public boolean run(Date at) {
-				Calendar cal = new Calendar();
-			//_at = cal.lastTick(4, at);
+				Calendar cal = Items.makeCalendar();
+				//_at = cal.lastTick(4, at);
 				_at = cal.addSecondsTo(_at, 4);
 				Vector<VSTLFObservationPoint> v;
 				if(_rate < 4000){
@@ -140,7 +141,7 @@ public class FourSecondProcess extends Thread {
 	 */
 	public void run() {
 		boolean done = false;
-		Calendar cal = new Calendar();
+		Calendar cal = Items.makeCalendar();
 		_lastAggTime = cal.lastTick(300, _at);
 		while(!done) {//A new point will come every four seconds
 			VSTLF4SPoint thePoint = _4s.consume(); //take it out,
@@ -162,7 +163,7 @@ public class FourSecondProcess extends Thread {
 	synchronized private void addAndMicroFilter(VSTLF4SPoint p) {
 		if(p._val>0)
 			_window.add(p);					//put the new point in the window (maybe)
-		Calendar cal = new Calendar();
+		Calendar cal = Items.makeCalendar();
 		Date priorBoundary = cal.lastTick(300,p._at);
 		//System.err.println(_at+" ------ got : "+p);
 		boolean aggNow = priorBoundary.after(this._lastAggTime);

@@ -27,6 +27,7 @@ package edu.uconn.vstlf.gui;
 
 import java.util.Date;
 
+import edu.uconn.vstlf.config.Items;
 import edu.uconn.vstlf.data.Calendar;
 
 class HistoryTableModel extends ForecastTableModel implements IHistoryFrame
@@ -92,7 +93,7 @@ class HistoryTableModel extends ForecastTableModel implements IHistoryFrame
    }
    public void updateTableFilteredData(Date at, double oldValue, double NewVal)
    {
-	   Calendar cal = new Calendar();
+	   Calendar cal = Items.makeCalendar();
 	   Date d = (Date)getValueAt(0,TIME_COLUMN);
 	   int i = 0;
 	   while(!d.equals(at) && i<25){

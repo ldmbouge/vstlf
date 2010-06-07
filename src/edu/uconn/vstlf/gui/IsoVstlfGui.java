@@ -32,6 +32,7 @@ import java.awt.*;
 import java.util.Date;
 import java.util.LinkedList;
 
+import edu.uconn.vstlf.config.Items;
 import edu.uconn.vstlf.data.*;
 import edu.uconn.vstlf.data.doubleprecision.*;
 import edu.uconn.vstlf.database.*;
@@ -63,7 +64,7 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 	int _TICK_INTERVAL = 4000;
 	
 	//////////////////////////////////////////////////
-	Calendar _cal = new Calendar();
+	Calendar _cal;
 	///////////////////////////////////////////////////
 	//Set the Pulse/Startup time.
 	//Specify a historical date like ...
@@ -129,6 +130,7 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 	public IsoVstlfGui(boolean coldstart, String dbName, String currentDataXml, String dailyDataXml) throws Exception
    	{
 		super("UCONN / ISO-NE VSTLF Test Set");
+		_cal = new Calendar(Items.get(Items.TimeZone));
 		_vstlfMain = this;
 		_coldStartSrcType = dailyDataXml.substring(dailyDataXml.lastIndexOf(".")+1).toLowerCase();
 		_currDataSrcType = currentDataXml.substring(currentDataXml.lastIndexOf(".")+1).toLowerCase();

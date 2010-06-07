@@ -48,7 +48,7 @@ public class RunTraining {
 	
 	public static Date parseDate(String str) {
 		try {
-			DateFormat df = new Calendar().getDateFormat("yyyy/MM/dd - HH:mm:ss");
+			DateFormat df = Items.makeCalendar().getDateFormat("yyyy/MM/dd - HH:mm:ss");
 			Date d = df.parse(str);
 			return d;
 		}
@@ -56,7 +56,7 @@ public class RunTraining {
 		}
 		
 		try {
-			DateFormat df = new Calendar().getDateFormat("yyyy/MM/dd");
+			DateFormat df = Items.makeCalendar().getDateFormat("yyyy/MM/dd");
 			Date d = df.parse(str);
 			return d;
 		}
@@ -69,7 +69,7 @@ public class RunTraining {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Calendar cal = new Calendar();
+		Calendar cal = Items.makeCalendar();
 		String xmlFile = null; int lo=0, hi=0; Date st, ed;
 		if (args.length != 3 && args.length != 5) { 					//check # of args
 			System.out.println(_USAGE);

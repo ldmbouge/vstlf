@@ -33,6 +33,7 @@ import java.util.Collection;
 import org.garret.perst.*;
 import org.garret.perst.TimeSeries.Tick;
 
+import edu.uconn.vstlf.config.Items;
 import edu.uconn.vstlf.data.Calendar;
 import edu.uconn.vstlf.data.doubleprecision.Series;
 import edu.uconn.vstlf.database.PowerDB;
@@ -52,7 +53,7 @@ public class PerstPowerDB extends PowerDB {
 	}
 
 	public static PerstPowerDB fromXML(String outFile, int inc, String inFile)throws Exception{
-		Calendar cal = new Calendar();
+		Calendar cal = Items.makeCalendar();
 		DateFormat dateFormat =  cal.getDateFormat("M/dd/yyyy h:mm:ss a");
 		
 		//System.err.println("Parsing XML");
@@ -253,7 +254,7 @@ public class PerstPowerDB extends PowerDB {
 	}
 
 	public synchronized Series getLoad(String s, Date st, Date ed)throws Exception{
-		Calendar cal = new Calendar();
+		Calendar cal = Items.makeCalendar();
 		Date strt = cal.beginBlock(_inc,st), end = cal.beginBlock(_inc,ed);
 		int inc = _inc*1000;
 		_db.beginThreadTransaction(Storage.READ_ONLY_TRANSACTION);
@@ -287,7 +288,7 @@ public class PerstPowerDB extends PowerDB {
 	}
 
 	public double getLoad(String s, Date t)throws Exception{
-		Calendar cal = new Calendar();
+		Calendar cal = Items.makeCalendar();
 		return getLoad(s, cal.addSecondsTo(t, -1),t).element(1);
 	}
 	
@@ -304,7 +305,7 @@ public class PerstPowerDB extends PowerDB {
 	
 	public void addLoadNL(String s, Date time,double load) {
 		PerstDataSeries ld = _fields.get(s);
-		Calendar cal = new Calendar();
+		Calendar cal = Items.makeCalendar();
 		Date t = cal.lastTick(1, time);
 		if(ld.has(t)){
 			ld.remove(t, t);
@@ -315,7 +316,7 @@ public class PerstPowerDB extends PowerDB {
 	}
 	
 	public void fill(String s, Collection<LoadData> set){
-		Calendar cal = new Calendar();
+		Calendar cal = Items.makeCalendar();
 		LinkedList<PerstDataPoint> list = new LinkedList<PerstDataPoint>();
 		for(LoadData d:set)
 			list.add(new PerstDataPoint(cal.lastTick(1, d.getDate()),d.getValue()));
@@ -334,7 +335,7 @@ public class PerstPowerDB extends PowerDB {
 	public synchronized void addLoad(String s, Date time, double load){		
 		_db.beginThreadTransaction(Storage.READ_WRITE_TRANSACTION);
 		PerstDataSeries ld = _fields.get(s);
-		Calendar cal = new Calendar();
+		Calendar cal = Items.makeCalendar();
 		Date t = cal.lastTick(1, time);
 		if(ld.has(t)){
 			ld.remove(t, t);
@@ -353,7 +354,7 @@ public class PerstPowerDB extends PowerDB {
 	public synchronized Series getForecast(Date t) throws Exception {
 		_db.beginThreadTransaction(Storage.READ_ONLY_TRANSACTION);
 		Iterator<Tick> i = _fields.get("pred").
-			iterator(new Calendar().addMinutesTo(t, -5), t);
+			iterator(Items.makeCalendar().addMinutesTo(t, -5), t);
 		double[] r = null;
 		while(i.hasNext()){
 			r = ((PerstForecastPoint)(i.next())).getValue();
@@ -390,7 +391,7 @@ public class PerstPowerDB extends PowerDB {
 		PerstStatsPoint p = new PerstStatsPoint(ed,nb,sum,sumP,sos,ovr,und);
 		_db.beginThreadTransaction(Storage.READ_WRITE_TRANSACTION);
 		PerstDataSeries ld = _fields.get("stats");
-		Calendar cal = new Calendar();
+		Calendar cal = Items.makeCalendar();
 		Date t = cal.lastTick(1, ed);
 		if(ld.has(t)){
 			ld.remove(t, t);
@@ -453,7 +454,7 @@ public class PerstPowerDB extends PowerDB {
 	public String toString(){
 		_db.beginThreadTransaction(Storage.READ_ONLY_TRANSACTION);
 		StringBuffer s = new StringBuffer("");
-		Calendar cal = new Calendar();
+		Calendar cal = Items.makeCalendar();
 		s.append("RAW:\t");
 		PerstDataSeries seq = _fields.get("raw");
 		Date prev = begin("raw"), curr;
