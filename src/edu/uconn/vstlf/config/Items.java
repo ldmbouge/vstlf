@@ -45,6 +45,11 @@ public enum Items{
 	TimeZone("timezone","America/New_York"),
 	Longitude("longitude","-72.6166667"),
 	Latitude("latitude", "42.2041667"),
+	DoMicroFilter("filter-micro-spikes","true"),
+	DoMacroFilter("filter-macro-spikes","true"),
+	MicroSpikeThreshold("micro-spike-thresh", "50"),
+	MacroSpikeThreshold("macro-spike-thresh", "500"),
+	MaxDataLag("max-data-delay","16"),
 	TestMode("testmode", "false");
 	
 	private static String _filename = "./anns/config";
@@ -82,10 +87,42 @@ public enum Items{
 	public static synchronized void put(Items item, String val){
 		_map.put(item._key,val);
 	}
+	
 	public static Calendar makeCalendar() {
 		Calendar cal = new Calendar(Items.get(TimeZone));
 		return cal;
 	}
+	public static double getMinimumLoad(){
+		return new Double(get(Items.MinLoad));
+	}
+	public static double getMaximumLoad(){
+		return new Double(get(Items.MaxLoad));
+	}
+	public static double getLatitude(){
+		return new Double(get(Items.Latitude));
+	}
+	public static double getLongitude(){
+		return new Double(get(Items.Longitude));
+	}
+	public static boolean isTestMode(){
+		return get(Items.TestMode).toLowerCase().equals("true");
+	}
+	public static boolean isMicroFilterOn(){
+		return get(Items.DoMicroFilter).toLowerCase().equals("true");
+	}
+	public static boolean isMacroFilterOn(){
+		return get(Items.DoMacroFilter).toLowerCase().equals("true");
+	}
+	public static double getMicroSpikeThreshold(){
+		return new Double(get(Items.MicroSpikeThreshold));
+	}
+	public static double getMacroSpikeThreshold(){
+		return new Double(get(Items.MacroSpikeThreshold));
+	}
+	public static int getMaximumDataLag(){
+		return new Integer(get(Items.MaxDataLag));
+	}
+	
 	public static synchronized void load(String filename)throws Exception{
 		File file = new File(filename);
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();

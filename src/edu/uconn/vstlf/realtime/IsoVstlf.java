@@ -126,8 +126,11 @@ public class IsoVstlf implements IVstlfMain, PulseAction
 		_pulseTime = _TEST_TIME;
 		this._engine = new VSTLFEngine(_db);
 		this._engine.setUpdateRate(_TICK_INTERVAL);
-		this._engine.setMacroFilterThreshold(500.0);
-		this._engine.setMaximumDataLag(16);
+		this._engine.setMacroFilteringOn(Items.isMacroFilterOn());
+		this._engine.setMicroFilteringOn(Items.isMicroFilterOn());
+		this._engine.setMacroFilterThreshold(Items.getMacroSpikeThreshold());
+		this._engine.setMicroFilterThreshold(Items.getMicroSpikeThreshold());
+		this._engine.setMaximumDataLag(Items.getMaximumDataLag());
 		Date last = _TEST_TIME;
 		int tries = 0;
 		do{

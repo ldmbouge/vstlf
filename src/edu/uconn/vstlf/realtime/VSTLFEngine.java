@@ -109,9 +109,6 @@ public class VSTLFEngine {
 		_fsp.setMaxLag(lag);
 	}
 	
-	public void setSimilarDayOn(boolean on){
-		_fmp.setSimDay(on);
-	}
 	public void setUpdateRate(int rate) {
 		_milliseconds = rate;
 	}

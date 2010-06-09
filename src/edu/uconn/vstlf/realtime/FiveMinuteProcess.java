@@ -77,8 +77,8 @@ public class FiveMinuteProcess extends Thread {
 				_notif.produce(new VSTLFExceptionMessage(e));
 			}
 		}
-		double minload = new Double(Items.MinLoad.value());
-		double maxload = new Double(Items.MaxLoad.value());
+		double minload = Items.getMinimumLoad();
+		double maxload = Items.getMaximumLoad();
 		_normAbs = new NormalizingFunction(minload,maxload,0,1);
 		_denormAbs = new NormalizingFunction(0,1,minload,maxload);
 		_doFilter = true;
@@ -229,7 +229,7 @@ public class FiveMinuteProcess extends Thread {
 		
 		//get load		
 		Series prevHour = pdb.getLoad("filt", cal.addHoursTo(t, -11), t);
-		for(int w = 2;w<10;w++)prevHour = prevHour.patchSpikesLargerThan(500, w);
+		//WTF?for(int w = 2;w<10;w++)prevHour = prevHour.patchSpikesLargerThan(500, w);
 		Series[] phComps = prevHour.daub4Separation(2,_db4LD,_db4HD,_db4LR,_db4HR);
 		Series[] inputSet = new Series[3];
 		for(int i = 0;i<2;i++){
@@ -244,7 +244,7 @@ public class FiveMinuteProcess extends Thread {
 	public Series[] targetSetFor(Date t,Calendar cal, PowerDB pdb)throws Exception{
 		Series[] targetSet = new Series[3];
 		Series load = pdb.getLoad("filt", cal.addHoursTo(t, -10), cal.addHoursTo(t, 1));
-		for(int w = 2;w<10;w++)load = load.patchSpikesLargerThan(500, w);
+		//WTF?for(int w = 2;w<10;w++)load = load.patchSpikesLargerThan(500, w);
 		Series[] components = load.daub4Separation(2,_db4LD,_db4HD,_db4LR,_db4HR);
 		for(int i = 0;i<2;i++){
 			targetSet[i] = _norm[i].imageOf(components[i].suffix(12));
@@ -263,9 +263,4 @@ public class FiveMinuteProcess extends Thread {
 	public void setFilterThreshold(double t){
 		_filterThreshold = t;
 	}
-	
-	public void setSimDay(boolean on){
-		_useSimDay = on;
-	}
-	
 }

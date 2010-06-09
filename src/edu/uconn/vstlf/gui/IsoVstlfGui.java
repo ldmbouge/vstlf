@@ -196,8 +196,11 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 		}	
 		this._engine = new VSTLFEngine(_db);
 		this._engine.setUpdateRate(_TICK_INTERVAL);
-		this._engine.setMacroFilterThreshold(500.0);
-		this._engine.setMaximumDataLag(60);
+		this._engine.setMacroFilteringOn(Items.isMacroFilterOn());
+		this._engine.setMicroFilteringOn(Items.isMicroFilterOn());
+		this._engine.setMacroFilterThreshold(Items.getMacroSpikeThreshold());
+		this._engine.setMicroFilterThreshold(Items.getMicroSpikeThreshold());
+		this._engine.setMaximumDataLag(Items.getMaximumDataLag());
 		final Date ts = _cal.lastTick(4, _TEST_TIME);
 		_pulseTime = ts;
 		_inputBeat = new Pulse (_engine.getUpdateRate(), this, ts);  // This creates a thread that calls the run() method on a schedule (every ts msec). 	
