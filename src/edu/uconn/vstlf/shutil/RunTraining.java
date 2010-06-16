@@ -27,7 +27,6 @@ package edu.uconn.vstlf.shutil;
 
 import java.io.*;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import edu.uconn.vstlf.data.Calendar;
 import edu.uconn.vstlf.database.perst.*;

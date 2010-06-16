@@ -103,7 +103,7 @@ public class ParseLoadData {
 		startTime = this.cal.addMinutesTo(startTime, 5 - (minute % 5));
 
 		//System.out.println("History Interval = " + interval);
-		long start = historyStart.getTime();
+		//long start = historyStart.getTime();
 		for (int i=splitStringArr.length-1; i>=0; i--) {
 			//System.out.println("History[" + i + "] =" + splitStringArr[i]);
 			historyData.add(new LoadData(getLoadValue(splitStringArr[i].trim()),  true,  startTime));

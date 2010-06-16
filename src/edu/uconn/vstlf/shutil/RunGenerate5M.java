@@ -28,7 +28,6 @@ package edu.uconn.vstlf.shutil;
 import java.util.Date;
 
 import edu.uconn.vstlf.config.Items;
-import edu.uconn.vstlf.data.Calendar;
 import edu.uconn.vstlf.preprocessing.Produce5MLoad;
 
 public class RunGenerate5M {

@@ -546,7 +546,7 @@ public class VSTLFTrainer {
     static double[] _db4HR = {_db4HD[3], _db4HD[2], _db4HD[1], _db4HD[0]};
     
     
-	
+	/*
 	public static void main(String[] args){
 		_lo = 0;//Integer.parseInt(args[0]);
 		_up = 0;//Integer.parseInt(args[1]);
@@ -564,8 +564,9 @@ public class VSTLFTrainer {
 			//	System.out.print(r[off][i]+"\t");
 			}
 			System.out.println();
-		}
+		}		
 	}
+	*/
 
 
 	

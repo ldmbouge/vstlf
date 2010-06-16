@@ -31,6 +31,10 @@ import org.garret.perst.*;
 
 public class EKFANN implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3173950989737199131L;
 	//old vars
 	double[][][] _weights;
 	double[][][] _recentWeights;

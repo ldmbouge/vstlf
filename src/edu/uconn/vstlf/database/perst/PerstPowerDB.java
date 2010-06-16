@@ -25,7 +25,6 @@
 
 package edu.uconn.vstlf.database.perst;
 
-import java.text.DateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -54,14 +53,14 @@ public class PerstPowerDB extends PowerDB {
 
 	public static PerstPowerDB fromXML(String outFile, int inc, String inFile)throws Exception{
 		Calendar cal = Items.makeCalendar();
-		DateFormat dateFormat =  cal.getDateFormat("M/dd/yyyy h:mm:ss a");
+		//DateFormat dateFormat =  cal.getDateFormat("M/dd/yyyy h:mm:ss a");
 		
 		//System.err.println("Parsing XML");
 		ParseTrainingData d = new ParseTrainingData(inFile);
 		d.parseData();
 		ParseParameters p = d.getParameters();
-		Date startDate = cal.lastTick(inc,dateFormat.parse(p.getStartTime()));
-		Date endDate = cal.lastTick(inc, dateFormat.parse(p.getEndTime()));
+		//Date startDate = cal.lastTick(inc,dateFormat.parse(p.getStartTime()));
+		//Date endDate = cal.lastTick(inc, dateFormat.parse(p.getEndTime()));
 		//System.out.format("Importing %s to %s\n", startDate,endDate);
 		int xInc = Integer.parseInt(p.getResolution());
 		//System.err.println(xInc);
