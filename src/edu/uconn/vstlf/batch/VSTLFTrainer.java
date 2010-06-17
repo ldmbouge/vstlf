@@ -534,9 +534,7 @@ public class VSTLFTrainer {
 	static double[] _db8HD = {-0.0105974018, -0.0328830117, 0.0308413818, 0.1870348117, -0.0279837694, -0.6308807679, 0.7148465706, -0.2303778133};
 	static double[] _db8LR = {-0.0105974018, 0.0328830117, 0.0308413818, -0.1870348117, -0.0279837694, 0.6308807679, 0.7148465706, 0.2303778133};
 	static double[] _db8HR = {-0.2303778133, 0.7148465706, -0.6308807679, -0.0279837694, 0.1870348117, 0.0308413818, -0.0328830117, -0.0105974018};
-	
-	
-	
+		
 	static double _rootThree = Math.sqrt(3);
     static double _fourRootTwo = 4*Math.sqrt(2);   
     static double[] _db4LD = {(1 + _rootThree)/_fourRootTwo, (3 + _rootThree)/_fourRootTwo,
@@ -545,33 +543,4 @@ public class VSTLFTrainer {
     static double[] _db4LR = {_db4LD[3], _db4LD[2], _db4LD[1], _db4LD[0]};
     static double[] _db4HR = {_db4HD[3], _db4HD[2], _db4HD[1], _db4HD[0]};
     
-    
-	/*
-	public static void main(String[] args){
-		_lo = 0;//Integer.parseInt(args[0]);
-		_up = 0;//Integer.parseInt(args[1]);
-		Calendar cal = new Calendar();
-		Date s = cal.newDate(2007, 0, 2, 0, 0, 0);
-		Date t = cal.newDate(2008, 0, 1, 0, 0, 0);
-		//train("5m_2007-Mar2009.pod",s,t,_lo,_up);
-		//s = cal.newDate(2008, 0, 1, 0, 0, 0);
-		//t = cal.newDate(2008, 6, 1, 0, 0, 0);
-		//s = cal.newDate(2008, 7, 1, 0, 0, 0);
-		//t = cal.newDate(2008, 9, 1, 0, 0, 0);
-		double[][] r = test("5m_2007-Mar2009.pod",s,t,_lo,_up); //5m_2007-Mar2009
-		for(int off=0;off<1;off++){
-			for(int i=0;i<12;i++){
-			//	System.out.print(r[off][i]+"\t");
-			}
-			System.out.println();
-		}		
-	}
-	*/
-
-
-	
-	
-	
-	
-	
-}
+ }
