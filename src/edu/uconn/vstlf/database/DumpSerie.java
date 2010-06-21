@@ -35,7 +35,6 @@ public class DumpSerie implements Command {
 				cur = cal.addSecondsTo(cur, inc);
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

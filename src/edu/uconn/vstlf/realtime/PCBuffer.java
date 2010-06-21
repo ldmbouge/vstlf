@@ -39,7 +39,6 @@ public class PCBuffer<T> {
 		try {
 			_buf.put(value);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -47,7 +46,6 @@ public class PCBuffer<T> {
 		try {
 			return _buf.take();
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
 		}

@@ -63,7 +63,8 @@ public class VSTLFTrainer {
 	public static double[][] test (String loadFile, Date stTest, Date edTest, int lo, int up){
 		try{
 			double[][] result = new double[12][];
-			for(int offs=lo;offs<=up;offs++){
+			int offs = lo;
+//			for(int offs=lo;offs<=up;offs++){
 				System.out.println("Testing System for offset: "+ 5*offs +" minutes." );
 				///////////////////////////////////////////////////////////////////////////////////
 				//Initialize db and cal et cetera
@@ -197,7 +198,7 @@ public class VSTLFTrainer {
 				loadHist.close();
 				result[offs] = aveErr.array();
 				return result;
-			}
+			//}
 		}catch(Exception e){
 			e.printStackTrace();
 		}

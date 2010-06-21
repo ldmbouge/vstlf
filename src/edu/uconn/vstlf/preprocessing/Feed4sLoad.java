@@ -98,7 +98,6 @@ public class Feed4sLoad implements Runnable{
 			_output.produce(_endOfStream);
 			
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

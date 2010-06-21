@@ -35,7 +35,6 @@ public class MicroFilterDebug {
 	
 	static double[] inputLoads = { 11931.094594594595, 11831.71794871795, 11825.0, 0.0, 11825.0, 0.0, 11332.333333333334};  
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 		try
 		{
 			Series origData = new Series(inputLoads);
