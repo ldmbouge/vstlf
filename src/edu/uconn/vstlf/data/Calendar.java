@@ -169,14 +169,14 @@ public class Calendar extends GregorianCalendar {
 	String dowString(int dow){
 		String r;
 		switch(dow){
-		case MONDAY : r = "Mon";
-		case TUESDAY : r = "Tue";
-		case WEDNESDAY : r = "Wed";
-		case THURSDAY : r = "Thu";
-		case FRIDAY : r = "Fri";
-		case SATURDAY : r = "Sat";
-		case SUNDAY : r = "Sun";
-		default : r = "???";
+		case MONDAY : r = "Mon";break;
+		case TUESDAY : r = "Tue";break;
+		case WEDNESDAY : r = "Wed";break;
+		case THURSDAY : r = "Thu";break;
+		case FRIDAY : r = "Fri";break;
+		case SATURDAY : r = "Sat";break;
+		case SUNDAY : r = "Sun";break;
+		default : r = "???";break;
 		}
 		return r;
 	}

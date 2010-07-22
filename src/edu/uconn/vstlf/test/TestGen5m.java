@@ -49,7 +49,7 @@ public class TestGen5m {
 	private PCBuffer<VSTLF5MPoint> _5MBuf = new PCBuffer<VSTLF5MPoint>(100000);
 	private Calendar _cal = new Calendar();
 
-	@Test public void TestPrimitive() throws Exception
+	@Test public void testPrimitive() throws Exception
 	{
 		String indbName = "4s_Jun2008-9.pod";
 		PowerDB indb = new PerstPowerDB(indbName,4);
@@ -99,7 +99,7 @@ public class TestGen5m {
 		assertEquals("Date", expectedDate.getTime(), p.getStamp().getTime());
 	}
 	
-	@Test public void TestProduce4m() throws Exception
+	@Test public void testProduce4m() throws Exception
 	{
 		String indbName = "4s_Jun2008-9.pod", outdbName = "tstDb.pod";
 		File f = new File(outdbName);

@@ -72,7 +72,7 @@ public class RunTraining {
 		String xmlFile = null; int lo=0, hi=0; Date st, ed;
 		if (args.length != 3 && args.length != 5) { 					//check # of args
 			System.out.println(_USAGE);
-			System.exit (-1);
+			return;
 		}
 		try{										//assign args
 			xmlFile = args[2];
@@ -85,11 +85,11 @@ public class RunTraining {
 		}
 		catch(NumberFormatException e){
 			System.out.println("Specified set of ANN banks is not valid. (lo > hi || lo < 0 || hi > 11)");
-			System.exit(-2);
+			return;
 		}
 		catch(FileNotFoundException e){
 			System.out.println("'" + e.getMessage() + "' does not refer to real file.");
-			System.exit(-2);
+			return;
 		}
 		try {								//run stuff
 			String tfName = ".load5m.pod";
@@ -127,7 +127,7 @@ public class RunTraining {
 						"Would you like to continue the training on these limited data? (Y/n)");
 				if(!new BufferedReader(new InputStreamReader(System.in)).readLine().equals("Y")){
 					System.out.println("Aborting...");
-					System.exit(0);
+					return;
 				}
 				else
 					System.out.println("If you insist...");
@@ -136,7 +136,7 @@ public class RunTraining {
 					" hours.  Please confirm that you would like to continue. (Y/n)");
 			if(!new BufferedReader(new InputStreamReader(System.in)).readLine().equals("Y")){
 				System.out.println("Aborting...");
-				System.exit(0);
+				return;
 			}
 			if (args.length == 5) {
 				Date strt = parseDate(args[3]);
@@ -155,7 +155,7 @@ public class RunTraining {
 		} catch (Exception e) {
 		    System.out.println(e.toString());
 		    e.printStackTrace();
-		    System.exit(0);
+		    return;
 		}
 	}
 

@@ -60,6 +60,7 @@ public class FromTxtToPerst {
 			start = cal.addSecondsTo(start, inc);
 
 		}
+		br.close();
 		_db.endTransaction();
 		_db.close();
 	}
@@ -79,7 +80,7 @@ public class FromTxtToPerst {
 			if (inc != 4 && inc != 300) {
 				System.err.println("The VSTLF System only deals with 4s and 5m data. Set" +
 						" the interval to be 4 or 300(5 minute)");
-				System.exit(0);
+				return;
 			}
 			
 			
@@ -89,7 +90,7 @@ public class FromTxtToPerst {
 					System.out.println("The perst database " + outf.getName() + " exists. Do you want to add data into it? (Y/n)");
 					if(!new BufferedReader(new InputStreamReader(System.in)).readLine().equals("Y")){
 						System.out.println("Aborting...");
-						System.exit(0);
+						return;
 					}
 				}
 			

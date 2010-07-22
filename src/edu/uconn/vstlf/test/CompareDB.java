@@ -36,7 +36,7 @@ import edu.uconn.vstlf.data.doubleprecision.Series;
 import edu.uconn.vstlf.database.perst.PerstPowerDB;
 
 public class CompareDB {
-	@Test public void Test() throws Exception
+	@Test public void test() throws Exception
 	{
 		Calendar cal = new Calendar();
 		PerstPowerDB db1 = new PerstPowerDB("4sdb.pod", 4);
@@ -64,7 +64,7 @@ public class CompareDB {
 		db2.close();
 	}
 	
-	@Test public void Test1() throws Exception
+	@Test public void test1() throws Exception
 	{
 		Calendar cal = new Calendar();
 		PerstPowerDB db1 = new PerstPowerDB("5mdb.pod", 300);

@@ -64,7 +64,7 @@ public class Run {
 		//Parse the command.////////////////////////////////////////
 		if(args.length==0){
 			System.out.println(USAGE());
-			System.exit(0);
+			return ;
 		}
 		String cmd = args[0];
 		String[] cargs = new String[args.length-1];
@@ -77,7 +77,7 @@ public class Run {
 					System.out.println("WARNING! Could not find the config file because:\n");
 					System.out.println(baditems.getMessage());
 					System.out.println("\nYou should create one (using 'config') before trying other commands.\n");
-					System.exit(0);
+					return;
 				}
 			}
 			catch(Exception f){

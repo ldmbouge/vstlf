@@ -36,7 +36,7 @@ import org.junit.Test;
 import edu.uconn.vstlf.shutil.RunFromXMLToPerst;
 
 public class ListFileTest {
-	@Test public void Test()
+	@Test public void test()
 	{
 		File f = new File("4sdata");
 		assertTrue(f.exists());

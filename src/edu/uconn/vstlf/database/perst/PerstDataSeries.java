@@ -31,7 +31,10 @@ import org.garret.perst.TimeSeries.Tick;
 public class PerstDataSeries extends Persistent {
 	String     _name;
     TimeSeries<Tick> _seq;
-    
+    public PerstDataSeries() {
+    	_name = null;
+    	_seq = null;
+    }
     public PerstDataSeries(String name,TimeSeries<Tick> seq){
     	_name = name;
     	_seq = seq;

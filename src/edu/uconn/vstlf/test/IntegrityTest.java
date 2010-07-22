@@ -36,7 +36,7 @@ public class IntegrityTest {
 	{
 		if (args.length != 3) {
 			System.out.println("USAGE: IntegrityTest <dbName> <interval> <datatype>");
-			System.exit(0);
+			return;
 		}
 		
 		String dbName = args[0];

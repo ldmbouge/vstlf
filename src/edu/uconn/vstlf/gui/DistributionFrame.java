@@ -36,7 +36,7 @@ class DistributionFrame extends ForecastFrame implements IDistributionFrame
 	 * 
 	 */
 	private static final long serialVersionUID = 5897639208579780830L;
-	final int _xOffset = /*67*/5, _yOffset = 5;
+	final static int _xOffset = /*67*/5, _yOffset = 5;
 
    public DistributionFrame(DefaultTableModel model, String titleBar)
    {

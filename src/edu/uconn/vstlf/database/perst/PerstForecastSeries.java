@@ -30,7 +30,10 @@ import org.garret.perst.*;
 public class PerstForecastSeries extends Persistent {
 	String     _name;
     TimeSeries<PerstForecastPoint> _seq;
-    
+    public PerstForecastSeries() {
+    	_name = null;
+    	_seq = null;
+    }
     @SuppressWarnings("unchecked")
 	public PerstForecastSeries(String name,TimeSeries seq){
     	_name = name;

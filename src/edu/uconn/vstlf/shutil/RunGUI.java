@@ -49,7 +49,7 @@ public class RunGUI {
 		String histFile = null, currFile = null;
 		if (args.length != 2 && args.length != 4) { //check # of args
 			System.out.println(_USAGE);
-			System.exit (-1);
+			return;
 		}
 		try{										//assign args
 			currFile = args[0];
@@ -69,15 +69,15 @@ public class RunGUI {
 		}
 		catch(ParseException e){
 			System.out.println("Test date should be of the form \"yyyy/MM/dd - HH:mm:ss\"");
-			System.exit(-2);
+			return;
 		}
 		catch(NumberFormatException e){
 			System.out.println("Specified clock rate is not valid. (Should be a valid divisor of 4000)");
-			System.exit(-2);
+			return;
 		}
 		catch(FileNotFoundException e){
 			System.out.println("'" + e.getMessage() + "' does not refer to real file.");
-			System.exit(-2);
+			return;
 		}
 	    try {
 	    	UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -88,7 +88,7 @@ public class RunGUI {
 	    } catch (Exception e) {
 	        System.out.println(e.toString());
 	        e.printStackTrace();
-	        System.exit(0);
+	        return;
 	    }
 	}
 

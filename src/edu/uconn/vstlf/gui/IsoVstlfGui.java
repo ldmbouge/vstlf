@@ -278,7 +278,12 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 	   try{
 		    //Delete forecast database if it is around from last time;
 		   File f = new File(_dbName);
-			if(f.exists() && _DELETE) if(!f.delete()) {System.err.println("???"); System.exit(0);}
+			if(f.exists() && _DELETE) {
+				if(!f.delete()) {
+					System.err.println("???"); 
+					System.exit(0);
+				}
+			}
 			_db = new PerstPowerDB(_dbName,300);
 			_db.open();
 	   }
@@ -296,8 +301,7 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 		   _und = new Series(12);
 		   _nbErr = 0;
 		   Date statDate = _db.last("stats");
-		   @SuppressWarnings("unused")
-		   Function maxi = new MaxFunction(), mini = new MinFunction(),
+		   Function maxi = new MaxFunction(),// mini = new MinFunction(),
 	 				mae = new MAEFunction(), mape = new MAPEFunction(),
 	 				sqr = new SquaringFunction(), sqrt = new SqrtFunction();
 		   if(statDate==null){
@@ -642,8 +646,7 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
    public static void main(String[] args) {
 		if (args.length < 4) {
 			System.out.println("java edu.uconn.gui.IsoVstlfGui <coldstart> <rawLoad db> <filteredLoad db> <currentDataFile> <24hrDataFile>");
-			System.exit (-2);
-
+			return;
 		}
       try {
     	  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -652,7 +655,7 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
       } catch (Exception e) {
          System.out.println(e.toString());
          e.printStackTrace();
-         System.exit(0);
+         return;
       }
    }
 }

@@ -241,8 +241,11 @@ public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCen
 	
 	synchronized public void dump(){
 		Date d = new Date();
+		FileWriter fw = null;
     	try{
-    		new FileWriter(new File("unsentXML-"+d)).write(_buf.toString());
+    		fw = new FileWriter(new File("unsentXML-"+d));
+    		fw.write(_buf.toString());
+    		fw.close();
     	}
     	catch(Exception e){
     		return;

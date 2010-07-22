@@ -125,10 +125,6 @@ public class PerstPowerDB extends PowerDB {
 		for(LoadData n : loadData){//System.err.println(n);if(true)break;
 			t = cal.addSecondsTo(t, xInc);
 			lt = cal.lastTick(inc, t);
-			if(!t.equals(n.getDate()))
-				;//throw new Exception(t +"!="+n.getDate());
-			//System.err.println("\n\t"+last+"\t"+t);
-			//System.err.println(n);
 			v += n.getValue();
 			q = q&&n.getQuality();
 			k++;
@@ -262,21 +258,16 @@ public class PerstPowerDB extends PowerDB {
 		double[] load = new double[lng];
 		for(int k=lng-1;k>=0;k--)
 			load[k] = Double.NaN;
-		long off=-1, lastOff =-2;
+		long off=-1;
 		while(i.hasNext()){
 			PerstDataPoint p = (PerstDataPoint)i.next();
 			p.setTime(cal.lastTick(1, new Date(p.getTime())));
 			//System.err.println("Time: "+p.getTime() + "("+new Date(p.getTime())+")\tValue: "+p.getValue());
 			off = (p.getTime()-strt.getTime())/inc - 1; // [ldm] -1 makes no sense to me.
-			if(off!=lastOff+1){
-				//System.err.println("Missing 5mData.");
-				//System.err.println(off+"\t\t"+lastOff);
-			}
 			if (off< 0) continue;
 			if (off >= load.length) 
 				throw new Exception("Writing past the end of the load array");
 			load[(int)off] = p.getValue();
-			lastOff = off;
 		}
 		_db.endThreadTransaction();
 		return new Series(load,false);

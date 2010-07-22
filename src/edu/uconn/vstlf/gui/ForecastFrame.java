@@ -41,7 +41,7 @@ class ForecastFrame extends JPanel implements IForecastFrame {
 	 * 
 	 */
 	private static final long serialVersionUID = -9024312580212773129L;
-	final int _xOffset = 675, _yOffset = 5;
+	final static int _xOffset = 675, _yOffset = 5;
    JTable _table = null;
    TableRowSorter<TableModel> sorter = null;
 

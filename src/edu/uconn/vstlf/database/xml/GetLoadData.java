@@ -26,18 +26,15 @@
 package edu.uconn.vstlf.database.xml;
 import java.util.LinkedList;
 
-import edu.uconn.vstlf.data.Calendar;
 import edu.uconn.vstlf.database.PowerDB;
 import java.util.Iterator;
 
 public class GetLoadData {
 	ParseLoadData loadParser;
-	Calendar cal;
 	int historyInterval = 300;
 
 	public GetLoadData() {
 		loadParser = null;
-		cal = null;
 	}
 	public void setHistoryInterval(int in)	{ historyInterval = in;}
 	public int getHistoryInterval()         { return historyInterval;}

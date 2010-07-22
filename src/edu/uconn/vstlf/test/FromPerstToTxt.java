@@ -66,7 +66,7 @@ public class FromPerstToTxt {
 	{
 		if (args.length != 7) {
 			System.out.println("USAGE: FromPerstToTxt <inDBName> <outFileName> <interval> <datatype> <start> <end> <miniute>");
-			System.exit(0);
+			return;
 		}
 		
 		String indbName = args[0];
@@ -79,7 +79,7 @@ public class FromPerstToTxt {
 		if (interval != 4 && interval != 300) {
 			System.err.println("The VSTLF System only deals with 4s and 5m data. Set" +
 				" the interval to be 4 or 300(5 minute)");
-			System.exit(0);
+			return;
 		}
 		
 		toText(outfileName, interval, indbName, start, end, loadType, min);

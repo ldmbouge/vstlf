@@ -52,7 +52,7 @@ public class PlotPanel extends Canvas implements MouseInputListener{
 							  Color.GRAY,Color.MAGENTA,Color.ORANGE,Color.PINK,Color.YELLOW,
 							  Color.DARK_GRAY,Color.BLACK,Color.blue};
 
-	class Plot {
+	static class Plot {
 		double[] _data;
 		int      _nowOfs;
 		final Color[] _color = PlotPanel._colors;

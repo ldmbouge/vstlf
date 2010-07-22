@@ -50,11 +50,11 @@ public class ParseTrainingData extends ParseLoadData {
 			NodeList childList = childNode.getChildNodes();
 			for (int j=0; j<childList.getLength(); j++) {
 				Node sub = childList.item(j);
-				if (sub.getNodeName() == "value") {
+				if (sub.getNodeName().equals("value")) {
 					load.setValue(getLoadValue(sub));
-				} else if (sub.getNodeName() == "time") {
+				} else if (sub.getNodeName().equals("time")) {
 					load.setDate(getLoadDate(sub));
-				} else if (sub.getNodeName() == "quality") {
+				} else if (sub.getNodeName().equals("quality")) {
 					load.setQuality(getLoadQuality(sub));
 				}
 			}
@@ -70,17 +70,17 @@ public class ParseTrainingData extends ParseLoadData {
 		NodeList childList = childNode.getChildNodes();
 		for (int j=0; j<childList.getLength(); j++) {
 			Node sub = childList.item(j);
-			if (sub.getNodeName() == "tagName") {
+			if (sub.getNodeName().equals("tagName")) {
 				parameters.setTagName(sub.getTextContent());
 			}
-			else if (sub.getNodeName() == "startTime") {
+			else if (sub.getNodeName().equals("startTime")) {
 				parameters.setStartTime(sub.getTextContent());
 
 			}
-			else if (sub.getNodeName() == "endTime") {
+			else if (sub.getNodeName().equals("endTime")) {
 				parameters.setEndTime(sub.getTextContent());
 			}
-			else if (sub.getNodeName() == "resolution") {
+			else if (sub.getNodeName().equals("resolution")) {
 				parameters.setResolution(sub.getTextContent());
 			}
 		}
@@ -111,7 +111,7 @@ public class ParseTrainingData extends ParseLoadData {
 	{
 		if (in.length != 1 ) {
 			System.out.println("java ParseTrainingData <fileName>");
-			System.exit(0);
+			return;
 		}
 		try {
 			ParseTrainingData d = new ParseTrainingData(in[0]);

@@ -36,7 +36,7 @@ public class AddDBContent {
 	{
 		if (args.length != 4) {
 			System.out.println("USAGE: AddDBContent <inDBName> <outDBName> <interval> <datatype>");
-			System.exit(0);
+			return;
 		}
 		
 		String indbName = args[0];
@@ -47,7 +47,7 @@ public class AddDBContent {
 		if (interval != 4 && interval != 300) {
 			System.err.println("The VSTLF System only deals with 4s and 5m data. Set" +
 				" the interval to be 4 or 300(5 minute)");
-			System.exit(0);
+			return;
 		}
 
 		PerstPowerDB indb = new PerstPowerDB(indbName, interval);

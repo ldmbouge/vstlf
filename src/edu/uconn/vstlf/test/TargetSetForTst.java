@@ -35,7 +35,7 @@ import edu.uconn.vstlf.database.perst.PerstPowerDB;
 import edu.uconn.vstlf.shutil.RunTraining;
 
 public class TargetSetForTst {
-	@Test public void Test() throws Exception
+	@Test public void test() throws Exception
 	{
 		PerstPowerDB db = new PerstPowerDB("5m_2007-Feb2010.pod", 300);
 		db.open();

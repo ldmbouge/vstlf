@@ -34,7 +34,7 @@ import edu.uconn.vstlf.data.Calendar;
 import edu.uconn.vstlf.database.perst.PerstPowerDB;
 
 public class PersetGetLoadTest {
-	@Test public void Test() throws Exception
+	@Test public void test() throws Exception
 	{
 		PerstPowerDB db = new PerstPowerDB("5m_2007-Mar2009.pod", 300);
 		db.open();
@@ -71,7 +71,7 @@ public class PersetGetLoadTest {
 	}
 	*/
 	
-	@Test public void Test3() throws Exception
+	@Test public void test3() throws Exception
 	{
 		PerstPowerDB db = new PerstPowerDB("5mdb1.pod", 300);
 		db.open();
@@ -81,7 +81,7 @@ public class PersetGetLoadTest {
 		db.close();
 	}
 	
-	@Test public void TestChe() throws Exception
+	@Test public void testChe() throws Exception
 	{
 		PerstPowerDB db = new PerstPowerDB("5mche.pod", 300);
 		db.open();

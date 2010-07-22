@@ -82,7 +82,7 @@ public class ParseLoadData {
 	protected void processRawHistory(String rawHistory, NamedNodeMap nodeMap) throws NumberFormatException, ParseException
 	{
 		historyData = new LinkedList<LoadData>();
-		if (rawHistory == "")
+		if (rawHistory.equals(""))
 			return;
 		System.out.format("RAW:[%s]\n", rawHistory);
 		// get history start/end times
@@ -136,7 +136,7 @@ public class ParseLoadData {
 	{
 		if (in.length != 1 ) {
 			System.out.println("java ParseLoadData <fileName>");
-			System.exit(0);
+			return;
 		}
 		try {
 			ParseLoadData d = new ParseLoadData(in[0]);

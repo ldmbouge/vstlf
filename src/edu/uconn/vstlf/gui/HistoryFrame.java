@@ -38,7 +38,7 @@ class HistoryFrame extends ForecastFrame implements IHistoryFrame
 	 * 
 	 */
 	private static final long serialVersionUID = -8827477516485956595L;
-	final int _xOffset = /*67*/5, _yOffset = 5;
+	final static int _xOffset = /*67*/5, _yOffset = 5;
 
    public HistoryFrame(DefaultTableModel model, String titleBar)
    {

@@ -52,7 +52,7 @@ public class RunValidation {
 		String xmlFile = null; int lo=0, hi=0; Date st, ed;
 		if (args.length != 3) { 					//check # of args
 			System.out.println(_USAGE);
-			System.exit (-1);
+			return;
 		}
 		try{										//assign args
 			xmlFile = args[2];
@@ -65,11 +65,11 @@ public class RunValidation {
 		}
 		catch(NumberFormatException e){
 			System.out.println("Specified set of ANN banks is not valid. (lo > hi || lo < 0 || hi > 11)");
-			System.exit(-2);
+			return;
 		}
 		catch(FileNotFoundException e){
 			System.out.println("'" + e.getMessage() + "' does not refer to real file.");
-			System.exit(-2);
+			return;
 		}
 		try {								//run stuff
 			String tfName = ".load5m.pod";
@@ -99,7 +99,7 @@ public class RunValidation {
 		} catch (Exception e) {
 		    System.out.println(e.toString());
 		    e.printStackTrace();
-		    System.exit(0);
+		    return;
 		}
 	}
 

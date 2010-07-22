@@ -45,7 +45,7 @@ public class ForecastBrowserFrame extends JPanel implements IForecastFrame,ListS
 	 * 
 	 */
 	private static final long serialVersionUID = 1748606677073832076L;
-	final int _xOffset = 400, _yOffset = 5;
+	final static int  _xOffset = 400, _yOffset = 5;
 	   JTable _table = null; 
 	   DefaultListModel _lstmodel = null;
 	   JList _list = null;

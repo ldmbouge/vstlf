@@ -35,7 +35,7 @@ public class LogFrame extends JPanel {
 	 */
 	private static final long serialVersionUID = -7430016531702059484L;
 	//static int openFrameCount = 0;
-    final int xOffset = 660, yOffset = 445;
+    final static int xOffset = 660, yOffset = 445;
 	JTextArea textArea;
 	public LogFrame() {
     	setLayout(new GridLayout());
@@ -70,8 +70,11 @@ public class LogFrame extends JPanel {
     
     synchronized public void dump(String fname){
     	System.out.println("Dumping to "+fname);
+    	FileWriter fw = null;
     	try{
-    		new FileWriter(new File(fname)).write(textArea.getText());
+    		fw = new FileWriter(new File(fname));
+    		fw.write(textArea.getText());
+    		fw.close();
     	}
     	catch(Exception e){
     		addMessage("DUMP OF LOG TO FILE '"+fname+"' FAILED.");

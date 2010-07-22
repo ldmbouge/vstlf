@@ -178,7 +178,12 @@ public class IsoVstlf implements IVstlfMain, PulseAction
 	   try{
 		    //Delete forecast database if it is around from last time;
 		   File f = new File(_dbName);
-			if(f.exists() && _DELETE) if(!f.delete()) {System.err.println("???"); System.exit(0);}
+			if(f.exists() && _DELETE) { 
+				if(!f.delete()) {
+					System.err.println("???"); 
+					System.exit(0);
+				}
+			}
 			_db = new PerstPowerDB(_dbName,300);
 			_db.open();
 	   }
@@ -234,7 +239,7 @@ public class IsoVstlf implements IVstlfMain, PulseAction
 	   System.out.println(System.getProperty("user.dir"));
 		if (args.length < 5) {
 			System.out.println("java edu.uconn.gui.IsoVstlfGui <coldstart> <db> <currentDataFile> <24hrDataFile>");
-			System.exit (-2);
+			return;
 		}
       try {
     	 IsoVstlf proc = new IsoVstlf(Boolean.valueOf(args[0]), args[1], args[2], args[3]);
@@ -242,7 +247,7 @@ public class IsoVstlf implements IVstlfMain, PulseAction
       } catch (Exception e) {
          System.err.println(e.toString());
          e.printStackTrace();
-         System.exit(0);
+         return ;
       }
    }
 }
