@@ -52,7 +52,7 @@ public class VSTLFEngine {
 	}
 	
 	public void startup(Date at) {
-		System.out.println("Here");
+	    //System.out.println("Here");
 		_fsp.prepare(at,_milliseconds);
 		_fsp.start();
 		_fmp.start();

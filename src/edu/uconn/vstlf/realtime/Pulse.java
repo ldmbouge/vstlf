@@ -47,7 +47,7 @@ public class Pulse {
     public void start(Calendar startAt) {
     	timer = new Timer();
     	Date now = startAt.getTime();
-    	System.out.format("Pulsing from: %s\n",now.toString());
+    	//System.out.format("Pulsing from: %s\n",now.toString());
     	timer.scheduleAtFixedRate(new TimerTask() {
             public void run() {
             	//System.out.println("TICK\n");

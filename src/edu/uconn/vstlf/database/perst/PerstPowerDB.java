@@ -29,6 +29,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Collection;
+import java.util.logging.*;
+
 import org.garret.perst.*;
 import org.garret.perst.TimeSeries.Tick;
 
@@ -38,6 +40,8 @@ import edu.uconn.vstlf.data.doubleprecision.Series;
 import edu.uconn.vstlf.database.PowerDB;
 import edu.uconn.vstlf.database.xml.*;
 public class PerstPowerDB extends PowerDB {
+
+    static private Logger _perstXMLLogger = Logger.getLogger("perst_power_db_from_xml");
 
 	Storage _db;
 	String _table;
@@ -49,9 +53,13 @@ public class PerstPowerDB extends PowerDB {
 		_db.setProperty("perst.multiclient.support", Boolean.TRUE);
 		_table = table;
 		_inc = inc;
+
 	}
 
 	public static PerstPowerDB fromXML(String outFile, int inc, String inFile)throws Exception{
+	    Handler hf = new FileHandler("perst_db_fromXML.log");
+	    _perstXMLLogger.addHandler(hf);
+
 		Calendar cal = Items.makeCalendar();
 		//DateFormat dateFormat =  cal.getDateFormat("M/dd/yyyy h:mm:ss a");
 		
@@ -72,7 +80,7 @@ public class PerstPowerDB extends PowerDB {
 			//System.out.format("at %d got: %s\n",j++,n.getDate());
 			n.setDate(cal.lastTick(inc,n.getDate()));// align the date			
 			if (prev != null && !prev.before(n.getDate()))
-				System.err.format("\ntimestamp were not in increasing order! last=%s  now=%s\n", prev,n.getDate());
+				_perstXMLLogger.severe("\ntimestamp were not in increasing order! last="+  prev + " now="+n.getDate() +"\n");
 			prev = n.getDate();
 		}
 		//System.err.println("Sorting List");
@@ -80,34 +88,34 @@ public class PerstPowerDB extends PowerDB {
 		LoadData[] array = new LoadData[loadData.size()];
 		int secInDay = 24 * 60 * 60;
 		if  (secInDay/inc != loadData.size())
-			System.out.format("\nExpecting a vector of %d entries. Got a vector of %d\n",secInDay/inc,loadData.size());
+		    _perstXMLLogger.severe("\nExpecting a vector of " + (secInDay/inc) + " entries. Got a vector of " + loadData.size() + "\n");
 		loadData.toArray(array);
 		for(int k=1;k<array.length;k++) {
 			LoadData n = array[k];
 			assert(k>=1);
 			Date now = cal.lastTick(inc, cal.addSecondsTo(array[k-1].getDate(), inc));
 			if (!now.equals(n.getDate())) {
-				System.err.format("We have a gap: expecting: %s got: %s\n",now, n.getDate());
+			    _perstXMLLogger.severe("We have a gap: expecting: " + now + " got: " +  n.getDate() +"\n");
 			}
 			if (n.getValue() == 0.0) {
-				System.err.format("Load of %f at %s\n",n.getValue(),n.getDate());
+			    _perstXMLLogger.severe("Load of " + n.getValue()+" at " + n.getDate() + "\n");
 				int k2 = k;
 				while (k2 < array.length && array[k2].getValue() == 0) k2++;
 				if (k2 < array.length) {
 					double lEdge = array[k-1].getValue();
 					double rEdge = array[k2].getValue();
 					if (lEdge == 0.0 || rEdge == 0.0) {
-						System.err.format("\nCan't fix load in [%s : %s]. One endpoint is 0. [%f,%f]\n",array[k-1].getDate(),array[k2].getDate(),lEdge,rEdge);
+					    _perstXMLLogger.severe("\nCan't fix load in [" + array[k-1].getDate() + " : " + array[k2].getDate() + "]. One endpoint is 0. [" +lEdge +"," +rEdge +"]\n");
 						return null;
 					}
 					int    nbPts = (k2-1) - k + 1;
 					double slope = (rEdge - lEdge) / nbPts;
 					for(int i=k;i < k2;i++) {
-						System.err.format("\nFixing load at %s from %f to %f  [%f,%f]\n",array[i].getDate(),array[i].getValue(),lEdge + slope * (i-k),lEdge,rEdge); 
+					    _perstXMLLogger.severe("\nFixing load at " + array[i].getDate() +" from " +array[i].getValue() + " to " + (lEdge + slope * (i-k))+"  ["+ lEdge+ "," +rEdge +"]\n"); 
 						array[i].setValue(lEdge + slope * (i-k));
 					}
 				} else {
-					System.err.format("Couldn't find a non-zero value in the entire suffix. Import is bad\n");
+					_perstXMLLogger.severe("Couldn't find a non-zero value in the entire suffix. Import is bad\n");
 					return null;
 				}
 			}

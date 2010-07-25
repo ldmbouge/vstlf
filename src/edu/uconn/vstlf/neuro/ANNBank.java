@@ -25,6 +25,8 @@
 
 package edu.uconn.vstlf.neuro;
 
+import java.io.IOException;
+
 import org.garret.perst.Index;
 import org.garret.perst.Storage;
 import org.garret.perst.StorageFactory;
@@ -34,7 +36,7 @@ public class ANNBank{
 	
 	SimpleFeedForwardANN[] _anns;
 	
-	public ANNBank(int[][] lyrSz){
+	public ANNBank(int[][] lyrSz) throws SecurityException, IOException{
 		_anns = new SimpleFeedForwardANN[lyrSz.length];
 		for(int i = 0;i<lyrSz.length;i++)
 			_anns[i] = SimpleFeedForwardANN.newUntrainedANN(lyrSz[i]);
@@ -119,7 +121,7 @@ public class ANNBank{
 			_anns[i].update(tg[i]);
 	}
 	
-	public void addANN(int i,double[][][][] w, int[] lyrSz){
+	public void addANN(int i,double[][][][] w, int[] lyrSz) throws SecurityException, IOException{
 		_anns[i] = new SimpleFeedForwardANN(w,lyrSz);
 	}
 	
