@@ -25,7 +25,9 @@
 
 package edu.uconn.vstlf.preprocessing;
 
+import java.io.IOException;
 import java.util.Date;
+import java.util.logging.*;
 
 import edu.uconn.vstlf.data.Calendar;
 import edu.uconn.vstlf.database.PowerDB;
@@ -35,6 +37,8 @@ import edu.uconn.vstlf.realtime.VSTLF4SPoint;
 import edu.uconn.vstlf.realtime.VSTLF5MPoint;
 
 public class Produce5MLoad {
+    private Logger _logger = Logger.getLogger("Produce5MLoad");
+
 	private String _pst4SDBName, _pst5MDBName;
 	private Calendar _cal;
 	private PCBuffer<VSTLF4SPoint> _4SBuf = new PCBuffer<VSTLF4SPoint>(200);
@@ -43,7 +47,7 @@ public class Produce5MLoad {
 	private String [] _outLoadType;
 
 	public Produce5MLoad(String pst4SDBName, String pst5MDBName, Calendar cal,
-			String inLoadType, String[] outLoadType)
+			String inLoadType, String[] outLoadType) throws SecurityException, IOException
 	{
 		_pst4SDBName = pst4SDBName;
 		_pst5MDBName = pst5MDBName;
@@ -51,6 +55,8 @@ public class Produce5MLoad {
 		_cal = cal;
 		_outLoadType = outLoadType;
 		_inLoadType = inLoadType;
+
+		_logger.addHandler(new FileHandler("preprocessing.log"));
 	}
 	
 	public void execute(Date st, Date ed) throws Exception
@@ -69,7 +75,7 @@ public class Produce5MLoad {
 	
 	private void executeImpl(PowerDB indb, PowerDB outdb, Date st, Date ed) throws Exception
 	{
-		System.out.println("Start transforming the 4s loads into 5m loads from " + st + " to " + ed);
+		_logger.fine("Start transforming the 4s loads into 5m loads from " + st + " to " + ed);
 		
 		VSTLF4SPoint endOf4SStream = new VSTLF4SPoint(null, Double.NaN);
 		VSTLF5MPoint endOf5MStream = new VSTLF5MPoint(null, Double.NaN, -1);
@@ -90,7 +96,7 @@ public class Produce5MLoad {
 		// Wait for the storing thread to end
 		outThread.join();
 		
-		System.out.println("Loads from " + st + " to " + ed + " is aggregated into 5m loads");
+		_logger.fine("Loads from " + st + " to " + ed + " is aggregated into 5m loads");
 	}
 	
 	public void execute() throws Exception
@@ -102,7 +108,7 @@ public class Produce5MLoad {
 		
 		Date st = indb.first(_inLoadType);
 		Date ed = indb.last(_inLoadType);
-		System.out.format("Converting 4s signal between %s - %s\n", st,ed);
+		_logger.fine("Converting 4s signal between " + st + " - " + ed + "\n");
 		executeImpl(indb, outdb, st, ed);
 		outdb.close();
 		indb.close();

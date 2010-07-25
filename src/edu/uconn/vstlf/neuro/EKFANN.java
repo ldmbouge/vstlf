@@ -25,9 +25,11 @@
 
 package edu.uconn.vstlf.neuro;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Vector;
 import org.garret.perst.*;
+import java.util.logging.*;
 
 public class EKFANN implements Serializable{
 	
@@ -57,7 +59,7 @@ public class EKFANN implements Serializable{
 	double[] _finalInnov;// = .002;
 	
 
-	
+    private Logger _logger = Logger.getLogger("EKFANN");
 	/**
 	 * Constructs an ANN from two 3D arrays, one containing current weights, one recent weights.
 	 * The matrices are indexed in the following way.
@@ -66,8 +68,10 @@ public class EKFANN implements Serializable{
 	 * Dim3: Position of the node from which input is assigned this weight in the previous layer.
 	 * @param w
 	 * @param rw
+	 * @throws IOException 
+	 * @throws SecurityException 
 	 */
-	public EKFANN(double[][][][] w,double[][][][] e,double[][][][] m,double[][][] i){
+	public EKFANN(double[][][][] w,double[][][][] e,double[][][][] m,double[][][] i) throws SecurityException, IOException{
 		_weights = new double[w[0].length][][];			//allocate memory for weights
 		_recentWeights = new double[w[1].length][][];	//	and last weights
 		_errGrad = new double[e[0].length][][];			//		current error gradient
@@ -126,14 +130,15 @@ public class EKFANN implements Serializable{
 		}
 		_finalInnov = new double[_output[_output.length-1].length];
 		_rNoise = .0001;														//some random noise
+		_logger.addHandler(new FileHandler("ann.log"));
 	}
 	
-	public EKFANN(double[][][][] w,double[][][][] e,double[][][][] m,double[][][] i, int[] lyrSz){
+	public EKFANN(double[][][][] w,double[][][][] e,double[][][][] m,double[][][] i, int[] lyrSz) throws SecurityException, IOException{
 		this(w,e,m,i);
 		_lyrSz = lyrSz;
 	}
 	
-	public static EKFANN newUntrainedANN(int[] lyrSz){	//lyrSz specifies the network topology
+	public static EKFANN newUntrainedANN(int[] lyrSz) throws SecurityException, IOException{	//lyrSz specifies the network topology
 		double[][][] w = new double[lyrSz.length][][];
 		double[][][] r = new double[lyrSz.length][][];
 		double[][][] errG = new double[lyrSz.length][][];
@@ -323,7 +328,7 @@ public class EKFANN implements Serializable{
 	 */
 	public double[] execute(double[] input){
 		if(input.length!=_output[0].length-1) 
-			System.out.println(input.length+"!="+(_output[0].length-1));
+			_logger.fine(input.length+"!="+(_output[0].length-1));
 		for(int i = 1;i<_output[0].length;i++){
 			_output[0][i] = input[i-1];			//input i is layer 0, index i
 		}
@@ -386,14 +391,14 @@ public class EKFANN implements Serializable{
 	
 	
 	public void EKFTrain(double[][] in, double[][] tg, double[][] inVar, int maxSeconds) throws Exception{
-		System.err.println("Training");
+		_logger.fine("Training");
 		long st = System.currentTimeMillis();
 		long dt = maxSeconds*1000;
 		if(in.length!=tg.length) throw new Exception("You must have the same number of in and tg");
 		int e = 0;
 		do{
 			if(e++%100 == 0)
-				System.err.println(e);
+			    _logger.fine(Integer.toString(e));
 			for(int i = 0;i<in.length;i++){
 				execute(in[i]);
 				for(int outid = 0; outid<_output[_output.length-1].length-1;outid++){
@@ -402,11 +407,11 @@ public class EKFANN implements Serializable{
 				}
 			}
 		}while(System.currentTimeMillis() < st+dt);
-		System.err.println("\tDone.");
+		_logger.fine("\tDone.");
 	}
 	
 	public void train(double[][] in, double[][] tg, int maxSeconds) throws Exception{
-		System.err.println("Training");
+		_logger.fine("Training");
 		long st = System.currentTimeMillis();
 		long dt = maxSeconds*1000;
 		//double[] zip = new double[_output[0].length-1];
@@ -414,13 +419,13 @@ public class EKFANN implements Serializable{
 		int e = 0;
 		do{
 			if(e++%100 == 0)
-				System.err.println(e);
+			    _logger.fine(Integer.toString(e));
 			for(int i = 0;i<in.length;i++){
 				execute(in[i]);
 				update(tg[i]);
 			}
 		}while(System.currentTimeMillis() < st+dt);
-		System.err.println("\tDone.");
+		_logger.fine("\tDone.");
 	}
 	
 	public void setRNoise(double r){

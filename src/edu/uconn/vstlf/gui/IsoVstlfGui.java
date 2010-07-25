@@ -54,6 +54,8 @@ import edu.uconn.vstlf.realtime.*;
 
 public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VSTLFNotificationCenter, PulseAction
 {	
+    private java.util.logging.Logger _guiLogger = java.util.logging.Logger.getLogger("VSTLF_GUI");
+
 	// VSTLF related objects
 		
 	/**
@@ -139,6 +141,9 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 		this._currentDataFileName = currentDataXml;
 		this._historyDataFileName = dailyDataXml;
 		this.addWindowListener(this);
+
+		java.util.logging.Handler hf = new java.util.logging.FileHandler("gui.log");
+		_guiLogger.addHandler(hf);
    }
 	
 	public void setTestTime(Date tt){
@@ -280,10 +285,11 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 		   File f = new File(_dbName);
 			if(f.exists() && _DELETE) {
 				if(!f.delete()) {
-					System.err.println("???"); 
+					_guiLogger.severe("???"); 
 					System.exit(0);
 				}
 			}
+
 			_db = new PerstPowerDB(_dbName,300);
 			_db.open();
 	   }
@@ -327,7 +333,7 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 			   }
 		   }
 		   else{
-			   System.out.println("Reading from TABLE");
+			   _guiLogger.fine("Reading from TABLE");
 			   _sum = _db.getSum();
 			   _sumP = _db.getSumP();
 			   _sumOfSquares = _db.getSumOfSquares();
@@ -347,7 +353,7 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 		   }
 	   }
 	   catch(Exception e){
-		   System.err.println("Exception while populating statistics from history");
+		   _guiLogger.severe("Exception while populating statistics from history");
 		   e.printStackTrace();
 	   }
    }
@@ -625,7 +631,7 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 	   windowClosed(e);
    }
    public void windowClosed(WindowEvent e){
-	   System.out.println("Closing...");
+       //System.out.println("Closing...");
 	   _db.addStats(_pulseTime, _nbErr, _sum.array(), _sumP.array(), _sumOfSquares.array(), _ovr.array(), _und.array());
 	   try{
 		   _db.close();
