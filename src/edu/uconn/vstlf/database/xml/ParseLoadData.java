@@ -90,7 +90,7 @@ public class ParseLoadData {
 		String nodeVal = historyStartNode.getNodeValue();
 		Date historyStart = this.format.parse(nodeVal);
 		Node historyEndNode = nodeMap.getNamedItem("he");
-		nodeVal = historyEndNode.getNodeValue();
+		historyEndNode.getNodeValue();
 		// split up the raw csv history data
 		//Date historyEnd = this.format.parse(nodeVal);
 		String[] splitStringArr = rawHistory.split(",");

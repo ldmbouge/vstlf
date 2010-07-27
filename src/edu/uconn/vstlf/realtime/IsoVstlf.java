@@ -52,7 +52,7 @@ import java.util.logging.*;
 
 public class IsoVstlf implements IVstlfMain, PulseAction
 {	
-    private Logger _logger = Logger.getLogger("VSTLF logger");
+    private Logger _logger;
 
 	// VSTLF related objects
 		
@@ -100,9 +100,9 @@ public class IsoVstlf implements IVstlfMain, PulseAction
 		this._currentDataFileName = currentDataXml;
 		this._historyDataFileName = dailyDataXml;	
 		
-		_out = new DataStream(this,(OutputStream)null);
-		
+	    _logger = Logger.getLogger("VSTLF logger");
 		_logger.addHandler(new FileHandler("VSTLF_Headless.log"));
+		_out = new DataStream(this,(OutputStream)null);
    }
    
    public void setTestTime(Date tt){
@@ -179,22 +179,25 @@ public class IsoVstlf implements IVstlfMain, PulseAction
 	}
 
    
-   void setupDatabases(){
+   boolean setupDatabases(){
 	   try{
 		    //Delete forecast database if it is around from last time;
 		   File f = new File(_dbName);
 			if(f.exists() && _DELETE) { 
 				if(!f.delete()) {
 					_logger.severe("???"); 
-					System.exit(0);
+					return false;
 				}
 			}
 
 			_db = new PerstPowerDB(_dbName,300);
 			_db.open();
+			return true;
 	   }
 	   catch(Exception e){
 		   e.printStackTrace();
+		   _logger.severe(e.toString());
+		   return false;
 	   }		
    }
    

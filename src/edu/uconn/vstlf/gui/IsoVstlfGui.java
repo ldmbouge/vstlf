@@ -123,17 +123,15 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 	DistributionFrame _distributionFrame = null;
 	DistributionTableModel _distributionTableModel = null;
 	// swing GUI update object
-	ToolbarMgr _toolBarMgr = new ToolbarMgr();
+	ToolbarMgr _toolBarMgr;
 	// static reference to this object
-	static IsoVstlfGui _vstlfMain ;
-
 	boolean _debug = false;
 
 	public IsoVstlfGui(boolean coldstart, String dbName, String currentDataXml, String dailyDataXml) throws Exception
    	{
 		super("UCONN / ISO-NE VSTLF Test Set");
+		_toolBarMgr = new ToolbarMgr(this);
 		_cal = new Calendar(Items.get(Items.TimeZone));
-		_vstlfMain = this;
 		_coldStartSrcType = dailyDataXml.substring(dailyDataXml.lastIndexOf(".")+1).toLowerCase();
 		_currDataSrcType = currentDataXml.substring(currentDataXml.lastIndexOf(".")+1).toLowerCase();
 		this._coldStart = coldstart;
@@ -179,7 +177,8 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 			_logger.addMessage("Input ends @" + _end4SInput);
 		}
 		_logger.addMessage("Openning new working DB...");
-		setupDatabases();
+		boolean good = setupDatabases();
+		if (!good) return;
 		_logger.addMessage("\t done.");
 		
 		//the tabs 
@@ -273,28 +272,24 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 		}
 		_logger.addMessage("Initialization Complete.\n\n\n\n\n");
 	}
-
-   public static IsoVstlfGui getIsoVstlfGui()
-   {
-      return _vstlfMain;
-   }
    
-   void setupDatabases(){
+   boolean setupDatabases(){
 	   try{
 		    //Delete forecast database if it is around from last time;
 		   File f = new File(_dbName);
 			if(f.exists() && _DELETE) {
 				if(!f.delete()) {
-					_guiLogger.severe("???"); 
-					System.exit(0);
+					_guiLogger.severe("Couldn't delete [" + _dbName + "]"); 
+					return false;
 				}
 			}
-
 			_db = new PerstPowerDB(_dbName,300);
 			_db.open();
+			return true;
 	   }
 	   catch(Exception e){
-		   e.printStackTrace();
+		   _guiLogger.severe(e.toString());
+		   return false;
 	   }		
    }
    
@@ -389,10 +384,7 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 	   _plot = new LoadPlotFrame();
 	   _plot.setVisible(true);
 	   _mainFrame.addTab("Signal Plot", _plot);
-	   //this.getContentPane().add(BorderLayout.CENTER,_plot);
-	   //_desktop.add(_plot);
    }
-
 
    protected void createForecastFrame()
    {

@@ -26,6 +26,7 @@
 package edu.uconn.vstlf.database.perst;
 
 import java.util.*;
+
 import org.garret.perst.*;
 public class PerstForecastSeries extends Persistent {
 	String     _name;
@@ -72,5 +73,21 @@ public class PerstForecastSeries extends Persistent {
     public Date last(){
     	return _seq.getLastTime();
     }
-
+	public boolean equals(Object o) {
+		if (o instanceof PerstForecastSeries) {
+			PerstForecastSeries pb = (PerstForecastSeries)o;
+			if (!_name.equals(pb._name)) return false;
+			boolean eq = _seq.countTicks() == pb._seq.countTicks();
+			Iterator<PerstForecastPoint> i1 = _seq.iterator();
+			Iterator<PerstForecastPoint> i2 = pb._seq.iterator();
+			while (eq && i1.hasNext() && i2.hasNext()) {
+				PerstForecastPoint t1 = i1.next();
+				PerstForecastPoint t2 = i2.next();
+				eq = t1.equals(t2);				
+			}
+			eq = eq && (i1.hasNext() == i2.hasNext());
+			return eq;
+		} else return false;
+	}
+	public int hashCode() { return _seq.size();}
 }

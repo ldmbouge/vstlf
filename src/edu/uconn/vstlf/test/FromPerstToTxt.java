@@ -60,6 +60,7 @@ public class FromPerstToTxt {
 		}
 		System.out.println("Complete outputing data on " + min + "m " + loadType + " from " + start + " to " + end);
 		db.close();
+		ps.close();
 	}
 	
 	public static void main(String[] args) throws Exception

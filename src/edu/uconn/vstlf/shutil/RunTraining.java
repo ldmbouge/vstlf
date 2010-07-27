@@ -125,7 +125,9 @@ public class RunTraining {
 				System.out.println("WARNING:  The file '"+xmlFile+"' contains less than one year of data.\n" +
 						"It is recommended that you use at least one continuous year of load signal to train your neural nets.\n" +
 						"Would you like to continue the training on these limited data? (Y/n)");
-				if(!new BufferedReader(new InputStreamReader(System.in)).readLine().equals("Y")){
+				BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+				String line = br.readLine();
+				if(line ==null || !line.equals("Y")){
 					System.out.println("Aborting...");
 					return;
 				}
@@ -134,7 +136,9 @@ public class RunTraining {
 			}
 			System.out.println("Training about to commence.  This will take about "+(3*(hi-lo+1))+
 					" hours.  Please confirm that you would like to continue. (Y/n)");
-			if(!new BufferedReader(new InputStreamReader(System.in)).readLine().equals("Y")){
+			BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+			String line = br.readLine();
+			if(line ==null || !line.equals("Y")){
 				System.out.println("Aborting...");
 				return;
 			}

@@ -32,13 +32,13 @@ import edu.uconn.vstlf.realtime.*;
 import edu.uconn.vstlf.config.*;
 
 public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCenter{
-	DateFormat _df;
-	StringWriter _bufWriter = null;
-	BufferedReader _in = null;
-	PrintWriter _out = null;
-	StringBuffer _buf = null;
-	IsoVstlf _srvr = null;
-	Calendar _cal;
+	private DateFormat _df;
+	private StringWriter _bufWriter = null;
+	private BufferedReader _in = null;
+	private PrintWriter _out = null;
+	private StringBuffer _buf = null;
+	private IsoVstlf _srvr = null;
+	private Calendar _cal;
 	boolean _isInput,_isOutput, _waiting = false;
 	
 	public DataStream(){
@@ -110,7 +110,7 @@ public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCen
 		return new VSTLF4SPoint(t,v);
 	}
 	
-	void send(String xml){
+	private void send(String xml){
 		if(_out==null || _out.checkError()){		//if there is no outpipe
 			_out = new PrintWriter(_bufWriter);		//	then accumulate xml in the buffer
 			if(!_waiting){
@@ -126,15 +126,15 @@ public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCen
 		}
 	}
 	
-	void sendOpen(String name){
+	private void sendOpen(String name){
 		send("<"+name+">");
 	}
 	
-	void sendClose(String name){
+	private void sendClose(String name){
 		send("</"+name+">");
 	}
 	
-	void sendContent(String content){
+	private void sendContent(String content){
 		send(content);
 	}
 	
@@ -233,13 +233,13 @@ public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCen
 			sendContent(getStackTrace(e));
 		sendClose("run-time-exception");
 	}	
-	String getStackTrace(Exception e){
+	private String getStackTrace(Exception e){
 		StringWriter s = new StringWriter();
 		e.printStackTrace(new PrintWriter(s));
 		return s.toString();
 	}
 	
-	synchronized public void dump(){
+	synchronized private void dump(){
 		Date d = new Date();
 		FileWriter fw = null;
     	try{

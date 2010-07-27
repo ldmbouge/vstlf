@@ -36,21 +36,18 @@ import java.awt.BorderLayout;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 
-public class ToolbarMgr
-{
+public class ToolbarMgr {
 	// upper tool bar components
 	JTextField _currentTimeTextField = new JTextField (new Date().toString());
 	JTextField _lastObservationTimeTextField = new JTextField (IToolbarMgr.UNKNOWN_DATE);
 	JTextField _lastObservationValueTextField = new JTextField (IToolbarMgr.UNKNOWN_VALUE);
     SimpleDateFormat _formatter = new SimpleDateFormat(IVstlfMain.DATE_FORMAT);
-
-
-	public ToolbarMgr()
+    private IsoVstlfGui _gui;
+	public ToolbarMgr(IsoVstlfGui gui)
 	{
-
+		_gui = gui;
 	}
-   public void createToolbars()
-   {
+	public void createToolbars() {
 		JToolBar toolBar = new JToolBar();
 		toolBar.setFloatable(false);
 		toolBar.add(new JLabel("Pulse Time  "));
@@ -66,7 +63,7 @@ public class ToolbarMgr
 		toolBar.add(_lastObservationValueTextField);
 
 
-		IsoVstlfGui.getIsoVstlfGui().getContentPane().add(toolBar, BorderLayout.NORTH);
+		_gui.getContentPane().add(toolBar, BorderLayout.NORTH);
 	}
 
 	public void update(Date pulseTime, Date observationTime, double value)

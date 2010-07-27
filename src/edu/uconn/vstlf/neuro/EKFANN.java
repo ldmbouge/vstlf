@@ -59,7 +59,6 @@ public class EKFANN implements Serializable{
 	double[] _finalInnov;// = .002;
 	
 
-    private Logger _logger = Logger.getLogger("EKFANN");
 	/**
 	 * Constructs an ANN from two 3D arrays, one containing current weights, one recent weights.
 	 * The matrices are indexed in the following way.
@@ -130,7 +129,8 @@ public class EKFANN implements Serializable{
 		}
 		_finalInnov = new double[_output[_output.length-1].length];
 		_rNoise = .0001;														//some random noise
-		_logger.addHandler(new FileHandler("ann.log"));
+		Logger logger = Logger.getLogger("EKFANN");
+		logger.addHandler(new FileHandler("ann.log"));
 	}
 	
 	public EKFANN(double[][][][] w,double[][][][] e,double[][][][] m,double[][][] i, int[] lyrSz) throws SecurityException, IOException{
@@ -327,8 +327,9 @@ public class EKFANN implements Serializable{
 	 * @param input Array of values presented to the input layer.
 	 */
 	public double[] execute(double[] input){
+		Logger logger = Logger.getLogger("EKFANN");
 		if(input.length!=_output[0].length-1) 
-			_logger.fine(input.length+"!="+(_output[0].length-1));
+			logger.fine(input.length+"!="+(_output[0].length-1));
 		for(int i = 1;i<_output[0].length;i++){
 			_output[0][i] = input[i-1];			//input i is layer 0, index i
 		}
@@ -391,14 +392,15 @@ public class EKFANN implements Serializable{
 	
 	
 	public void EKFTrain(double[][] in, double[][] tg, double[][] inVar, int maxSeconds) throws Exception{
-		_logger.fine("Training");
+		Logger logger = Logger.getLogger("EKFANN");
+		logger.fine("Training");
 		long st = System.currentTimeMillis();
 		long dt = maxSeconds*1000;
 		if(in.length!=tg.length) throw new Exception("You must have the same number of in and tg");
 		int e = 0;
 		do{
 			if(e++%100 == 0)
-			    _logger.fine(Integer.toString(e));
+			    logger.fine(Integer.toString(e));
 			for(int i = 0;i<in.length;i++){
 				execute(in[i]);
 				for(int outid = 0; outid<_output[_output.length-1].length-1;outid++){
@@ -407,11 +409,12 @@ public class EKFANN implements Serializable{
 				}
 			}
 		}while(System.currentTimeMillis() < st+dt);
-		_logger.fine("\tDone.");
+		logger.fine("\tDone.");
 	}
 	
 	public void train(double[][] in, double[][] tg, int maxSeconds) throws Exception{
-		_logger.fine("Training");
+		Logger logger = Logger.getLogger("EKFANN");
+		logger.fine("Training");
 		long st = System.currentTimeMillis();
 		long dt = maxSeconds*1000;
 		//double[] zip = new double[_output[0].length-1];
@@ -419,13 +422,13 @@ public class EKFANN implements Serializable{
 		int e = 0;
 		do{
 			if(e++%100 == 0)
-			    _logger.fine(Integer.toString(e));
+			    logger.fine(Integer.toString(e));
 			for(int i = 0;i<in.length;i++){
 				execute(in[i]);
 				update(tg[i]);
 			}
 		}while(System.currentTimeMillis() < st+dt);
-		_logger.fine("\tDone.");
+		logger.fine("\tDone.");
 	}
 	
 	public void setRNoise(double r){
@@ -611,6 +614,10 @@ class EKFWeightObj extends Persistent implements EKFThing,Serializable{
 	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
 		
 	}//*/
+	public boolean equals(Object o) {
+		return super.equals(o);
+	}
+	public int hashCode() { return 7;}
 }
 
 class EKFWeightSet extends Persistent implements EKFThing,Serializable{
@@ -627,6 +634,10 @@ class EKFWeightSet extends Persistent implements EKFThing,Serializable{
 	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
 		
 	}//*/
+	public boolean equals(Object o) {
+		return super.equals(o);
+	}
+	public int hashCode() { return 7;}
 }
 
 class EKFCovarianceObj extends Persistent implements EKFThing,Serializable{
@@ -647,6 +658,10 @@ class EKFCovarianceObj extends Persistent implements EKFThing,Serializable{
 	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
 		
 	}//*/
+	public boolean equals(Object o) {
+		return super.equals(o);
+	}
+	public int hashCode() { return 7;}
 }
 
 class EKFCovarianceSet extends Persistent implements EKFThing,Serializable{
@@ -662,6 +677,10 @@ class EKFCovarianceSet extends Persistent implements EKFThing,Serializable{
 	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
 		
 	}//*/
+	public boolean equals(Object o) {
+		return super.equals(o);
+	}
+	public int hashCode() { return 7;}
 }
 
 

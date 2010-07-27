@@ -27,8 +27,7 @@ package edu.uconn.vstlf.database.xml;
 
 import java.util.*;
 
-public class LoadData implements Comparable<LoadData>
-{
+public class LoadData implements Comparable<LoadData> {
 	Date date;
 	double val;
 	boolean quality;
@@ -74,9 +73,6 @@ public class LoadData implements Comparable<LoadData>
 	}
 	
 	public int compareTo(LoadData d){
-		if(date.before(d.date)) return -1;
-		if(date.equals(d.date)) return 0;
-		return 1;
+		return date.compareTo(d.date);
 	}
-
 }

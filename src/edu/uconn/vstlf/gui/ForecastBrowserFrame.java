@@ -26,6 +26,7 @@
 package edu.uconn.vstlf.gui;
 
 import java.awt.Font;
+import java.util.Arrays;
 import java.util.Date;
 import javax.swing.*;
 import javax.swing.event.*;
@@ -103,7 +104,8 @@ public class ForecastBrowserFrame extends JPanel implements IForecastFrame,ListS
 			   valA = _db.getLoad("filt",t, _cal.addHoursTo(t, 1)).array(false);
 		   }
 		   catch(Exception x){
-			   System.out.println(valP +"\n"+valA);
+			   System.out.print(Arrays.toString(valP));
+			   System.out.print(Arrays.toString(valA));
 			   x.printStackTrace();
 			   valP = valA = new double[12];
 		   }

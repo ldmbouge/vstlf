@@ -41,7 +41,7 @@ import edu.uconn.vstlf.database.PowerDB;
 import edu.uconn.vstlf.database.xml.*;
 public class PerstPowerDB extends PowerDB {
 
-    static private Logger _perstXMLLogger = Logger.getLogger("perst_power_db_from_xml");
+    static private Logger _perstXMLLogger = Logger.getLogger("perst");
 
 	Storage _db;
 	String _table;
@@ -57,7 +57,7 @@ public class PerstPowerDB extends PowerDB {
 	}
 
 	public static PerstPowerDB fromXML(String outFile, int inc, String inFile)throws Exception{
-	    Handler hf = new FileHandler("perst_db_fromXML.log");
+	    Handler hf = new FileHandler("perstDB.log");
 	    _perstXMLLogger.addHandler(hf);
 
 		Calendar cal = Items.makeCalendar();
@@ -302,7 +302,10 @@ public class PerstPowerDB extends PowerDB {
 	}
 	
 	public void addLoadNL(String s, Date time,double load) {
-		PerstDataSeries ld = _fields.get(s);
+		PerstDataSeries ld = null;
+		synchronized(this) {
+			ld = _fields.get(s);
+		}
 		Calendar cal = Items.makeCalendar();
 		Date t = cal.lastTick(1, time);
 		if(ld.has(t)){
@@ -319,7 +322,10 @@ public class PerstPowerDB extends PowerDB {
 		for(LoadData d:set)
 			list.add(new PerstDataPoint(cal.lastTick(1, d.getDate()),d.getValue()));
 		_db.beginThreadTransaction(Storage.READ_WRITE_TRANSACTION);
-		PerstDataSeries ld = _fields.get(s);
+		PerstDataSeries ld = null;
+		synchronized(this) {
+			ld = _fields.get(s);
+		}
 		ld.add(list);
 		_db.endThreadTransaction();
 	}
@@ -517,8 +523,8 @@ public class PerstPowerDB extends PowerDB {
 		return s.toString();
 	}
 
-	public String getInfo() {
-		StringBuffer sb = new StringBuffer();
+	public synchronized String getInfo() {
+		StringBuffer sb = new StringBuffer(512);
 		for(PerstDataSeries ds : _fields) {
 			sb.append("serie[");
 			sb.append(ds._name).append("]");

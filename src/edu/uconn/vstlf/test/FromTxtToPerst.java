@@ -88,7 +88,9 @@ public class FromTxtToPerst {
 
 				if (outf.exists()) {
 					System.out.println("The perst database " + outf.getName() + " exists. Do you want to add data into it? (Y/n)");
-					if(!new BufferedReader(new InputStreamReader(System.in)).readLine().equals("Y")){
+					BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+					String line = br.readLine();
+					if(line == null || !line.equals("Y")){
 						System.out.println("Aborting...");
 						return;
 					}

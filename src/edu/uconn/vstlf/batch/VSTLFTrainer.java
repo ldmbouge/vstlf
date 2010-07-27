@@ -491,16 +491,16 @@ public class VSTLFTrainer {
 			
 			// Log the spike
 			Calendar cal = new Calendar();
-			String s = "Spike starting from " + cal.addMinutesTo(from, st*5) + " to " +
-				cal.addMinutesTo(from, ed*5) + ":\n";
-			s = s + "\tBefore patch:\t";
+			StringBuffer sb = new StringBuffer(512);
+			sb.append("Spike starting from ").append(cal.addMinutesTo(from, st*5));
+			sb.append(" to ").append(cal.addMinutesTo(from, ed*5)).append(":\n");
+			sb.append("\tBefore patch:\t");
 			for (int t = st; t <= ed; ++t)
-				s = s + unpatched.element(t) + ", ";
-			s = s + "\n\tAfter patch:\t";
+				sb.append(unpatched.element(t)).append(", ");
+			sb.append("\n\tAfter patch:\t");
 			for (int t = st; t <= ed; ++t)
-				s = s + patched.element(t) + ", ";
-			
-			lgr.warning(s);
+				sb.append(patched.element(t)).append(", ");
+			lgr.warning(sb.toString());
 			
 			//
 			i = ed + 1;

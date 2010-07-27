@@ -48,7 +48,7 @@ public class SimpleFeedForwardANN {
 	int[] _lyrSz;
 	
     Logger _logger = Logger.getLogger("SimpleFeedForwardANN");
-    
+    public SimpleFeedForwardANN() {}
 	/**
 	 * Constructs an ANN from two 3D arrays, one containing current weights, one recent weights.
 	 * The matrices are indexed in the following way.
@@ -403,6 +403,7 @@ public class SimpleFeedForwardANN {
 class WeightObj extends Persistent{
 	int _lid,_nid,_cid;
 	double _val;
+	public WeightObj() {}
 	WeightObj(int lid, int nid, int cid, double val){
 		_lid = lid; _nid = nid; _cid = cid; _val = val;
 	}
@@ -410,6 +411,10 @@ class WeightObj extends Persistent{
 	int nid(){return _nid;}
 	int cid(){return _cid;}
 	double val(){return _val;}
+	public boolean equals(Object o) {
+		return super.equals(o);
+	}
+	public int hashCode() { return 7;}
 }
 
 class WeightSet extends Persistent{
@@ -417,10 +422,18 @@ class WeightSet extends Persistent{
 	int[] _lyrSz;
 	WeightObj[] _curr;
 	WeightObj[] _past;
+	public WeightSet() {
+		_id = -1;
+		_lyrSz = null;
+		_curr = _past = null;
+	}
 	WeightSet(int id, int[] lyrSz, WeightObj[] curr, WeightObj[] past){
 		_id = id; _curr = curr; _past = past; _lyrSz = lyrSz;
 	}
-	
+	public boolean equals(Object o) {
+		return super.equals(o);
+	}
+	public int hashCode() { return 7;}
 }
 
 

@@ -102,7 +102,7 @@ public class Run {
 			RunAudition.main(cargs);
 		}
 		else if(cmd.equals("reset")){
-			Reset.main(null);
+			Reset.main(cargs);
 		}
 		else if(cmd.equals("build-perst")){
 			RunFromXMLToPerst.main(cargs);

@@ -74,7 +74,9 @@ public class FourSecondProcess extends Thread {
 	
 	public void prepare(Date st,int rate){
 		_rate = rate;
-		_at = st;
+		synchronized(this) {
+			_at = st;
+		}
 		// setup a scheduled action to compute the four second average and produce it (happens 
 		// on four second boundaries.
 		new Pulse(rate,new PulseAction() { // 250
@@ -142,7 +144,9 @@ public class FourSecondProcess extends Thread {
 	public void run() {
 		boolean done = false;
 		Calendar cal = Items.makeCalendar();
-		_lastAggTime = cal.lastTick(300, _at);
+		synchronized(this) { 
+			_lastAggTime = cal.lastTick(300, _at);		
+		}
 		while(!done) {//A new point will come every four seconds
 			VSTLF4SPoint thePoint = _4s.consume(); //take it out,
 			if (!thePoint.isValid()) {

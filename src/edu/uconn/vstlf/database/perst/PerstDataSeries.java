@@ -79,4 +79,21 @@ public class PerstDataSeries extends Persistent {
     public int getSize() {
     	return _seq.size();
     }
+	public boolean equals(Object o) {
+		if (o instanceof PerstDataSeries) {
+			PerstDataSeries pb = (PerstDataSeries)o;
+			if (!_name.equals(pb._name)) return false;
+			boolean eq = _seq.countTicks() == pb._seq.countTicks();
+			Iterator<Tick> i1 = _seq.iterator();
+			Iterator<Tick> i2 = pb._seq.iterator();
+			while (eq && i1.hasNext() && i2.hasNext()) {
+				Tick t1 = i1.next();
+				Tick t2 = i2.next();
+				eq = t1.equals(t2);				
+			}
+			eq = eq && (i1.hasNext() == i2.hasNext());
+			return eq;
+		} else return false;
+	}
+	public int hashCode() { return _seq.size();}
 }

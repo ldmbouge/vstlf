@@ -194,14 +194,6 @@ private static double getCosLocalHourAngle (double sunTrueLongitude, double lati
   return cosH;
   }
 
-/**
-Gets the cosine of the Sun's local hour angle for default zenith
-*/
-@SuppressWarnings("unused")
-private static double getCosLocalHourAngle (double sunTrueLongitude,double latitude)
-  {
-  return getCosLocalHourAngle (sunTrueLongitude, latitude, ZENITH);
-  }
 
 /**
 Calculate local mean time of rising or setting. By `local' is meant the exact

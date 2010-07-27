@@ -36,10 +36,25 @@ public class Day implements Comparable<Day>{
 		if(_dy<d._dy) return -1; if(_dy>d._dy) return 1;
 		return 0;
 	}
+	public int hashCode() {
+		return (_yr - 1900) * 101 * 12 + _mo * 12 + _dy;
+	}
+	public boolean equals(Object od){
+		assert false : "equals should not be called on Day class";
+		if (od instanceof Day) {
+			Day d = (Day)od;
+			return _yr == d._yr && _mo == d._mo && _dy == d._dy;
+		} else return false;
+	}
 	
-	public boolean equals(Day d){return compareTo(d)==0;}
-	
-	public boolean before(Day d){return compareTo(d)==-1;}
+	public boolean before(Day d){
+		if (_yr < d._yr) return true;
+		if (_yr > d._yr) return false;
+		if (_mo < d._mo) return true;
+		if (_mo > d._mo) return false;
+		if (_dy < d._dy) return true;
+		return false;
+	}
 	
 	public boolean after(Day d) {return compareTo(d)==1;}
 	

@@ -29,6 +29,8 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.logging.Logger;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
@@ -141,8 +143,13 @@ public enum Items{
 	
 	public static synchronized void save(String filename)throws Exception{
 		File dir = new File("anns");
+		boolean status = false;
 		if(!dir.exists())
-			dir.mkdirs();
+			status = dir.mkdirs();
+		if (!status) {
+			Logger perstLogger = Logger.getLogger("perst");
+			perstLogger.fine("Couldn't create directory [anns]");
+		}
 		PrintWriter out = new PrintWriter(filename);
 		out.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 		out.println("<vstlf:config>");

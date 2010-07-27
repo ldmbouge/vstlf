@@ -46,5 +46,15 @@ public class PerstForecastBlock extends Block {
         }
         return _points;
 	}
-
+	public boolean equals(Object o) {
+		if (o instanceof PerstForecastBlock) {
+			PerstForecastBlock pb = (PerstForecastBlock)o;
+			if (_points.length != pb._points.length) return false;
+			boolean eq = true;
+			for(int k=0;eq && k < _points.length;k++)
+				eq = _points[k].equals(pb._points[k]);
+			return eq;
+		} else return false;
+	}
+	public int hashCode() { return _points.length;}
 }
