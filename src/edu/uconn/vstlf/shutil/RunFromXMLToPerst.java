@@ -30,6 +30,10 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.util.Vector;
 
+import edu.uconn.vstlf.data.message.DummyMsgHandler;
+import edu.uconn.vstlf.data.message.MessageCenter;
+import edu.uconn.vstlf.data.message.VSTLFMessage;
+import edu.uconn.vstlf.data.message.VSTLFMsgLogger;
 import edu.uconn.vstlf.database.perst.PerstPowerDB;
 
 public class RunFromXMLToPerst {
@@ -70,7 +74,7 @@ public class RunFromXMLToPerst {
 			}
 			
 			if (!inf.exists()) {
-				System.err.println("The input file or directory (" + inf.getName() + " does not exist!");
+				System.err.println("The input file or directory (" + inf.getPath() + ") does not exist!");
 				return;
 			}
 			
@@ -83,7 +87,10 @@ public class RunFromXMLToPerst {
 						return;
 					}
 				}
-			
+
+				MessageCenter.getInstance().setHandler(new VSTLFMsgLogger("vstlf.log", new DummyMsgHandler()));
+				MessageCenter.getInstance().init();
+
 				Vector<File> xmlFiles = listFiles(inf);
 
 				for (int i = 0; i < xmlFiles.size(); ++i) {
@@ -97,6 +104,7 @@ public class RunFromXMLToPerst {
 					}
 				}
 				
+				MessageCenter.getInstance().put(new VSTLFMessage(VSTLFMessage.Type.EOF));
 			}
 			catch (Exception e) {
 				e.printStackTrace();

@@ -23,7 +23,7 @@
  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ***********************************************************************/
 
-package edu.uconn.vstlf.data.Message;
+package edu.uconn.vstlf.data.message;
 
 public abstract class VSTLFMsgHandler {
 	public abstract void handle(VSTLFMessage msg) throws VSTLFMsgException;

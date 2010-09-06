@@ -29,6 +29,10 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.Level;
+
+import edu.uconn.vstlf.data.message.LogMessage;
+import edu.uconn.vstlf.data.message.MessageCenter;
 
 public class Pulse {
 	private int	  _milli;
@@ -47,7 +51,8 @@ public class Pulse {
     public void start(Calendar startAt) {
     	timer = new Timer();
     	Date now = startAt.getTime();
-    	System.out.format("Pulsing from: %s\n",now.toString());
+    	MessageCenter.getInstance().put(new LogMessage(Level.INFO,
+    			Pulse.class.getName(), "start(Calendar)", String.format("Pulsing from: %s\n",now.toString())));
     	timer.scheduleAtFixedRate(new TimerTask() {
             public void run() {
             	//System.out.println("TICK\n");
@@ -62,7 +67,8 @@ public class Pulse {
     public static void main(String[] args) {
         new Pulse(4000,new PulseAction() {
         	public boolean run(Date at) {
-                System.out.println("4 seconds up " + at.toString());
+        		MessageCenter.getInstance().put(new LogMessage(Level.INFO,
+            			Pulse.class.getName(), "main", "4 seconds up " + at.toString()));
                 return true;
         	}
         },new Date());

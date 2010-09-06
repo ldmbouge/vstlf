@@ -26,8 +26,11 @@
 package edu.uconn.vstlf.preprocessing;
 
 import java.util.Date;
+import java.util.logging.Level;
 
 import edu.uconn.vstlf.data.Calendar;
+import edu.uconn.vstlf.data.message.LogMessage;
+import edu.uconn.vstlf.data.message.MessageCenter;
 import edu.uconn.vstlf.database.PowerDB;
 import edu.uconn.vstlf.database.perst.PerstPowerDB;
 import edu.uconn.vstlf.realtime.PCBuffer;
@@ -69,7 +72,10 @@ public class Produce5MLoad {
 	
 	private void executeImpl(PowerDB indb, PowerDB outdb, Date st, Date ed) throws Exception
 	{
-		System.out.println("Start transforming the 4s loads into 5m loads from " + st + " to " + ed);
+		String methodName = Produce5MLoad.class.getDeclaredMethod("executeImpl", 
+				new Class[]{PowerDB.class, PowerDB.class, Date.class, Date.class}).getName();
+		MessageCenter.getInstance().put(new LogMessage(Level.INFO, Produce5MLoad.class.getName(),
+				methodName, "Start transforming the 4s loads into 5m loads from " + st + " to " + ed));
 		
 		VSTLF4SPoint endOf4SStream = new VSTLF4SPoint(null, Double.NaN);
 		VSTLF5MPoint endOf5MStream = new VSTLF5MPoint(null, Double.NaN, -1);
@@ -90,7 +96,8 @@ public class Produce5MLoad {
 		// Wait for the storing thread to end
 		outThread.join();
 		
-		System.out.println("Loads from " + st + " to " + ed + " is aggregated into 5m loads");
+		MessageCenter.getInstance().put(new LogMessage(Level.INFO, Produce5MLoad.class.getName(),
+				methodName, "Loads from " + st + " to " + ed + " is aggregated into 5m loads"));
 	}
 	
 	public void execute() throws Exception
@@ -102,7 +109,9 @@ public class Produce5MLoad {
 		
 		Date st = indb.first(_inLoadType);
 		Date ed = indb.last(_inLoadType);
-		System.out.format("Converting 4s signal between %s - %s\n", st,ed);
+		MessageCenter.getInstance().put(new LogMessage(Level.INFO, Produce5MLoad.class.getName(),
+				Produce5MLoad.class.getMethod("execute", new Class[]{}).getName(), String.format("Converting 4s signal between %s - %s\n", st,ed)));
+
 		executeImpl(indb, outdb, st, ed);
 		outdb.close();
 		indb.close();

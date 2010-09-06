@@ -1,4 +1,4 @@
-package edu.uconn.vstlf.data.Message;
+package edu.uconn.vstlf.data.message;
 
 public class DummyMsgHandler extends VSTLFMsgHandler {
 

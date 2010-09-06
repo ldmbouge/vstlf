@@ -1,4 +1,4 @@
-package edu.uconn.vstlf.data.Message;
+package edu.uconn.vstlf.data.message;
 
 import edu.uconn.vstlf.realtime.PCBuffer;
 
@@ -43,7 +43,7 @@ public class MessageCenter implements Runnable {
 				if (msg.getType() == VSTLFMessage.Type.EOF)
 					break;
 		
-					dispatch(msg);
+				dispatch(msg);
 			}
 		} catch (VSTLFMsgException e) {
 			// TODO Auto-generated catch block

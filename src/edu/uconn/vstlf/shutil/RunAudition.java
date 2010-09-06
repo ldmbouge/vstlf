@@ -25,11 +25,24 @@
 
 package edu.uconn.vstlf.shutil;
 
+import edu.uconn.vstlf.data.message.DummyMsgHandler;
+import edu.uconn.vstlf.data.message.MessageCenter;
+import edu.uconn.vstlf.data.message.VSTLFMessage;
+import edu.uconn.vstlf.data.message.VSTLFMsgLogger;
+
 public class RunAudition {
 
 	
 	public static void main(String[] args) {
-		edu.uconn.vstlf.batch.Audition.main(args);
+		try
+		{
+			MessageCenter.getInstance().setHandler(new VSTLFMsgLogger("vstlf.log", new DummyMsgHandler()));
+			MessageCenter.getInstance().init();
+			edu.uconn.vstlf.batch.Audition.main(args);
+			MessageCenter.getInstance().put(new VSTLFMessage(VSTLFMessage.Type.EOF));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }

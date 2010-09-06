@@ -29,9 +29,9 @@ import java.util.Date;
 import java.util.Vector;
 import java.util.logging.Level;
 import edu.uconn.vstlf.data.Calendar;
-import edu.uconn.vstlf.data.Message.LogMessage;
-import edu.uconn.vstlf.data.Message.MessageCenter;
 import edu.uconn.vstlf.data.doubleprecision.*;
+import edu.uconn.vstlf.data.message.LogMessage;
+import edu.uconn.vstlf.data.message.MessageCenter;
 import edu.uconn.vstlf.database.PowerDB;
 import edu.uconn.vstlf.database.perst.*;
 import edu.uconn.vstlf.neuro.*;
@@ -62,7 +62,7 @@ public class VSTLFTrainer {
 	{
 		try{
 			String methodName = VSTLFTrainer.class.getMethod("test", 
-					new Class[]{String.class, Date.class, Date.class, Integer.class, Integer.class}).getName();
+					new Class[]{String.class, Date.class, Date.class, Integer.TYPE, Integer.TYPE}).getName();
 
 			double[][] result = new double[12][];
 			int offs = lo;
@@ -217,8 +217,8 @@ public class VSTLFTrainer {
 								   double eh, double elh, double ellh, double elllh, double ellll, int lo, int up){
 		try{
 			String methodName = VSTLFTrainer.class.getMethod("train", 
-					new Class[]{String.class, Date.class, Date.class, Integer.class, Integer.class, Integer.class, Integer.class, Integer.class,
-					Double.class, Double.class, Double.class, Double.class, Double.class, Integer.class, Integer.class}).getName();
+					new Class[]{String.class, Date.class, Date.class, Integer.TYPE, Integer.TYPE, Integer.TYPE, Integer.TYPE, Integer.TYPE,
+					Double.TYPE, Double.TYPE, Double.TYPE, Double.TYPE, Double.TYPE, Integer.TYPE, Integer.TYPE}).getName();
 			for(int offs=lo;offs<=up;offs++){
 				MessageCenter.getInstance().put(
 						new LogMessage(Level.INFO, VSTLFTrainer.class.getName(), methodName, 
@@ -514,7 +514,7 @@ public class VSTLFTrainer {
 			for (int t = st; t <= ed; ++t)
 				s = s + patched.element(t) + ", ";
 			
-			String methodName = VSTLFTrainer.class.getMethod("LogSpikes", new Class[]{Series.class, Series.class, Date.class, Date.class, Double.class}).getName();
+			String methodName = VSTLFTrainer.class.getDeclaredMethod("LogSpikes", new Class[]{Series.class, Series.class, Date.class, Date.class, Double.TYPE}).getName();
 			MessageCenter.getInstance().put(
 					new LogMessage(Level.WARNING, VSTLFTrainer.class.getName(), methodName, s));
 			

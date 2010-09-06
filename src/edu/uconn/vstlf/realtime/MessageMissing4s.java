@@ -27,7 +27,7 @@ package edu.uconn.vstlf.realtime;
 
 import java.util.Date;
 
-import edu.uconn.vstlf.data.Message.VSTLFMessage;
+import edu.uconn.vstlf.data.message.VSTLFMessage;
 
 public class MessageMissing4s extends VSTLFRealTimeMessage {
 	public static VSTLFMessage.Type mtype = VSTLFMessage.Type.RTMissing4s; 

@@ -26,7 +26,7 @@
 package edu.uconn.vstlf.realtime;
 import java.util.Date;
 
-import edu.uconn.vstlf.data.Message.VSTLFMessage;
+import edu.uconn.vstlf.data.message.VSTLFMessage;
 
 
 public class VSTLF4SPoint extends VSTLFObservationPoint {

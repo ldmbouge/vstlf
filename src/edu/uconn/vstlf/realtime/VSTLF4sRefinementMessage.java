@@ -27,7 +27,7 @@ package edu.uconn.vstlf.realtime;
 
 import java.util.Date;
 
-import edu.uconn.vstlf.data.Message.VSTLFMessage;
+import edu.uconn.vstlf.data.message.VSTLFMessage;
 
 public class VSTLF4sRefinementMessage extends VSTLFRealTimeMessage {
 	public static VSTLFMessage.Type mtype = VSTLFMessage.Type.RTRefine4s; 

@@ -25,7 +25,7 @@
 
 package edu.uconn.vstlf.realtime;
 
-import edu.uconn.vstlf.data.Message.VSTLFMessage;
+import edu.uconn.vstlf.data.message.VSTLFMessage;
 
 public class VSTLFRealTimeExceptionMessage extends VSTLFRealTimeMessage {
 	public static VSTLFMessage.Type mtype = VSTLFMessage.Type.RTException; 

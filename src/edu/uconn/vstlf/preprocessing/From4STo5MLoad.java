@@ -28,10 +28,13 @@ package edu.uconn.vstlf.preprocessing;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Vector;
+import java.util.logging.Level;
 
 import edu.uconn.vstlf.data.Calendar;
 import edu.uconn.vstlf.data.doubleprecision.Series;
 import edu.uconn.vstlf.data.doubleprecision.ThresholdChoiceFunction;
+import edu.uconn.vstlf.data.message.LogMessage;
+import edu.uconn.vstlf.data.message.MessageCenter;
 import edu.uconn.vstlf.realtime.PCBuffer;
 import edu.uconn.vstlf.realtime.VSTLF4SPoint;
 import edu.uconn.vstlf.realtime.VSTLF5MPoint;
@@ -104,7 +107,8 @@ public class From4STo5MLoad implements Runnable{
 				
 			// Check load and at it to the queue
 			if (p.getStamp().before(prevPointTime))
-				System.err.println("4s load at " + p.getStamp() + " is out of order (before loat at " + fourSecLoads.getLast().getStamp() + ")");
+				MessageCenter.getInstance().put(new LogMessage(Level.WARNING,
+						From4STo5MLoad.class.getName(), "run", "4s load at " + p.getStamp() + " is out of order (before loat at " + fourSecLoads.getLast().getStamp() + ")"));
 			else {
 				fourSecLoads.addLast(p);
 				prevPointTime = p.getStamp();
@@ -116,8 +120,9 @@ public class From4STo5MLoad implements Runnable{
 				// Ignore any loads that are before the start of the time window
 				while (fourSecLoads.size() != 0 &&
 						!fourSecLoads.getFirst().getStamp().after(prevTime)) {
-					System.err.println("4s load at " + fourSecLoads.getFirst().getStamp() +
-							" is ignored, before time window (" + prevTime + ", " + nextTime +"]");
+					MessageCenter.getInstance().put(new LogMessage(Level.WARNING,
+							From4STo5MLoad.class.getName(), "run", "4s load at " + fourSecLoads.getFirst().getStamp() +
+							" is ignored, before time window (" + prevTime + ", " + nextTime +"]"));
 					fourSecLoads.removeFirst();
 				}
 				
@@ -138,7 +143,8 @@ public class From4STo5MLoad implements Runnable{
 					_output.produce(new VSTLF5MPoint(nextTime, aggVal ,filtSz)); //into a single 5mPoint
 				}
 				else{
-					System.err.println("PUTTING NaN at "+ nextTime);
+					MessageCenter.getInstance().put(new LogMessage(Level.WARNING,
+							From4STo5MLoad.class.getName(), "run", "PUTTING NaN at "+ nextTime));
 					_output.produce(new VSTLF5MPoint(nextTime, Double.NaN, 0)); //into a single 5mPoint
 				}
 				
@@ -175,7 +181,8 @@ public class From4STo5MLoad implements Runnable{
 			Series smooth = (window.size() < 10 ? load : load.lowPassFR(10));
 			array = new ThresholdChoiceFunction(filterThreshold).imageOf(load.minus(smooth),load,smooth).array();
 		}catch(Exception e){
-			System.err.println("Error while micro filtering: " + e.getMessage());
+			MessageCenter.getInstance().put(new LogMessage(Level.WARNING,
+					From4STo5MLoad.class.getName(), "microFilter", "Error while micro filtering: " + e.getMessage()));
 			for(int i = 0;i<window.size();i++) array[i] = window.elementAt(i);
 		}
 		

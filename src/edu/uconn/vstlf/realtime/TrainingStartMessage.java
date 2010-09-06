@@ -26,10 +26,10 @@
 package edu.uconn.vstlf.realtime;
 import java.util.*;
 
-import edu.uconn.vstlf.data.Message.VSTLFMessage;
+import edu.uconn.vstlf.data.message.VSTLFMessage;
 
 public class TrainingStartMessage extends VSTLFRealTimeMessage {
-	public static VSTLFMessage.Type mtype = VSTLFMessage.Type.TrainStart; 
+	public static VSTLFMessage.Type mtype = VSTLFMessage.Type.Unknown; 
 
 	Date _at,_from,_to;
 	

@@ -4,9 +4,9 @@ import java.util.Date;
 import java.util.logging.Level;
 
 import edu.uconn.vstlf.data.Calendar;
-import edu.uconn.vstlf.data.Message.LogMessage;
-import edu.uconn.vstlf.data.Message.MessageCenter;
 import edu.uconn.vstlf.data.doubleprecision.Series;
+import edu.uconn.vstlf.data.message.LogMessage;
+import edu.uconn.vstlf.data.message.MessageCenter;
 import edu.uconn.vstlf.database.perst.PerstPowerDB;
 
 public class DumpSerie implements Command {

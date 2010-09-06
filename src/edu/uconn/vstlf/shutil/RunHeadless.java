@@ -28,6 +28,11 @@ package edu.uconn.vstlf.shutil;
 import java.io.*;
 import java.text.*;
 import java.util.Date;
+
+import edu.uconn.vstlf.data.message.DummyMsgHandler;
+import edu.uconn.vstlf.data.message.MessageCenter;
+import edu.uconn.vstlf.data.message.RealTimeMsgHandler;
+import edu.uconn.vstlf.data.message.VSTLFMsgLogger;
 import edu.uconn.vstlf.realtime.IsoVstlf;
 
 public class RunHeadless {
@@ -79,6 +84,9 @@ public class RunHeadless {
 	    	frame.setTestTime(time);
 	    	frame.setClockRate(rate);
 	        frame.init();
+	        
+	        MessageCenter.getInstance().setHandler(new RealTimeMsgHandler(frame.getDataStrem(), new VSTLFMsgLogger("vstlf.log", new DummyMsgHandler())));
+	        MessageCenter.getInstance().init();
 	    } catch (Exception e) {
 	        System.out.println(e.toString());
 	        e.printStackTrace();

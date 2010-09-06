@@ -29,8 +29,8 @@ import java.util.Vector;
 
 import edu.uconn.vstlf.config.Items;
 import edu.uconn.vstlf.data.Calendar;
-import edu.uconn.vstlf.data.Message.MessageCenter;
 import edu.uconn.vstlf.data.doubleprecision.*;
+import edu.uconn.vstlf.data.message.MessageCenter;
 
 public class FourSecondProcess extends Thread {
 	private final PCBuffer<VSTLFObservationPoint> _input;	//Incoming observations appear here

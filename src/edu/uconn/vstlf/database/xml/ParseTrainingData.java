@@ -29,10 +29,14 @@ import java.util.Date;
 
 import java.util.LinkedList;
 import java.util.Iterator;
+import java.util.logging.Level;
 import java.text.ParseException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import edu.uconn.vstlf.data.message.LogMessage;
+import edu.uconn.vstlf.data.message.MessageCenter;
 public class ParseTrainingData extends ParseLoadData {
 	private ParseParameters parameters;
 	public ParseTrainingData(String fileName) throws Exception {
@@ -59,7 +63,10 @@ public class ParseTrainingData extends ParseLoadData {
 				}
 			}
 			if (Math.abs(load.val) < 1E-10)
-				System.err.println("Load missing at " + load.getDate());
+				MessageCenter.getInstance().put(
+						new LogMessage(Level.WARNING, ParseTrainingData.class.getName(),
+						ParseTrainingData.class.getMethod("parseData", new Class[]{}).getName(),
+						"Load missing at " + load.getDate()));
 		}
 	}
 	ParseParameters parseParameters(Document xmlDoc) throws NumberFormatException, ParseException {

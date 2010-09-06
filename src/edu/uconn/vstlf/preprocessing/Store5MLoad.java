@@ -25,6 +25,10 @@
 
 package edu.uconn.vstlf.preprocessing;
 
+import java.util.logging.Level;
+
+import edu.uconn.vstlf.data.message.LogMessage;
+import edu.uconn.vstlf.data.message.MessageCenter;
 import edu.uconn.vstlf.database.PowerDB;
 import edu.uconn.vstlf.realtime.PCBuffer;
 import edu.uconn.vstlf.realtime.VSTLF5MPoint;
@@ -69,7 +73,9 @@ public class Store5MLoad implements Runnable {
 				_db.addLoadNL(_loadType[i], p.getStamp(), p.getValue());
 			k++;
 			if (k % (12*24)==0)
-				System.err.println("Load on " + p.getStamp() + " stored");
+				MessageCenter.getInstance().put(new LogMessage(Level.INFO,
+						Store5MLoad.class.getName(), "run",
+						"Load on " + p.getStamp() + " stored (" + p.getValue() + ")"));
 		}
 		_db.endTransaction();
 	}

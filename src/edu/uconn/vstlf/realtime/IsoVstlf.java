@@ -28,11 +28,14 @@ import java.io.*;
 import java.net.*;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.logging.Level;
 
 import edu.uconn.vstlf.config.Items;
 import edu.uconn.vstlf.data.*;
-import edu.uconn.vstlf.data.Message.VSTLFMessage;
 import edu.uconn.vstlf.data.doubleprecision.*;
+import edu.uconn.vstlf.data.message.LogMessage;
+import edu.uconn.vstlf.data.message.MessageCenter;
+import edu.uconn.vstlf.data.message.VSTLFMessage;
 import edu.uconn.vstlf.database.*;
 import edu.uconn.vstlf.database.perst.*;
 import edu.uconn.vstlf.database.xml.*;
@@ -98,7 +101,7 @@ public class IsoVstlf implements IVstlfMain, PulseAction
 		this._currentDataFileName = currentDataXml;
 		this._historyDataFileName = dailyDataXml;	
 		
-		_out = new DataStream(this,(OutputStream)null);
+		_out = new DataStream(this,(OutputStream)System.out);
    }
    
    public void setTestTime(Date tt){
@@ -110,19 +113,23 @@ public class IsoVstlf implements IVstlfMain, PulseAction
 	}
    
 	public void init() throws Exception{
-		System.err.println("initializing...");
-		System.err.println("4s stream from '"+_currentDataFileName+"'");
-		System.err.println("Initial 12hrs of 5min data from '"+_historyDataFileName+"'");
-		System.err.println("Storing aggregated 5min data in '"+_dbName+"'");
-		System.err.println();
-		System.err.println("Openning new working DB...");
+		String methodName = IsoVstlf.class.getMethod("init", new Class[]{}).getName();
+		MessageCenter.getInstance().put(new LogMessage(Level.INFO,
+				IsoVstlf.class.getName(), methodName, "initializing...\n" +
+				"4s stream from '"+_currentDataFileName+"'\n" +
+				"Initial 12hrs of 5min data from '"+_historyDataFileName+"'\n" +
+				"Storing aggregated 5min data in '"+_dbName+"'\n\n"+
+				"Openning new working DB..."));
 		setupDatabases();
-		System.err.println("\t done.");		
+		MessageCenter.getInstance().put(new LogMessage(Level.INFO,
+				IsoVstlf.class.getName(), methodName, "\t done."));		
 		// setup VSTLF engine and data feed
 		if(_TEST_TIME == null)
 			_TEST_TIME = _cal.now();
 		else
-			System.out.println("GOING FROM "+_TEST_TIME);
+			MessageCenter.getInstance().put(new LogMessage(Level.INFO,
+					IsoVstlf.class.getName(), methodName, "GOING FROM "+_TEST_TIME));		
+
 		_prevTick= _cal.lastTick(300, _TEST_TIME);
 		_pulseTime = _TEST_TIME;
 		this._engine = new VSTLFEngine(_db);
@@ -137,11 +144,13 @@ public class IsoVstlf implements IVstlfMain, PulseAction
 		do{
 			if(tries>0){
 				Thread.sleep(8192);
-				System.err.println("Data not recent enough.  Trying to reload");
+				MessageCenter.getInstance().put(new LogMessage(Level.WARNING,
+						IsoVstlf.class.getName(), methodName, "Data not recent enough.  Trying to reload"));
 			}
 			if(_coldStartSrcType.equals("xml"))this._loadData.getData(this._historyDataFileName, false);
 			if (this._coldStart) {
-				System.err.println("COLD START:  filling history raw/filtered databases from init DBs");
+				MessageCenter.getInstance().put(new LogMessage(Level.INFO,
+						IsoVstlf.class.getName(), methodName, "COLD START:  filling history raw/filtered databases from init DBs"));
 				LinkedList<LoadData> history;
 				if(_coldStartSrcType.equals("xml"))
 					history = _loadData.getHistory();
@@ -149,9 +158,11 @@ public class IsoVstlf implements IVstlfMain, PulseAction
 					PerstPowerDB tempDB = new PerstPowerDB(_historyDataFileName,300);
 					tempDB.open();
 					Date tst = tempDB.begin("load");
-					System.err.println("Init DB contains data in -\t("+tst+", "+tempDB.last("load")+"]");
+					MessageCenter.getInstance().put(new LogMessage(Level.INFO,
+							IsoVstlf.class.getName(), methodName, "Init DB contains data in -\t("+tst+", "+tempDB.last("load")+"]"));
 					tst = _cal.addHoursTo(_prevTick, -12);
-					System.err.println("Extracting data in -\t("+tst+", "+_prevTick+"]");
+					MessageCenter.getInstance().put(new LogMessage(Level.INFO,
+							IsoVstlf.class.getName(), methodName, "Extracting data in -\t("+tst+", "+_prevTick+"]"));
 					Series temp = tempDB.getLoad("load", tst, _prevTick);
 					tempDB.close();
 					history = new LinkedList<LoadData>();
@@ -163,7 +174,9 @@ public class IsoVstlf implements IVstlfMain, PulseAction
 				last = history.getLast().getDate();
 			}
 		}while(!last.equals(_prevTick));
-		System.err.println("HISTORY ENDS AT "+last);
+		MessageCenter.getInstance().put(new LogMessage(Level.INFO,
+				IsoVstlf.class.getName(), methodName, "HISTORY ENDS AT "+last));
+
 		//Record a fiveMinute load history
 		Series theLoad = _db.getLoad("raw", _db.begin("raw"), _db.last("raw"));
 		theLoad = theLoad.reverse();
@@ -181,7 +194,8 @@ public class IsoVstlf implements IVstlfMain, PulseAction
 		   File f = new File(_dbName);
 			if(f.exists() && _DELETE) { 
 				if(!f.delete()) {
-					System.err.println("???"); 
+					MessageCenter.getInstance().put(new LogMessage(Level.SEVERE,
+							IsoVstlf.class.getName(), "setupDatabase", "???")); 
 					System.exit(0);
 				}
 			}

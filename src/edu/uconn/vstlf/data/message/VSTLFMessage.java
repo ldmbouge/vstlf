@@ -23,14 +23,14 @@
  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ***********************************************************************/
 
-package edu.uconn.vstlf.data.Message;
+package edu.uconn.vstlf.data.message;
 
 
 public class VSTLFMessage {
 	public static enum Group { RealTime, PreProcessing, Training, Misc, Unknown };
 	public static enum Type { RTFiveMin, RTFourSec, RTMissing4s, RTMissing5m, 
 		RTPred, RTRefine4s, RTRefine5m, RT4sPoint, RT5mPoint, 
-		RTException, TrainEnd, TrainStart, Log, EOF
+		RTException, Log, EOF, Unknown
 	}
 	public static Group toGroup(Type type)
 	{
@@ -47,11 +47,10 @@ public class VSTLFMessage {
 		case RT5mPoint:
 		case RTException:
 			return Group.RealTime;
-		
-		case TrainEnd:
-		case TrainStart:
-			return Group.Training;
 			
+		case Log:
+		case EOF:
+			return Group.Misc;
 		}
 		return Group.Unknown;
 	}

@@ -25,7 +25,7 @@
 
 package edu.uconn.vstlf.realtime;
 
-public class VSTLFRealTimeMessage extends edu.uconn.vstlf.data.Message.VSTLFMessage {
+public class VSTLFRealTimeMessage extends edu.uconn.vstlf.data.message.VSTLFMessage {
 	VSTLFRealTimeMessage(Type type)
 	{
 		super(type);

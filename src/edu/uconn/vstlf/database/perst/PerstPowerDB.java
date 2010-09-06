@@ -36,9 +36,9 @@ import org.garret.perst.TimeSeries.Tick;
 
 import edu.uconn.vstlf.config.Items;
 import edu.uconn.vstlf.data.Calendar;
-import edu.uconn.vstlf.data.Message.LogMessage;
-import edu.uconn.vstlf.data.Message.MessageCenter;
 import edu.uconn.vstlf.data.doubleprecision.Series;
+import edu.uconn.vstlf.data.message.LogMessage;
+import edu.uconn.vstlf.data.message.MessageCenter;
 import edu.uconn.vstlf.database.PowerDB;
 import edu.uconn.vstlf.database.xml.*;
 public class PerstPowerDB extends PowerDB {
@@ -57,7 +57,7 @@ public class PerstPowerDB extends PowerDB {
 
 	public static PerstPowerDB fromXML(String outFile, int inc, String inFile)throws Exception{
 		String methodName = PerstPowerDB.class.getMethod("fromXML", 
-				new Class[]{String.class, Integer.class, String.class}).getName();
+				new Class[]{String.class, Integer.TYPE, String.class}).getName();
 		Calendar cal = Items.makeCalendar();
 		//DateFormat dateFormat =  cal.getDateFormat("M/dd/yyyy h:mm:ss a");
 		
