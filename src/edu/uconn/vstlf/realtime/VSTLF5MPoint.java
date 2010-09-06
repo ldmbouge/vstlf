@@ -26,15 +26,18 @@
 package edu.uconn.vstlf.realtime;
 import java.util.Date;
 
+import edu.uconn.vstlf.data.Message.VSTLFMessage;
+
 
 public class VSTLF5MPoint extends VSTLFObservationPoint {
-	
+	public static VSTLFMessage.Type mtype = VSTLFMessage.Type.RT5mPoint; 
+
 	int _nbObs;
 	public VSTLF5MPoint() {
-		super();
+		super(mtype);
 	}
 	public VSTLF5MPoint(Date at,double val, int nbObs) {
-		super(at,val);
+		super(mtype, at,val);
 		_nbObs = nbObs;
 	}
 	public String toString() { return "5 minute point:" + _at.toString() + " value=" + Double.toString(_val);}

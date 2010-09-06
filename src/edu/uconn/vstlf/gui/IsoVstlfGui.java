@@ -34,6 +34,7 @@ import java.util.LinkedList;
 
 import edu.uconn.vstlf.config.Items;
 import edu.uconn.vstlf.data.*;
+import edu.uconn.vstlf.data.Message.VSTLFMessage;
 import edu.uconn.vstlf.data.doubleprecision.*;
 import edu.uconn.vstlf.database.*;
 import edu.uconn.vstlf.database.perst.*;
@@ -426,7 +427,7 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 				currentData = new LoadData(_currDB.getLoad("load", at),true,at);
 			}
 			//_logger.addMessage("currentData at [" + at.toString() + "] is " + (currentData==null ? "null" : currentData.toString()));
-			_engine.addObservation(this, currentData.getDate(), currentData.getValue());
+			_engine.addObservation(VSTLFMessage.Type.RT4sPoint, currentData.getDate(), currentData.getValue());
 			// update the toolbars
 			if(_UPDATE_GUI){
 				_toolBarMgr.update(at, currentData.getDate(), currentData.getValue());

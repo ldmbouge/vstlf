@@ -27,11 +27,16 @@ package edu.uconn.vstlf.realtime;
 
 import java.util.Date;
 
-public class FiveMinMessage extends VSTLFMessage {
+import edu.uconn.vstlf.data.Message.VSTLFMessage;
+
+public class FiveMinMessage extends VSTLFRealTimeMessage {
+	public static VSTLFMessage.Type mtype = VSTLFMessage.Type.RTFiveMin; 
+
 	private final Date _stamp;
 	private final double _val;
 	private final int _nbObs;
 	public FiveMinMessage(Date stamp,double val,int nbObs) { 
+		super(mtype);
 		_stamp = stamp;
 		_val = val;
 		_nbObs = nbObs;

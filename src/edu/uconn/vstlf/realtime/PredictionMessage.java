@@ -26,11 +26,16 @@
 package edu.uconn.vstlf.realtime;
 import java.util.Date;
 
+import edu.uconn.vstlf.data.Message.VSTLFMessage;
 
-public class PredictionMessage extends VSTLFMessage {
+
+public class PredictionMessage extends VSTLFRealTimeMessage {
+	public static VSTLFMessage.Type mtype = VSTLFMessage.Type.RTPred; 
+
 	private Date _stamp;
 	private double[] _values;
 	PredictionMessage(Date at,double[] vals) {
+		super(mtype);
 		_stamp = at;
 		_values = vals;
 	}

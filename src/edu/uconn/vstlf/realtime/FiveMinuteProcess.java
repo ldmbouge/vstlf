@@ -27,6 +27,7 @@ package edu.uconn.vstlf.realtime;
 import java.util.Date;
 //import java.util.Vector;
 import edu.uconn.vstlf.data.Calendar;
+import edu.uconn.vstlf.data.Message.MessageCenter;
 import edu.uconn.vstlf.data.doubleprecision.*;
 import edu.uconn.vstlf.database.*;
 import edu.uconn.vstlf.neuro.*;
@@ -35,7 +36,7 @@ import com.web_tomorrow.utils.suntimes.*;
 
 public class FiveMinuteProcess extends Thread {
 	private final PCBuffer<VSTLF5MPoint> _input;
-	private final PCBuffer<VSTLFMessage> _notif;
+	private final MessageCenter _notif;
 	//private Vector<VSTLF5MPoint> _window;
 	private PowerDB _db;
 	private ANNBank[] _annBanks;
@@ -63,7 +64,7 @@ public class FiveMinuteProcess extends Thread {
 	boolean _useSimDay;
 	double _filterThreshold;
 
-	FiveMinuteProcess(PCBuffer<VSTLFMessage> notif, PCBuffer<VSTLF5MPoint> buf, PowerDB db) {
+	FiveMinuteProcess(MessageCenter notif, PCBuffer<VSTLF5MPoint> buf, PowerDB db) {
 		_input = buf;		
 		_notif = notif;
 		_db = db;
@@ -74,7 +75,7 @@ public class FiveMinuteProcess extends Thread {
 			try{
 				_annBanks[i] = new ANNBank("anns/bank"+i+".ann");
 			}catch(Exception e){
-				_notif.produce(new VSTLFExceptionMessage(e));
+				_notif.put(new VSTLFRealTimeExceptionMessage(e));
 			}
 		}
 		double minload = Items.getMinimumLoad();
@@ -97,7 +98,7 @@ public class FiveMinuteProcess extends Thread {
 			_db.addLoad("raw", t, v);												//Store it in the DB
 			_db.commit();
 			macroFilter(t);
-			_notif.produce(new FiveMinMessage(t,v,n));
+			_notif.put(new FiveMinMessage(t,v,n));
 			doUpdate();														//Update on 1hourAgo
 			doPrediction();
 		}
@@ -109,7 +110,7 @@ public class FiveMinuteProcess extends Thread {
 		for(int i=0;i<s.length();i++){
 			if(nan.equals(a[i])){
 				a[i] = 0;
-				_notif.produce(new MessageMissing5m(_cal.addMinutesTo(from, (i+1)*5)));
+				_notif.put(new MessageMissing5m(_cal.addMinutesTo(from, (i+1)*5)));
 			}
 		}
 	}
@@ -129,19 +130,19 @@ public class FiveMinuteProcess extends Thread {
 			for(int i = 36;i<=out.length();i++) {
 				_db.addLoad("filt", _cal.addMinutesTo(_cal.addHoursTo(t, -4),5*i), out.element(i));
 				if(out.element(i) != orig.element(i)){
-					_notif.produce(new VSTLF5mRefinementMessage(_cal.addMinutesTo(_cal.addHoursTo(t, -4),5*i), orig.element(i), out.element(i)));
+					_notif.put(new VSTLF5mRefinementMessage(_cal.addMinutesTo(_cal.addHoursTo(t, -4),5*i), orig.element(i), out.element(i)));
 				}
 			}
 			_db.commit();
 		}catch(Exception e){
-			_notif.produce(new VSTLFExceptionMessage(e));
+			_notif.put(new VSTLFRealTimeExceptionMessage(e));
 			try{
 				Series recent = _db.getLoad("raw", _cal.addHoursTo(t, -2), t);
 				for(int i = 1;i<=recent.length();i++) 
 					_db.addLoad("filt", _cal.addMinutesTo(_cal.addHoursTo(t, -2),5*i), recent.element(i));
 				_db.commit();
 			}catch(Exception x){
-				_notif.produce(new VSTLFExceptionMessage(
+				_notif.put(new VSTLFRealTimeExceptionMessage(
 						new Exception("Fatal Exception, 'filtered' Database did not accept data.")));
 			}
 			
@@ -173,10 +174,10 @@ public class FiveMinuteProcess extends Thread {
 			prev = prev.daub4Separation(2, _db4LD,_db4HD,_db4LR,_db4HR)[2];
 			out[2] = out[2].undifferentiate(prev.suffix(1).element(1));
 			pred = pred.plus(out[2]);
-			_notif.produce(new PredictionMessage(stamp,pred.array()));
+			_notif.put(new PredictionMessage(stamp,pred.array()));
 		}
 		catch(Exception e){
-			_notif.produce(new VSTLFExceptionMessage(e));
+			_notif.put(new VSTLFRealTimeExceptionMessage(e));
 		}
 	}
 	
@@ -191,7 +192,7 @@ public class FiveMinuteProcess extends Thread {
 			_annBanks[off/5].update(targetSetFor(stamp,_cal,_db));
 		}
 		catch(Exception e){
-			_notif.produce(new VSTLFExceptionMessage(e));
+			_notif.put(new VSTLFRealTimeExceptionMessage(e));
 		}
 		
 	}

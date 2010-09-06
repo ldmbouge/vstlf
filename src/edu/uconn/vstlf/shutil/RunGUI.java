@@ -30,6 +30,9 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import edu.uconn.vstlf.config.Items;
+import edu.uconn.vstlf.data.Message.DummyMsgHandler;
+import edu.uconn.vstlf.data.Message.MessageCenter;
+import edu.uconn.vstlf.data.Message.RealTimeMsgHandler;
 import edu.uconn.vstlf.gui.IsoVstlfGui;
 
 import java.io.File;
@@ -85,6 +88,9 @@ public class RunGUI {
 	    	frame.setTestTime(time);
 	    	frame.setClockRate(rate);
 	        frame.init();
+	        
+	        MessageCenter.getInstance().setHandler(new RealTimeMsgHandler(frame, new DummyMsgHandler()));
+	        MessageCenter.getInstance().init();
 	    } catch (Exception e) {
 	        System.out.println(e.toString());
 	        e.printStackTrace();

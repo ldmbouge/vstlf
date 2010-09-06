@@ -26,11 +26,15 @@
 package edu.uconn.vstlf.realtime;
 
 import java.util.Date;
-public class MessageMissing5m extends VSTLFMessage {
-	
+
+import edu.uconn.vstlf.data.Message.VSTLFMessage;
+public class MessageMissing5m extends VSTLFRealTimeMessage {
+	public static VSTLFMessage.Type mtype = VSTLFMessage.Type.RTMissing5m; 
+
 	private final Date _stamp;
 	
 	public MessageMissing5m(Date stamp){
+		super(mtype);
 		_stamp = stamp;
 	}
 

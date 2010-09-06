@@ -26,13 +26,17 @@
 package edu.uconn.vstlf.realtime;
 import java.util.Date;
 
+import edu.uconn.vstlf.data.Message.VSTLFMessage;
+
 
 public class VSTLF4SPoint extends VSTLFObservationPoint {
+	public static VSTLFMessage.Type mtype = VSTLFMessage.Type.RT4sPoint; 
+
 	public VSTLF4SPoint() {
-		super();
+		super(mtype);
 	}
 	public VSTLF4SPoint(Date at, double val) {
-		super(at,val);
+		super(mtype, at,val);
 	}
 	public String toString() {
 		return _at.toString() + " : " + Double.toString(_val);

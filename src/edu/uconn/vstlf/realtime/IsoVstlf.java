@@ -31,6 +31,7 @@ import java.util.LinkedList;
 
 import edu.uconn.vstlf.config.Items;
 import edu.uconn.vstlf.data.*;
+import edu.uconn.vstlf.data.Message.VSTLFMessage;
 import edu.uconn.vstlf.data.doubleprecision.*;
 import edu.uconn.vstlf.database.*;
 import edu.uconn.vstlf.database.perst.*;
@@ -225,7 +226,7 @@ public class IsoVstlf implements IVstlfMain, PulseAction
 				currDB.close();
 			}			
 			//System.out.format("Adding a 4s observation @%s : %f\n",currentData.getDate(),currentData.getValue());
-			_engine.addObservation(_out, currentData.getDate(), currentData.getValue());
+			_engine.addObservation(VSTLFMessage.Type.RT4sPoint, currentData.getDate(), currentData.getValue());
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -250,4 +251,6 @@ public class IsoVstlf implements IVstlfMain, PulseAction
          return ;
       }
    }
+   
+   public DataStream getDataStrem() { return _out; }
 }
