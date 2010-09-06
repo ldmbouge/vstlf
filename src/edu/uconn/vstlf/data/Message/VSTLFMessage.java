@@ -30,7 +30,7 @@ public class VSTLFMessage {
 	public static enum Group { RealTime, PreProcessing, Training, Misc, Unknown };
 	public static enum Type { RTFiveMin, RTFourSec, RTMissing4s, RTMissing5m, 
 		RTPred, RTRefine4s, RTRefine5m, RT4sPoint, RT5mPoint, 
-		RTException, TrainEnd, TrainStart, EOF
+		RTException, TrainEnd, TrainStart, Log, EOF
 	}
 	public static Group toGroup(Type type)
 	{

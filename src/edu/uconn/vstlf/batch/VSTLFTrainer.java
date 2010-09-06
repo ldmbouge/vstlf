@@ -27,11 +27,10 @@ package edu.uconn.vstlf.batch;
 
 import java.util.Date;
 import java.util.Vector;
-import java.util.logging.FileHandler;
-import java.util.logging.Handler;
-import java.util.logging.Logger;
-
+import java.util.logging.Level;
 import edu.uconn.vstlf.data.Calendar;
+import edu.uconn.vstlf.data.Message.LogMessage;
+import edu.uconn.vstlf.data.Message.MessageCenter;
 import edu.uconn.vstlf.data.doubleprecision.*;
 import edu.uconn.vstlf.database.PowerDB;
 import edu.uconn.vstlf.database.perst.*;
@@ -41,7 +40,6 @@ import edu.uconn.vstlf.config.Items;
 import com.web_tomorrow.utils.suntimes.*;
 
 public class VSTLFTrainer {		
-	static private Logger trainLog = Logger.getLogger("trainLog");
 	
 	//////////////////////////////////////////////////////////
 	//Number of decomposition levels  0 to 4/////////////////
@@ -60,12 +58,18 @@ public class VSTLFTrainer {
 		_up = up;
 	}
 		
-	public static double[][] test (String loadFile, Date stTest, Date edTest, int lo, int up){
+	public static double[][] test (String loadFile, Date stTest, Date edTest, int lo, int up)
+	{
 		try{
+			String methodName = VSTLFTrainer.class.getMethod("test", 
+					new Class[]{String.class, Date.class, Date.class, Integer.class, Integer.class}).getName();
+
 			double[][] result = new double[12][];
 			int offs = lo;
 //			for(int offs=lo;offs<=up;offs++){
-				System.out.println("Testing System for offset: "+ 5*offs +" minutes." );
+				MessageCenter.getInstance().put(
+						new LogMessage(Level.INFO, VSTLFTrainer.class.getName(), methodName, 
+								"Testing system for offset: " + 5*offs + " minutes."));
 				///////////////////////////////////////////////////////////////////////////////////
 				//Initialize db and cal et cetera
 				///////////////////////////////////////////////////////////////////////////////////
@@ -122,10 +126,12 @@ public class VSTLFTrainer {
 				///////////////////////////////////////////////////////////////////////////////
 				//Run forecast test
 				//////////////////////////////////////////////////////////////////////////////
-				System.out.println("Running forecast test.  ");
+				
 				Vector<Series> errV = new Vector<Series>();
 				Vector<Series> difV = new Vector<Series>();
-				System.out.println("Forecasting from "+cal.string(ts)+" to "+ cal.string(ed));
+				MessageCenter.getInstance().put(
+						new LogMessage(Level.INFO, VSTLFTrainer.class.getName(), methodName,
+								"Running forecast test.\nForecasting from "+cal.string(ts)+" to "+ cal.string(ed)));
 				while(ts.before(ed)){
 					Series[] out = anns.execute(inputSetFor(ts,cal,loadHist));
 					anns.update(targetSetFor(ts, cal, loadHist));
@@ -178,17 +184,13 @@ public class VSTLFTrainer {
 					difs[k] = difV.elementAt(k);
 				}
 				int k = errs.length;
-				System.out.println(k+" forecasts made.");
 				Series aveErr = new MeanFunction().imageOf(errs);
 				Series stdErr = new StDevFunction().imageOf(errs);
 				Series aveDif = new MeanFunction().imageOf(difs);
 				Series stdDif = new StDevFunction().imageOf(difs);
-				System.out.println("Mean Err: \t" + aveErr);
-				System.out.println("std(Err): \t" + stdErr);
-				System.out.println("Mean Dif: \t" + aveDif);
-				System.out.println("std(Dif): \t" + stdDif);
-				
-				for(int lns=0;lns<8;lns++)System.out.println();		
+				MessageCenter.getInstance().put(
+						new LogMessage(Level.INFO, VSTLFTrainer.class.getName(),
+								methodName, k + " forecasts made.\nMean Err: \t" + aveErr + "\nstd(Err): \t" + stdErr + "\nMean Dif: \t" + aveDif + "\nstd(Dif): \t" + stdDif));	
 				//////////////////////////////////////////////////////////////////////////////////////
 				//Finish up the iteration.
 				//////////////////////////////////////////////////////////////////////////////////////
@@ -214,11 +216,13 @@ public class VSTLFTrainer {
 								   int th, int tlh, int tllh, int tlllh, int tllll,
 								   double eh, double elh, double ellh, double elllh, double ellll, int lo, int up){
 		try{
-			Handler hf = new FileHandler("train.log");
-			trainLog.addHandler(hf);
-			
+			String methodName = VSTLFTrainer.class.getMethod("train", 
+					new Class[]{String.class, Date.class, Date.class, Integer.class, Integer.class, Integer.class, Integer.class, Integer.class,
+					Double.class, Double.class, Double.class, Double.class, Double.class, Integer.class, Integer.class}).getName();
 			for(int offs=lo;offs<=up;offs++){
-				System.out.println("Training System for offset: "+ 5*offs +" minutes." );
+				MessageCenter.getInstance().put(
+						new LogMessage(Level.INFO, VSTLFTrainer.class.getName(), methodName, 
+								"Training System for offset: "+ 5*offs +" minutes."));
 				///////////////////////////////////////////////////////////////////////////////////
 				//Initialize db and cal et cetera
 				///////////////////////////////////////////////////////////////////////////////////
@@ -276,7 +280,9 @@ public class VSTLFTrainer {
 				//Build training set
 				/////////////////////////////////////////////////////////////////////////////////
 				Vector<Series[]>inS = new Vector<Series[]>(), tgS = new Vector<Series[]>();
-				System.out.println("Building training set from "+ cal.string(ts)+" to "+ cal.string(curr));
+				MessageCenter.getInstance().put(
+						new LogMessage(Level.INFO, VSTLFTrainer.class.getName(),
+								methodName, "Building training set from "+ cal.string(ts)+" to "+ cal.string(curr)));
 				while(ts.before(curr)){
 					//	System.err.println((++xxx)+": Added "+ cal.string(ts));
 						tgS.add(targetSetFor(ts,cal,loadHist));
@@ -285,7 +291,9 @@ public class VSTLFTrainer {
 						Series[] set = inS.lastElement();
 						for(int i = 0;i<set.length;i++){
 							if(set[i].countOf(Double.NaN)>0){
-								System.out.println(ts);
+								MessageCenter.getInstance().put(
+										new LogMessage(Level.INFO, VSTLFTrainer.class.getName(),
+												methodName, ts.toString()));
 								throw new Exception("WTF?");
 							}
 						}
@@ -297,8 +305,9 @@ public class VSTLFTrainer {
 					inputS[i] = inS.elementAt(i);
 					targS[i] = tgS.elementAt(i);
 				}
-				System.out.println(inputS.length);
-				System.out.println("Training set contains "+inS.size()+" points.  ");
+				MessageCenter.getInstance().put(
+						new LogMessage(Level.INFO, VSTLFTrainer.class.getName(),
+								methodName, inputS.length + "\nTraining set contains "+inS.size()+" points.  "));
 				///////////////////////////////////////////////////////////////////////////////
 				//Make ANNs and Train
 				///////////////////////////////////////////////////////////////////////////////
@@ -311,7 +320,9 @@ public class VSTLFTrainer {
 				}
 				long t0 = System.currentTimeMillis();
 				anns.train(inputS, targS, sec,mse);
-				System.out.println("after "+ (System.currentTimeMillis()-t0));
+				MessageCenter.getInstance().put(
+						new LogMessage(Level.INFO, VSTLFTrainer.class.getName(),
+								methodName, "after "+ (System.currentTimeMillis()-t0)));
 				anns.save("bank"+offs+".ann");
 				loadHist.close();
 			}
@@ -361,7 +372,7 @@ public class VSTLFTrainer {
 		CheckLoadIntegrity("Input data set", prevHour, cal.addHoursTo(t, -11));
 		Series beforePatchPrevHour = prevHour;
 		prevHour = patchSpikesLargerThan(prevHour, 500, 2, 10);
-		LogSpikes(beforePatchPrevHour, prevHour, cal.addHoursTo(t, -11), t, 500, trainLog);
+		LogSpikes(beforePatchPrevHour, prevHour, cal.addHoursTo(t, -11), t, 500);
 		Series[] phComps = prevHour.daub4Separation(_lvls,_db4LD,_db4HD,_db4LR,_db4HR);
 		Series[] inputSet = new Series[_lvls+1];
 		for(int i = 0;i<_lvls;i++){
@@ -382,7 +393,7 @@ public class VSTLFTrainer {
 		CheckLoadIntegrity("Target data set", load, cal.addHoursTo(t, -10));
 		Series beforePatchLoad = load;
 		load = patchSpikesLargerThan(load, 500, 2, 10);
-		LogSpikes(beforePatchLoad, load, cal.addHoursTo(t, -10), cal.addHoursTo(t, 1), 500, trainLog);
+		LogSpikes(beforePatchLoad, load, cal.addHoursTo(t, -10), cal.addHoursTo(t, 1), 500);
 		Series[] components = load.daub4Separation(_lvls,_db4LD,_db4HD,_db4LR,_db4HR);
 		for(int i = 0;i<_lvls;i++){
 			targetSet[i] = _norm[i].imageOf(components[i].suffix(12));
@@ -467,7 +478,7 @@ public class VSTLFTrainer {
 	}
 	
 	private static void LogSpikes(Series unpatched, Series patched, 
-			Date from, Date to, double threshold, Logger lgr) throws Exception
+			Date from, Date to, double threshold) throws Exception
 	{
 		int i = 1;
 		do {
@@ -503,7 +514,9 @@ public class VSTLFTrainer {
 			for (int t = st; t <= ed; ++t)
 				s = s + patched.element(t) + ", ";
 			
-			lgr.warning(s);
+			String methodName = VSTLFTrainer.class.getMethod("LogSpikes", new Class[]{Series.class, Series.class, Date.class, Date.class, Double.class}).getName();
+			MessageCenter.getInstance().put(
+					new LogMessage(Level.WARNING, VSTLFTrainer.class.getName(), methodName, s));
 			
 			//
 			i = ed + 1;

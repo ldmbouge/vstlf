@@ -28,7 +28,8 @@ public class MessageCenter implements Runnable {
 	private VSTLFMsgHandler handlerChain_;
 	
 	public void setHandler(VSTLFMsgHandler handler) { handlerChain_ = handler; }
-	public void dispatch(VSTLFMessage msg) throws VSTLFMsgException
+	
+	private void dispatch(VSTLFMessage msg) throws VSTLFMsgException
 	{
 		handlerChain_.handle(msg);
 	}

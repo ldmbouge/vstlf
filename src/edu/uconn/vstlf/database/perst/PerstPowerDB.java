@@ -29,11 +29,15 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Collection;
+import java.util.logging.Level;
+
 import org.garret.perst.*;
 import org.garret.perst.TimeSeries.Tick;
 
 import edu.uconn.vstlf.config.Items;
 import edu.uconn.vstlf.data.Calendar;
+import edu.uconn.vstlf.data.Message.LogMessage;
+import edu.uconn.vstlf.data.Message.MessageCenter;
 import edu.uconn.vstlf.data.doubleprecision.Series;
 import edu.uconn.vstlf.database.PowerDB;
 import edu.uconn.vstlf.database.xml.*;
@@ -52,6 +56,8 @@ public class PerstPowerDB extends PowerDB {
 	}
 
 	public static PerstPowerDB fromXML(String outFile, int inc, String inFile)throws Exception{
+		String methodName = PerstPowerDB.class.getMethod("fromXML", 
+				new Class[]{String.class, Integer.class, String.class}).getName();
 		Calendar cal = Items.makeCalendar();
 		//DateFormat dateFormat =  cal.getDateFormat("M/dd/yyyy h:mm:ss a");
 		
@@ -72,7 +78,9 @@ public class PerstPowerDB extends PowerDB {
 			//System.out.format("at %d got: %s\n",j++,n.getDate());
 			n.setDate(cal.lastTick(inc,n.getDate()));// align the date			
 			if (prev != null && !prev.before(n.getDate()))
-				System.err.format("\ntimestamp were not in increasing order! last=%s  now=%s\n", prev,n.getDate());
+				MessageCenter.getInstance().put(
+						new LogMessage(Level.WARNING, PerstPowerDB.class.getName(),
+								methodName, String.format("\ntimestamp were not in increasing order! last=%s  now=%s\n", prev,n.getDate())));
 			prev = n.getDate();
 		}
 		//System.err.println("Sorting List");
@@ -80,34 +88,46 @@ public class PerstPowerDB extends PowerDB {
 		LoadData[] array = new LoadData[loadData.size()];
 		int secInDay = 24 * 60 * 60;
 		if  (secInDay/inc != loadData.size())
-			System.out.format("\nExpecting a vector of %d entries. Got a vector of %d\n",secInDay/inc,loadData.size());
+			MessageCenter.getInstance().put(
+					new LogMessage(Level.INFO, PerstPowerDB.class.getName(),
+							methodName, String.format("\nExpecting a vector of %d entries. Got a vector of %d\n",secInDay/inc,loadData.size())));
 		loadData.toArray(array);
 		for(int k=1;k<array.length;k++) {
 			LoadData n = array[k];
 			assert(k>=1);
 			Date now = cal.lastTick(inc, cal.addSecondsTo(array[k-1].getDate(), inc));
 			if (!now.equals(n.getDate())) {
-				System.err.format("We have a gap: expecting: %s got: %s\n",now, n.getDate());
+				MessageCenter.getInstance().put(
+						new LogMessage(Level.WARNING, PerstPowerDB.class.getName(),
+								methodName, String.format("We have a gap: expecting: %s got: %s\n",now, n.getDate())));
 			}
 			if (n.getValue() == 0.0) {
-				System.err.format("Load of %f at %s\n",n.getValue(),n.getDate());
+				MessageCenter.getInstance().put(
+						new LogMessage(Level.WARNING, PerstPowerDB.class.getName(),
+								methodName, String.format("Load of %f at %s\n",n.getValue(),n.getDate())));
 				int k2 = k;
 				while (k2 < array.length && array[k2].getValue() == 0) k2++;
 				if (k2 < array.length) {
 					double lEdge = array[k-1].getValue();
 					double rEdge = array[k2].getValue();
 					if (lEdge == 0.0 || rEdge == 0.0) {
-						System.err.format("\nCan't fix load in [%s : %s]. One endpoint is 0. [%f,%f]\n",array[k-1].getDate(),array[k2].getDate(),lEdge,rEdge);
+						MessageCenter.getInstance().put(
+								new LogMessage(Level.WARNING, PerstPowerDB.class.getName(),
+										methodName, String.format("\nCan't fix load in [%s : %s]. One endpoint is 0. [%f,%f]\n",array[k-1].getDate(),array[k2].getDate(),lEdge,rEdge)));
 						return null;
 					}
 					int    nbPts = (k2-1) - k + 1;
 					double slope = (rEdge - lEdge) / nbPts;
 					for(int i=k;i < k2;i++) {
-						System.err.format("\nFixing load at %s from %f to %f  [%f,%f]\n",array[i].getDate(),array[i].getValue(),lEdge + slope * (i-k),lEdge,rEdge); 
+						MessageCenter.getInstance().put(
+								new LogMessage(Level.WARNING, PerstPowerDB.class.getName(),
+										methodName, String.format("\nFixing load at %s from %f to %f  [%f,%f]\n",array[i].getDate(),array[i].getValue(),lEdge + slope * (i-k),lEdge,rEdge)));
 						array[i].setValue(lEdge + slope * (i-k));
 					}
 				} else {
-					System.err.format("Couldn't find a non-zero value in the entire suffix. Import is bad\n");
+					MessageCenter.getInstance().put(
+							new LogMessage(Level.WARNING, PerstPowerDB.class.getName(),
+									methodName, String.format("Couldn't find a non-zero value in the entire suffix. Import is bad\n")));
 					return null;
 				}
 			}
