@@ -23,8 +23,44 @@
  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ***********************************************************************/
 
-package edu.uconn.vstlf.realtime;
+package edu.uconn.vstlf.data.message;
+
 
 public class VSTLFMessage {
-	public void visit(VSTLFNotificationCenter center) {}
+	public static enum Group { RealTime, PreProcessing, Training, Misc, Unknown };
+	public static enum Type { RTFiveMin, RTFourSec, RTMissing4s, RTMissing5m, 
+		RTPred, RTRefine4s, RTRefine5m, RT4sPoint, RT5mPoint, 
+		RTException, Log, EOF, Unknown
+	}
+	public static Group toGroup(Type type)
+	{
+		switch (type) 
+		{
+		case RTFiveMin:
+		case RTFourSec:
+		case RTMissing4s:
+		case RTMissing5m: 
+		case RTPred:
+		case RTRefine4s: 
+		case RTRefine5m:
+		case RT4sPoint:
+		case RT5mPoint:
+		case RTException:
+			return Group.RealTime;
+			
+		case Log:
+		case EOF:
+			return Group.Misc;
+		}
+		return Group.Unknown;
+	}
+	
+	public VSTLFMessage(Type type)
+	{
+		type_ = type;
+	}
+	
+	public Type getType() { return type_; }
+	
+	private final Type type_;
 }

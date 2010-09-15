@@ -25,12 +25,16 @@
 
 package edu.uconn.vstlf.realtime;
 import java.util.Date;
-public class VSTLF5mRefinementMessage extends VSTLFMessage {
+
+import edu.uconn.vstlf.data.message.VSTLFMessage;
+public class VSTLF5mRefinementMessage extends VSTLFRealTimeMessage {
+	public static VSTLFMessage.Type mtype = VSTLFMessage.Type.RTRefine5m; 
 
 	private final Date _at;
 	private final double _oldVal, _newVal;
 	
 	public VSTLF5mRefinementMessage(Date at, double oldVal, double newVal){
+		super(mtype);
 		_at = at;
 		_oldVal = oldVal;
 		_newVal = newVal;

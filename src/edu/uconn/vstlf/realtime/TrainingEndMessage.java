@@ -27,10 +27,15 @@ package edu.uconn.vstlf.realtime;
 
 import java.util.Date;
 
-public class TrainingEndMessage extends VSTLFMessage {
+import edu.uconn.vstlf.data.message.VSTLFMessage;
+
+public class TrainingEndMessage extends VSTLFRealTimeMessage {
+	public static VSTLFMessage.Type mtype = VSTLFMessage.Type.Unknown; 
+
 	Date _at,_til;
 	
 	public TrainingEndMessage(Date at,Date til){
+		super(mtype);
 		_at = at;
 		_til = til;
 	}

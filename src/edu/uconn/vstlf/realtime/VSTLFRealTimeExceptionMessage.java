@@ -24,24 +24,19 @@
 ***********************************************************************/
 
 package edu.uconn.vstlf.realtime;
-import java.util.Date;
 
 import edu.uconn.vstlf.data.message.VSTLFMessage;
 
-
-public class VSTLF5MPoint extends VSTLFObservationPoint {
-	public static VSTLFMessage.Type mtype = VSTLFMessage.Type.RT5mPoint; 
-
-	int _nbObs;
-	public VSTLF5MPoint() {
+public class VSTLFRealTimeExceptionMessage extends VSTLFRealTimeMessage {
+	public static VSTLFMessage.Type mtype = VSTLFMessage.Type.RTException; 
+	private final Exception _e;
+	
+	public VSTLFRealTimeExceptionMessage(Exception e){
 		super(mtype);
+		_e = e;
 	}
-	public VSTLF5MPoint(Date at,double val, int nbObs) {
-		super(mtype, at,val);
-		_nbObs = nbObs;
+
+	public void visit(VSTLFNotificationCenter center){
+		center.exceptionAlert(_e);
 	}
-	public String toString() { return "5 minute point:" + _at.toString() + " value=" + Double.toString(_val);}
-	public Date getStamp()   { return _at;}
-	public double getValue() { return _val;}
-	public int getNumObs()	 { return _nbObs;}
- }
+}

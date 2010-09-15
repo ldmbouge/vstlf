@@ -27,9 +27,12 @@ package edu.uconn.vstlf.neuro;
 
 import edu.uconn.vstlf.data.doubleprecision.MeanFunction;
 import edu.uconn.vstlf.data.doubleprecision.Series;
+import edu.uconn.vstlf.data.message.LogMessage;
+import edu.uconn.vstlf.data.message.MessageCenter;
 
 import org.garret.perst.*;
 import java.util.Vector;
+import java.util.logging.Level;
 public class SimpleFeedForwardANN {
 	
 	private static final double ALPHA = .35;
@@ -130,7 +133,9 @@ public class SimpleFeedForwardANN {
 	 * @param input Array of values presented to the input layer.
 	 */
 	public double[] execute(double[] input){
-		if(input.length!=_output[0].length-1) System.out.println(input.length+"!="+(_output[0].length-1));
+		if(input.length!=_output[0].length-1) 
+			MessageCenter.getInstance().put(new LogMessage(Level.INFO,
+					SimpleFeedForwardANN.class.getName(), "execute(double[])", input.length+"!="+(_output[0].length-1)));
 		//Set input values
 		for(int i = 0;i<_output[0].length-1;i++){
 			_output[0][i] = input[i];
@@ -250,7 +255,8 @@ public class SimpleFeedForwardANN {
 	}
 	
 	public void train(Series[] in, Series[] tg,double err)throws Exception{
-		System.err.println("Training...");
+		String methodName = SimpleFeedForwardANN.class.getMethod("train", new Class[]{Series[].class, Series[].class, Double.TYPE}).getName();
+		MessageCenter.getInstance().put(new LogMessage(Level.INFO, SimpleFeedForwardANN.class.getName(), methodName, "Training..."));
 		if(in.length!=tg.length) throw new Exception("You must have the same number of in and tg");
 		double[] mse = new double[in.length];
 		do{
@@ -261,12 +267,13 @@ public class SimpleFeedForwardANN {
 			}
 			//System.err.println((n++) +": "+new MeanFunction().imageOf(mse));
 		}while(new MeanFunction().imageOf(mse) > err);
-		System.err.println("\tDone.");
+		MessageCenter.getInstance().put(new LogMessage(Level.INFO, SimpleFeedForwardANN.class.getName(), methodName, "\tDone."));
 	}
 	
 	public void train(Series[] in, Series[] tg, int seconds)throws Exception{
 		if(seconds==0)return;
-		System.err.println("Training...");
+		String methodName = SimpleFeedForwardANN.class.getMethod("train", new Class[]{Series[].class, Series[].class, Integer.TYPE}).getName();
+		MessageCenter.getInstance().put(new LogMessage(Level.INFO, SimpleFeedForwardANN.class.getName(), methodName, "Training..."));
 		long st = System.currentTimeMillis();
 		long dt = seconds*1000;
 		if(in.length!=tg.length) throw new Exception("You must have the same number of in and tg");
@@ -279,12 +286,13 @@ public class SimpleFeedForwardANN {
 			}
 			//System.err.println((n++) +": "+new MeanFunction().imageOf(mse));
 		}while(System.currentTimeMillis() < st+dt);
-		System.err.println("\tDone.");
+		MessageCenter.getInstance().put(new LogMessage(Level.INFO, SimpleFeedForwardANN.class.getName(), methodName, "\tDone."));
 	}
 	
 	public void train(Series[] in, Series[] tg, int seconds,double err)throws Exception{
 		if(seconds==0) return;
-		System.err.println("Training...");
+		String methodName = SimpleFeedForwardANN.class.getMethod("train", new Class[]{Series[].class, Series[].class, Integer.TYPE, Double.TYPE}).getName();
+		MessageCenter.getInstance().put(new LogMessage(Level.INFO, SimpleFeedForwardANN.class.getName(), methodName, "Training..."));
 		long st = System.currentTimeMillis();
 		long dt = seconds*1000;
 		if(in.length!=tg.length) throw new Exception("You must have the same number of in and tg");
@@ -297,11 +305,12 @@ public class SimpleFeedForwardANN {
 			}
 			//System.err.println((n++) +": "+new MeanFunction().imageOf(mse));
 		}while(System.currentTimeMillis() < st+dt && new MeanFunction().imageOf(mse) > err);
-		System.err.println("\tDone.");
+		MessageCenter.getInstance().put(new LogMessage(Level.INFO, SimpleFeedForwardANN.class.getName(), methodName, "\tDone."));
 	}
 	
 	public void train(double[][] in, double[][] tg,double err)throws Exception{
-		System.err.println("Training...");
+		String methodName = SimpleFeedForwardANN.class.getMethod("train", new Class[]{Double[][].class, Double[][].class,  Double.TYPE}).getName();
+		MessageCenter.getInstance().put(new LogMessage(Level.INFO, SimpleFeedForwardANN.class.getName(), methodName, "Training..."));
 		if(in.length!=tg.length) throw new Exception("You must have the same number of in and tg");
 		int n =0;
 		double[] mse = new double[in.length];
@@ -313,13 +322,14 @@ public class SimpleFeedForwardANN {
 				mse[i] = diff.meanOfSquares();
 				update(tg[i]);
 			}
-			System.err.println((n++) +": "+new MeanFunction().imageOf(mse));
+			MessageCenter.getInstance().put(new LogMessage(Level.INFO, SimpleFeedForwardANN.class.getName(), methodName, (n++) +": "+new MeanFunction().imageOf(mse)));
 		}while(new MeanFunction().imageOf(mse) > err);
-		System.err.println("\tDone.");
+		MessageCenter.getInstance().put(new LogMessage(Level.INFO, SimpleFeedForwardANN.class.getName(), methodName, "\tDone."));
 	}
 	
 	public void train(double[][] in, double[][] tg,int seconds)throws Exception{
-		System.err.println("Training...");
+		String methodName = SimpleFeedForwardANN.class.getMethod("train", new Class[]{Double[][].class, Double[][].class,  Integer.TYPE}).getName();
+		MessageCenter.getInstance().put(new LogMessage(Level.INFO, SimpleFeedForwardANN.class.getName(), methodName, "Training..."));
 		long st = System.currentTimeMillis();
 		long dt = seconds*1000;
 		if(in.length!=tg.length) throw new Exception("You must have the same number of in and tg");
@@ -334,7 +344,7 @@ public class SimpleFeedForwardANN {
 			}
 			//System.err.println((n++) +": "+new MeanFunction().imageOf(mse));
 		}while(System.currentTimeMillis() < st+dt);
-		System.err.println("\tDone.");
+		MessageCenter.getInstance().put(new LogMessage(Level.INFO, SimpleFeedForwardANN.class.getName(), methodName, "\tDone."));
 	}
 	
 	@SuppressWarnings("unchecked")

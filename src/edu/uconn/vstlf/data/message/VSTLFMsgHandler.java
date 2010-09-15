@@ -23,25 +23,9 @@
  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ***********************************************************************/
 
-package edu.uconn.vstlf.realtime;
-import java.util.Date;
+package edu.uconn.vstlf.data.message;
 
-import edu.uconn.vstlf.data.message.VSTLFMessage;
-
-
-public class VSTLF5MPoint extends VSTLFObservationPoint {
-	public static VSTLFMessage.Type mtype = VSTLFMessage.Type.RT5mPoint; 
-
-	int _nbObs;
-	public VSTLF5MPoint() {
-		super(mtype);
-	}
-	public VSTLF5MPoint(Date at,double val, int nbObs) {
-		super(mtype, at,val);
-		_nbObs = nbObs;
-	}
-	public String toString() { return "5 minute point:" + _at.toString() + " value=" + Double.toString(_val);}
-	public Date getStamp()   { return _at;}
-	public double getValue() { return _val;}
-	public int getNumObs()	 { return _nbObs;}
- }
+public abstract class VSTLFMsgHandler {
+	public abstract void handle(VSTLFMessage msg) throws VSTLFMsgException;
+	protected VSTLFMsgHandler successor_;
+}

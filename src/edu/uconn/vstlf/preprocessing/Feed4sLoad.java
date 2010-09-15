@@ -26,9 +26,12 @@
 package edu.uconn.vstlf.preprocessing;
 
 import java.util.Date;
+import java.util.logging.Level;
 
 import edu.uconn.vstlf.data.Calendar;
 import edu.uconn.vstlf.data.doubleprecision.Series;
+import edu.uconn.vstlf.data.message.LogMessage;
+import edu.uconn.vstlf.data.message.MessageCenter;
 import edu.uconn.vstlf.database.PowerDB;
 import edu.uconn.vstlf.realtime.PCBuffer;
 import edu.uconn.vstlf.realtime.VSTLF4SPoint;
@@ -80,7 +83,8 @@ public class Feed4sLoad implements Runnable{
 				last4sLoad = _db.getLoad(_inLoadType, prevTime, at);
 				
 				if (last4sLoad.length() == 0)
-					System.err.println("No 4s load shows up from " + prevTime + " to " + at);
+					MessageCenter.getInstance().put(new LogMessage(Level.WARNING,
+							Feed4sLoad.class.getName(), "run", "No 4s load shows up from " + prevTime + " to " + at));
 				
 				// Integrate the loads in the last 4 seconds
 				double accLoad = 0.0;

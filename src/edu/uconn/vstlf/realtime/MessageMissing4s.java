@@ -27,9 +27,14 @@ package edu.uconn.vstlf.realtime;
 
 import java.util.Date;
 
-public class MessageMissing4s extends VSTLFMessage {
+import edu.uconn.vstlf.data.message.VSTLFMessage;
+
+public class MessageMissing4s extends VSTLFRealTimeMessage {
+	public static VSTLFMessage.Type mtype = VSTLFMessage.Type.RTMissing4s; 
+
 	private final Date _stamp;
 	public MessageMissing4s(Date stamp) { 
+		super(mtype);
 		_stamp = stamp;
 	}
 	public void visit(VSTLFNotificationCenter center) {

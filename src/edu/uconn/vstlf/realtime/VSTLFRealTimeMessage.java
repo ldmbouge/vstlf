@@ -25,14 +25,11 @@
 
 package edu.uconn.vstlf.realtime;
 
-public class VSTLFExceptionMessage extends VSTLFMessage {
-	private final Exception _e;
+public class VSTLFRealTimeMessage extends edu.uconn.vstlf.data.message.VSTLFMessage {
+	VSTLFRealTimeMessage(Type type)
+	{
+		super(type);
+	}
 	
-	public VSTLFExceptionMessage(Exception e){
-		_e = e;
-	}
-
-	public void visit(VSTLFNotificationCenter center){
-		center.exceptionAlert(_e);
-	}
+	public void visit(VSTLFNotificationCenter center) {}
 }

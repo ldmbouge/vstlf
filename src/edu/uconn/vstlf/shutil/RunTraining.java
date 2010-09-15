@@ -29,6 +29,10 @@ import java.io.*;
 import java.text.DateFormat;
 import java.util.Date;
 import edu.uconn.vstlf.data.Calendar;
+import edu.uconn.vstlf.data.message.DummyMsgHandler;
+import edu.uconn.vstlf.data.message.MessageCenter;
+import edu.uconn.vstlf.data.message.VSTLFMessage;
+import edu.uconn.vstlf.data.message.VSTLFMsgLogger;
 import edu.uconn.vstlf.database.perst.*;
 import edu.uconn.vstlf.config.Items;
 
@@ -154,7 +158,10 @@ public class RunTraining {
 					ed = end;
 				}
 			}
+			MessageCenter.getInstance().setHandler(new VSTLFMsgLogger("vstlf.log", new DummyMsgHandler()));
+			MessageCenter.getInstance().init();
 			edu.uconn.vstlf.batch.VSTLFTrainer.train(tfName, st, ed, lo, hi);
+			MessageCenter.getInstance().put(new VSTLFMessage(VSTLFMessage.Type.EOF));
 			System.out.println("Training Complete");
 		} catch (Exception e) {
 		    System.out.println(e.toString());

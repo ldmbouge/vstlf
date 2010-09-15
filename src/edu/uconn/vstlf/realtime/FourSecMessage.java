@@ -27,11 +27,15 @@ package edu.uconn.vstlf.realtime;
 
 import java.util.Date;
 
-public class FourSecMessage extends VSTLFMessage {
+import edu.uconn.vstlf.data.message.VSTLFMessage;
+
+public class FourSecMessage extends VSTLFRealTimeMessage {
+	public static VSTLFMessage.Type mtype = VSTLFMessage.Type.RTFourSec; 
 	private final Date _stamp;
 	private final double _val;
 	private final int _nbObs;
 	public FourSecMessage(Date stamp, double val, int nbObs) { 
+		super(mtype);
 		_stamp = stamp;
 		_val = val;
 		_nbObs = nbObs;

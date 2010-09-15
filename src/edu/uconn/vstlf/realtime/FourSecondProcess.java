@@ -30,6 +30,7 @@ import java.util.Vector;
 import edu.uconn.vstlf.config.Items;
 import edu.uconn.vstlf.data.Calendar;
 import edu.uconn.vstlf.data.doubleprecision.*;
+import edu.uconn.vstlf.data.message.MessageCenter;
 
 public class FourSecondProcess extends Thread {
 	private final PCBuffer<VSTLFObservationPoint> _input;	//Incoming observations appear here
@@ -42,7 +43,7 @@ public class FourSecondProcess extends Thread {
 													// and then aggregated before it is
 	private final PCBuffer<VSTLF5MPoint> _output;   //	moved to the out buffer
 	
-	private final PCBuffer<VSTLFMessage> _notif;	//Any messages for the user get placed here.
+	private final MessageCenter _notif;	//Any messages for the user get placed here.
 	
 	private Date 				 _at;	//A record of the current time.  
 										//  Nothing outside of the pulse should ever 
@@ -58,7 +59,7 @@ public class FourSecondProcess extends Thread {
 	
 	double _filterThreshold;
 	
-	public FourSecondProcess(PCBuffer<VSTLFMessage> notif, PCBuffer<VSTLFObservationPoint> buf,PCBuffer<VSTLF5MPoint> out) { 
+	public FourSecondProcess(MessageCenter notif, PCBuffer<VSTLFObservationPoint> buf,PCBuffer<VSTLF5MPoint> out) { 
 		_input = buf;
 		_output = out;
 		_notif = notif;
@@ -126,11 +127,11 @@ public class FourSecondProcess extends Thread {
         			ave/=v.size();
         			//System.out.format("Got a 4s data point " + _at + " value: %f\n",ave);
         			_4s.produce(new VSTLF4SPoint(_at,ave));
-        			_notif.produce(new FourSecMessage(_at,ave,v.size()));
+        			_notif.put(new FourSecMessage(_at,ave,v.size()));
         		}
         		else{//Complain if there are no observations since the last pulse.
         			_4s.produce(new VSTLF4SPoint(_at,0));
-        			_notif.produce(new MessageMissing4s(_at));
+        			_notif.put(new MessageMissing4s(_at));
         		}
         		return true;
 			}
@@ -206,13 +207,13 @@ public class FourSecondProcess extends Thread {
 			Series smooth = (window.size() < 10 ? load : load.lowPassFR(10));
 			array = new ThresholdChoiceFunction(_filterThreshold).imageOf(load.minus(smooth),load,smooth).array();
 		}catch(Exception e){
-			_notif.produce(new VSTLFExceptionMessage(e));
+			_notif.put(new VSTLFRealTimeExceptionMessage(e));
 			for(int i = 0;i<window.size();i++) array[i] = window.elementAt(i).getValue();
 		}
 		for(int i = 0;i<array.length;i++) {
 			_filtered.add(new VSTLF4SPoint(window.elementAt(i).getStamp(),array[i]));	
 			if(window.elementAt(i).getValue() != array[i])
-				_notif.produce(new VSTLF4sRefinementMessage(window.elementAt(i).getStamp(),window.elementAt(i).getValue(),array[i]));
+				_notif.put(new VSTLF4sRefinementMessage(window.elementAt(i).getStamp(),window.elementAt(i).getValue(),array[i]));
 		}
 			
 	}

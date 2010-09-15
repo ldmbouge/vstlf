@@ -31,11 +31,16 @@ import java.util.Date;
 
 import edu.uconn.vstlf.config.Items;
 import edu.uconn.vstlf.data.Calendar;
+import edu.uconn.vstlf.data.message.DummyMsgHandler;
+import edu.uconn.vstlf.data.message.MessageCenter;
+import edu.uconn.vstlf.data.message.VSTLFMessage;
+import edu.uconn.vstlf.data.message.VSTLFMsgLogger;
 import edu.uconn.vstlf.database.perst.PerstPowerDB;
 
 public class RunValidation {
 
 	static String _USAGE = "USAGE:\n\tjava -jar uconn-vstlf.jar validate <lowBank> <highBank> <xmlFile> "+
+	"\n\tjava -jar uconn-vstlf.jar validate <lowBank> <highBank> <xmlFile> \"<startDate yyyy/MM/dd>\" \"<endDate yyyy/MM/dd>\"" +
 	 "\n\n\t lowBank, highBank in [0,11]:\tthe program will test ANN banks for the\n\t\t\t\t\toffsets in the specified interval" +
 	 "\n\n\t xmlFile:\t\t\t5minute load file.  XML.\n\t\t\t\t\t(see manual for XML format) \n\n" +
 	 "\tThe specified set of neural network banks will be validated over the\ntime period contained in 'xmlFile'." +
@@ -50,7 +55,7 @@ public class RunValidation {
 	public static void main(String[] args) {
 		Calendar cal = Items.makeCalendar();
 		String xmlFile = null; int lo=0, hi=0; Date st, ed;
-		if (args.length != 3) { 					//check # of args
+		if (args.length != 3 && args.length != 5) { 	//check # of args
 			System.out.println(_USAGE);
 			return;
 		}
@@ -72,6 +77,8 @@ public class RunValidation {
 			return;
 		}
 		try {								//run stuff
+			MessageCenter.getInstance().setHandler(new VSTLFMsgLogger("vstlf.log", new DummyMsgHandler()));
+			MessageCenter.getInstance().init();
 			String tfName = ".load5m.pod";
 			File tempFile;
 			while(true){
@@ -82,12 +89,31 @@ public class RunValidation {
 					break;
 			}
 			tempFile.deleteOnExit();
-			System.out.println("Extracting 5m load signal from "+ xmlFile);
-			PerstPowerDB ppdb = PerstPowerDB.fromXML(tfName, 300, xmlFile);
+			PerstPowerDB ppdb;
+			if (getExtensionName(xmlFile).compareTo("xml") == 0) {
+				System.out.println("Extracting 5m load signal from "+ xmlFile);
+				ppdb = PerstPowerDB.fromXML(tfName, 300, xmlFile);
+			}
+			else 
+				ppdb = new PerstPowerDB(xmlFile, 300);
 			ppdb.open();
 			st = cal.endDay(ppdb.first("filt"));
 			ed = cal.beginDay(ppdb.last("filt"));
 			ppdb.close();
+			
+			if (args.length == 5) {
+				Date strt = RunTraining.parseDate(args[3]);
+				Date end = RunTraining.parseDate(args[4]);
+				if (strt == null)
+					System.err.println("Cannot parse date " + args[3]);
+				else if (end == null)
+					System.err.println("Cannot parse date " + args[4]);
+				else {
+					st = strt;
+					ed = end;
+				}
+			}
+			
 			double[][] result = edu.uconn.vstlf.batch.VSTLFTrainer.test(tfName, st, ed, lo, hi);
 			System.out.println("Validation Complete\n\nMean Error in MW:");
 			System.out.println("Bank\t5m\t10m\t15m\t20m\t25m\t30m\t35m\t40m\t45m\t50m\t55m\t1h");
@@ -96,6 +122,7 @@ public class RunValidation {
 				for(int j = 0;j<12;j++)
 					System.out.format("%.1f\t", result[i][j]);
 			}
+			MessageCenter.getInstance().put(new VSTLFMessage(VSTLFMessage.Type.EOF));
 		} catch (Exception e) {
 		    System.out.println(e.toString());
 		    e.printStackTrace();
@@ -103,5 +130,9 @@ public class RunValidation {
 		}
 	}
 
-
+	static public String getExtensionName(String fileName)
+	{
+		int mid = fileName.lastIndexOf('.');
+		return fileName.substring(mid+1,fileName.length());
+	}
 }

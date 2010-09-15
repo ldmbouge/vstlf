@@ -27,7 +27,12 @@ package edu.uconn.vstlf.neuro;
 
 import java.io.Serializable;
 import java.util.Vector;
+import java.util.logging.Level;
+
 import org.garret.perst.*;
+
+import edu.uconn.vstlf.data.message.LogMessage;
+import edu.uconn.vstlf.data.message.MessageCenter;
 
 public class EKFANN implements Serializable{
 	
@@ -322,7 +327,9 @@ public class EKFANN implements Serializable{
 	 */
 	public double[] execute(double[] input){
 		if(input.length!=_output[0].length-1) 
-		    System.out.println(input.length+"!="+(_output[0].length-1));
+			MessageCenter.getInstance().put(
+					new LogMessage(Level.INFO, EKFANN.class.getName(), "execute(double[]",
+						input.length+"!="+(_output[0].length-1)));
 		for(int i = 1;i<_output[0].length;i++){
 			_output[0][i] = input[i-1];			//input i is layer 0, index i
 		}
@@ -385,12 +392,15 @@ public class EKFANN implements Serializable{
 	
 	
 	public void EKFTrain(double[][] in, double[][] tg, double[][] inVar, int maxSeconds) throws Exception{
+		String methodName = EKFANN.class.getMethod("EKFTrain", new Class[]{Double[][].class, Double[][].class, Double[][].class, Integer.TYPE}).getName();
+		MessageCenter.getInstance().put(new LogMessage(Level.INFO, EKFANN.class.getName(), methodName, "Training"));
 		long st = System.currentTimeMillis();
 		long dt = maxSeconds*1000;
 		if(in.length!=tg.length) throw new Exception("You must have the same number of in and tg");
 		int e = 0;
 		do{
 			if(e++%100 == 0)
+				MessageCenter.getInstance().put(new LogMessage(Level.INFO, EKFANN.class.getName(), methodName, Integer.toString(e)));
 			for(int i = 0;i<in.length;i++){
 				execute(in[i]);
 				for(int outid = 0; outid<_output[_output.length-1].length-1;outid++){
@@ -399,11 +409,12 @@ public class EKFANN implements Serializable{
 				}
 			}
 		}while(System.currentTimeMillis() < st+dt);
-		System.err.println("\tDone.");
+		MessageCenter.getInstance().put(new LogMessage(Level.INFO, EKFANN.class.getName(), methodName, "\tDone."));
 	}
 	
 	public void train(double[][] in, double[][] tg, int maxSeconds) throws Exception{
-		System.err.println("Training");
+		String methodName = EKFANN.class.getMethod("train", new Class[]{Double[][].class, Double[][].class, Integer.TYPE}).getName();
+		MessageCenter.getInstance().put(new LogMessage(Level.INFO, EKFANN.class.getName(), methodName, "Training"));
 		long st = System.currentTimeMillis();
 		long dt = maxSeconds*1000;
 		//double[] zip = new double[_output[0].length-1];
@@ -411,12 +422,13 @@ public class EKFANN implements Serializable{
 		int e = 0;
 		do{
 			if(e++%100 == 0)
+				MessageCenter.getInstance().put(new LogMessage(Level.INFO, EKFANN.class.getName(), methodName, Integer.toString(e)));
 			for(int i = 0;i<in.length;i++){
 				execute(in[i]);
 				update(tg[i]);
 			}
 		}while(System.currentTimeMillis() < st+dt);
-		System.err.println("\tDone.");
+		MessageCenter.getInstance().put(new LogMessage(Level.INFO, EKFANN.class.getName(), methodName, "\tDone."));
 	}
 	
 	public void setRNoise(double r){

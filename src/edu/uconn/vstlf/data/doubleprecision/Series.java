@@ -396,17 +396,17 @@ public class Series {
 		Series ol = this;
 		Series nw = new Series(ol.length()); 
 		Series diff = minus(lowPassFR(w));
-		System.out.println("diff\t"+diff);
+		//System.out.println("diff\t"+diff);
 		for(int i=1;i<=length();i++){
 			if(Math.abs(diff.element(i))>t){
 				int st = i,ed=i+1;
-				System.out.println("st: "+st);
+				//System.out.println("st: "+st);
 				while(Math.abs(diff.element(i))>t) 
 					if(++i < length()) 
 						ed = i; 
 					else 
 						break ;
-				System.out.println("ed: "+ed);
+				//System.out.println("ed: "+ed);
 				if(ed==length()) 
 					nw.set(ed, ol.element(st) + (ed-st)*(ol.element(st)-ol.element(st-1)));
 				else 

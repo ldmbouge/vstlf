@@ -27,14 +27,16 @@ package edu.uconn.vstlf.realtime;
 
 import java.util.Date;
 
-public class VSTLFObservationPoint extends VSTLFMessage {
+public class VSTLFObservationPoint extends VSTLFRealTimeMessage {
 	protected Date _at;
 	protected double _val;
-	public VSTLFObservationPoint() {
+	public VSTLFObservationPoint(Type type) {
+		super(type);
 		_at = null;
 		_val = 0.0;
 	}
-	public VSTLFObservationPoint(Date at, double val) {
+	public VSTLFObservationPoint(Type type, Date at, double val) {
+		super(type);
 		_at = at;
 		_val = val;
 	}

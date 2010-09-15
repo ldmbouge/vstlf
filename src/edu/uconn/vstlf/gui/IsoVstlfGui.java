@@ -31,10 +31,14 @@ import java.awt.event.*;
 import java.awt.*;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.logging.Level;
 
 import edu.uconn.vstlf.config.Items;
 import edu.uconn.vstlf.data.*;
 import edu.uconn.vstlf.data.doubleprecision.*;
+import edu.uconn.vstlf.data.message.LogMessage;
+import edu.uconn.vstlf.data.message.MessageCenter;
+import edu.uconn.vstlf.data.message.VSTLFMessage;
 import edu.uconn.vstlf.database.*;
 import edu.uconn.vstlf.database.perst.*;
 import edu.uconn.vstlf.database.xml.*;
@@ -274,7 +278,9 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 		   File f = new File(_dbName);
 			if(f.exists() && _DELETE) {
 				if(!f.delete()) {
-					System.err.println("???"); 
+					MessageCenter.getInstance().put(
+							new LogMessage(Level.SEVERE,
+									"IsoVstlfGui", "setupDatabase", "???")); 
 					System.exit(0);
 				}
 			}
@@ -322,7 +328,8 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 			   }
 		   }
 		   else{
-			   System.out.println("Reading from TABLE");
+			   MessageCenter.getInstance().put(
+					   new LogMessage(Level.INFO, "IsoVstlfGui", "importStatistics", "Reading from TABLE"));
 			   _sum = _db.getSum();
 			   _sumP = _db.getSumP();
 			   _sumOfSquares = _db.getSumOfSquares();
@@ -342,7 +349,8 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 		   }
 	   }
 	   catch(Exception e){
-		   System.err.println("Exception while populating statistics from history");
+		   MessageCenter.getInstance().put(
+				   new LogMessage(Level.SEVERE, "IsoVstlfGui", "importStatistics", "Exception while populating statistics from history"));
 		   e.printStackTrace();
 	   }
    }
@@ -418,7 +426,7 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 				currentData = new LoadData(_currDB.getLoad("load", at),true,at);
 			}
 			//_logger.addMessage("currentData at [" + at.toString() + "] is " + (currentData==null ? "null" : currentData.toString()));
-			_engine.addObservation(this, currentData.getDate(), currentData.getValue());
+			_engine.addObservation(VSTLFMessage.Type.RT4sPoint, currentData.getDate(), currentData.getValue());
 			// update the toolbars
 			if(_UPDATE_GUI){
 				_toolBarMgr.update(at, currentData.getDate(), currentData.getValue());
@@ -617,7 +625,7 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 	   windowClosed(e);
    }
    public void windowClosed(WindowEvent e){
-	   System.out.println("Closing...");
+	   //System.out.println("Closing...");
 	   _db.addStats(_pulseTime, _nbErr, _sum.array(), _sumP.array(), _sumOfSquares.array(), _ovr.array(), _und.array());
 	   try{
 		   _db.close();

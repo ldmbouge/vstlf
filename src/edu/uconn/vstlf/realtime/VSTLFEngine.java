@@ -28,12 +28,14 @@ import java.util.Date;
 
 import edu.uconn.vstlf.config.Items;
 import edu.uconn.vstlf.data.Calendar;
+import edu.uconn.vstlf.data.message.MessageCenter;
+import edu.uconn.vstlf.data.message.VSTLFMessage;
 import edu.uconn.vstlf.database.*;
 
 public class VSTLFEngine {
 	private final PCBuffer<VSTLFObservationPoint> _obs;
 	private final PCBuffer<VSTLF5MPoint> _fiveMinute;
-	private final PCBuffer<VSTLFMessage> _notif;
+	private final MessageCenter _notif;
 	private Calendar _cal;
 	private PowerDB _db;
 	private int     _milliseconds; // rate of updates
@@ -43,7 +45,7 @@ public class VSTLFEngine {
 	public VSTLFEngine(PowerDB db) {
 		_obs = new PCBuffer<VSTLFObservationPoint>();
 		_fiveMinute = new PCBuffer<VSTLF5MPoint>();
-		_notif      = new PCBuffer<VSTLFMessage>(1024);
+		_notif      = MessageCenter.getInstance();//new PCBuffer<VSTLFRealTimeMessage>(1024);
 		_cal        = Items.makeCalendar();
 		_db	= db;//"RawFiveMinuteLoad.pod";
 		_fsp = new FourSecondProcess(_notif,_obs,_fiveMinute);
@@ -58,7 +60,7 @@ public class VSTLFEngine {
 		_fmp.start();
 	}
 	public void stop() {
-		_obs.produce(new VSTLFObservationPoint());
+		_obs.produce(new VSTLFObservationPoint(VSTLFMessage.Type.EOF));
 	}
 	public void startup() {
 		startup(new Date(System.currentTimeMillis()));
@@ -73,13 +75,13 @@ public class VSTLFEngine {
 		_fmp.start();
 	}
 	
-	public void addObservation(VSTLFNotificationCenter center, Date at,double val) {
+	public void addObservation(VSTLFMessage.Type type, Date at,double val) {
 		_cal.setTime(at);
 		assert(_cal.get(Calendar.MILLISECOND) == 0);
-        _obs.produce(new VSTLFObservationPoint(at,val));
-        while (!_notif.empty()) {
+        _obs.produce(new VSTLFObservationPoint(type, at,val));
+        /*while (!_notif.empty()) {
         	_notif.consume().visit(center);
-        }
+        }*/
 	}
 	
 	public void revise5MPoint(Date at,double val) {
