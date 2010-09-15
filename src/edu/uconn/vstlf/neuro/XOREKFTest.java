@@ -25,16 +25,12 @@
 
 package edu.uconn.vstlf.neuro;
 
-import java.io.IOException;
-
 public class XOREKFTest {
 
 	/**
 	 * @param args
-	 * @throws IOException 
-	 * @throws SecurityException 
 	 */
-	public static void main(String[] args) throws SecurityException, IOException {
+	public static void main(String[] args) {
 		int[] lyrSz = {3,5,3};
 		EKFANN ann = EKFANN.newUntrainedANN(lyrSz);
 		System.out.println("Starting Up");

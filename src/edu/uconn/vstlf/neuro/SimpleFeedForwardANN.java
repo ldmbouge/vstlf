@@ -29,11 +29,7 @@ import edu.uconn.vstlf.data.doubleprecision.MeanFunction;
 import edu.uconn.vstlf.data.doubleprecision.Series;
 
 import org.garret.perst.*;
-
-import java.io.IOException;
 import java.util.Vector;
-import java.util.logging.*;
-
 public class SimpleFeedForwardANN {
 	
 	private static final double ALPHA = .35;
@@ -47,8 +43,6 @@ public class SimpleFeedForwardANN {
 	int _nbLayers;
 	int[] _lyrSz;
 	
-    Logger _logger = Logger.getLogger("SimpleFeedForwardANN");
-    public SimpleFeedForwardANN() {}
 	/**
 	 * Constructs an ANN from two 3D arrays, one containing current weights, one recent weights.
 	 * The matrices are indexed in the following way.
@@ -57,10 +51,8 @@ public class SimpleFeedForwardANN {
 	 * Dim3: Position of the node from which input is assigned this weight in the previous layer.
 	 * @param w
 	 * @param rw
-	 * @throws IOException 
-	 * @throws SecurityException 
 	 */
-	public SimpleFeedForwardANN(double[][][][] w) throws SecurityException, IOException{
+	public SimpleFeedForwardANN(double[][][][] w){
 		_weights = new double[w[0].length][][];
 		_recentWeights = new double[w[1].length][][];
 		for(int lid=0;lid<w[0].length;lid++){
@@ -82,16 +74,14 @@ public class SimpleFeedForwardANN {
 			_output[lid] = new double[_weights[lid].length];
 			_error[lid] = new double[_weights[lid].length];
 		}
-		
-		_logger.addHandler(new FileHandler("ann.log"));
 	}
 	
-	public SimpleFeedForwardANN(double[][][][] w, int[] lyrSz) throws SecurityException, IOException{
+	public SimpleFeedForwardANN(double[][][][] w, int[] lyrSz){
 		this(w);
 		_lyrSz = lyrSz;
 	}
 	
-	public static SimpleFeedForwardANN newUntrainedANN(int[] lyrSz) throws SecurityException, IOException{
+	public static SimpleFeedForwardANN newUntrainedANN(int[] lyrSz){
 		double[][][] w = new double[lyrSz.length][][];
 		double[][][] r = new double[lyrSz.length][][];
 		//double i = .5;int t = 868;
@@ -140,7 +130,7 @@ public class SimpleFeedForwardANN {
 	 * @param input Array of values presented to the input layer.
 	 */
 	public double[] execute(double[] input){
-		if(input.length!=_output[0].length-1) _logger.fine(input.length+"!="+(_output[0].length-1));
+		if(input.length!=_output[0].length-1) System.out.println(input.length+"!="+(_output[0].length-1));
 		//Set input values
 		for(int i = 0;i<_output[0].length-1;i++){
 			_output[0][i] = input[i];
@@ -260,7 +250,7 @@ public class SimpleFeedForwardANN {
 	}
 	
 	public void train(Series[] in, Series[] tg,double err)throws Exception{
-		_logger.fine("Training...");
+		System.err.println("Training...");
 		if(in.length!=tg.length) throw new Exception("You must have the same number of in and tg");
 		double[] mse = new double[in.length];
 		do{
@@ -271,12 +261,12 @@ public class SimpleFeedForwardANN {
 			}
 			//System.err.println((n++) +": "+new MeanFunction().imageOf(mse));
 		}while(new MeanFunction().imageOf(mse) > err);
-		_logger.fine("\tDone.");
+		System.err.println("\tDone.");
 	}
 	
 	public void train(Series[] in, Series[] tg, int seconds)throws Exception{
 		if(seconds==0)return;
-		_logger.fine("Training...");
+		System.err.println("Training...");
 		long st = System.currentTimeMillis();
 		long dt = seconds*1000;
 		if(in.length!=tg.length) throw new Exception("You must have the same number of in and tg");
@@ -289,12 +279,12 @@ public class SimpleFeedForwardANN {
 			}
 			//System.err.println((n++) +": "+new MeanFunction().imageOf(mse));
 		}while(System.currentTimeMillis() < st+dt);
-		_logger.fine("\tDone.");
+		System.err.println("\tDone.");
 	}
 	
 	public void train(Series[] in, Series[] tg, int seconds,double err)throws Exception{
 		if(seconds==0) return;
-		_logger.fine("Training...");
+		System.err.println("Training...");
 		long st = System.currentTimeMillis();
 		long dt = seconds*1000;
 		if(in.length!=tg.length) throw new Exception("You must have the same number of in and tg");
@@ -307,11 +297,11 @@ public class SimpleFeedForwardANN {
 			}
 			//System.err.println((n++) +": "+new MeanFunction().imageOf(mse));
 		}while(System.currentTimeMillis() < st+dt && new MeanFunction().imageOf(mse) > err);
-		_logger.fine("\tDone.");
+		System.err.println("\tDone.");
 	}
 	
 	public void train(double[][] in, double[][] tg,double err)throws Exception{
-		_logger.fine("Training...");
+		System.err.println("Training...");
 		if(in.length!=tg.length) throw new Exception("You must have the same number of in and tg");
 		int n =0;
 		double[] mse = new double[in.length];
@@ -323,13 +313,13 @@ public class SimpleFeedForwardANN {
 				mse[i] = diff.meanOfSquares();
 				update(tg[i]);
 			}
-			_logger.fine((n++) +": "+new MeanFunction().imageOf(mse));
+			System.err.println((n++) +": "+new MeanFunction().imageOf(mse));
 		}while(new MeanFunction().imageOf(mse) > err);
-		_logger.fine("\tDone.");
+		System.err.println("\tDone.");
 	}
 	
 	public void train(double[][] in, double[][] tg,int seconds)throws Exception{
-		_logger.fine("Training...");
+		System.err.println("Training...");
 		long st = System.currentTimeMillis();
 		long dt = seconds*1000;
 		if(in.length!=tg.length) throw new Exception("You must have the same number of in and tg");
@@ -344,7 +334,7 @@ public class SimpleFeedForwardANN {
 			}
 			//System.err.println((n++) +": "+new MeanFunction().imageOf(mse));
 		}while(System.currentTimeMillis() < st+dt);
-		_logger.fine("\tDone.");
+		System.err.println("\tDone.");
 	}
 	
 	@SuppressWarnings("unchecked")

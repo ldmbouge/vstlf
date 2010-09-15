@@ -26,7 +26,6 @@
 package edu.uconn.vstlf.preprocessing;
 
 import java.util.Date;
-import java.util.logging.*;
 
 import edu.uconn.vstlf.data.Calendar;
 import edu.uconn.vstlf.data.doubleprecision.Series;
@@ -80,10 +79,8 @@ public class Feed4sLoad implements Runnable{
 				// Get the loads in the last 4 seconds from the perst database
 				last4sLoad = _db.getLoad(_inLoadType, prevTime, at);
 				
-				if (last4sLoad.length() == 0) {
-				    Logger log = Logger.getLogger("4sLog");
-				    log.addHandler(new FileHandler("preprocessing.log"));
-				    log.warning("No 4s load shows up from " + prevTime + " to " + at);}
+				if (last4sLoad.length() == 0)
+					System.err.println("No 4s load shows up from " + prevTime + " to " + at);
 				
 				// Integrate the loads in the last 4 seconds
 				double accLoad = 0.0;

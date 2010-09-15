@@ -36,7 +36,6 @@ import edu.uconn.vstlf.database.*;
 import edu.uconn.vstlf.database.perst.*;
 import edu.uconn.vstlf.database.xml.*;
 import edu.uconn.vstlf.gui.IVstlfMain;
-import java.util.logging.*;
 
 /*
  * TWO HARD_CODED VALUES BELOW SHOULD BE SET DEPENDING ON THE PARTICULAR TEST YOU WOULD LIKE TO DO:
@@ -52,8 +51,6 @@ import java.util.logging.*;
 
 public class IsoVstlf implements IVstlfMain, PulseAction
 {	
-    private Logger _logger;
-
 	// VSTLF related objects
 		
 	int _TICK_INTERVAL = 4000;
@@ -100,8 +97,6 @@ public class IsoVstlf implements IVstlfMain, PulseAction
 		this._currentDataFileName = currentDataXml;
 		this._historyDataFileName = dailyDataXml;	
 		
-	    _logger = Logger.getLogger("VSTLF logger");
-		_logger.addHandler(new FileHandler("VSTLF_Headless.log"));
 		_out = new DataStream(this,(OutputStream)null);
    }
    
@@ -114,19 +109,19 @@ public class IsoVstlf implements IVstlfMain, PulseAction
 	}
    
 	public void init() throws Exception{
-		_logger.fine("initializing...");
-		_logger.fine("4s stream from '"+_currentDataFileName+"'");
-		_logger.fine("Initial 12hrs of 5min data from '"+_historyDataFileName+"'");
-		_logger.fine("Storing aggregated 5min data in '"+_dbName+"'");
-		_logger.fine("\n");
-		_logger.fine("Openning new working DB...");
+		System.err.println("initializing...");
+		System.err.println("4s stream from '"+_currentDataFileName+"'");
+		System.err.println("Initial 12hrs of 5min data from '"+_historyDataFileName+"'");
+		System.err.println("Storing aggregated 5min data in '"+_dbName+"'");
+		System.err.println();
+		System.err.println("Openning new working DB...");
 		setupDatabases();
-		_logger.fine("\t done.");		
+		System.err.println("\t done.");		
 		// setup VSTLF engine and data feed
 		if(_TEST_TIME == null)
 			_TEST_TIME = _cal.now();
 		else
-			_logger.fine("GOING FROM "+_TEST_TIME);
+			System.out.println("GOING FROM "+_TEST_TIME);
 		_prevTick= _cal.lastTick(300, _TEST_TIME);
 		_pulseTime = _TEST_TIME;
 		this._engine = new VSTLFEngine(_db);
@@ -141,11 +136,11 @@ public class IsoVstlf implements IVstlfMain, PulseAction
 		do{
 			if(tries>0){
 				Thread.sleep(8192);
-				_logger.warning("Data not recent enough.  Trying to reload");
+				System.err.println("Data not recent enough.  Trying to reload");
 			}
 			if(_coldStartSrcType.equals("xml"))this._loadData.getData(this._historyDataFileName, false);
 			if (this._coldStart) {
-				_logger.fine("COLD START:  filling history raw/filtered databases from init DBs");
+				System.err.println("COLD START:  filling history raw/filtered databases from init DBs");
 				LinkedList<LoadData> history;
 				if(_coldStartSrcType.equals("xml"))
 					history = _loadData.getHistory();
@@ -153,9 +148,9 @@ public class IsoVstlf implements IVstlfMain, PulseAction
 					PerstPowerDB tempDB = new PerstPowerDB(_historyDataFileName,300);
 					tempDB.open();
 					Date tst = tempDB.begin("load");
-					_logger.fine("Init DB contains data in -\t("+tst+", "+tempDB.last("load")+"]");
+					System.err.println("Init DB contains data in -\t("+tst+", "+tempDB.last("load")+"]");
 					tst = _cal.addHoursTo(_prevTick, -12);
-					_logger.fine("Extracting data in -\t("+tst+", "+_prevTick+"]");
+					System.err.println("Extracting data in -\t("+tst+", "+_prevTick+"]");
 					Series temp = tempDB.getLoad("load", tst, _prevTick);
 					tempDB.close();
 					history = new LinkedList<LoadData>();
@@ -167,7 +162,7 @@ public class IsoVstlf implements IVstlfMain, PulseAction
 				last = history.getLast().getDate();
 			}
 		}while(!last.equals(_prevTick));
-		_logger.fine("HISTORY ENDS AT "+last);
+		System.err.println("HISTORY ENDS AT "+last);
 		//Record a fiveMinute load history
 		Series theLoad = _db.getLoad("raw", _db.begin("raw"), _db.last("raw"));
 		theLoad = theLoad.reverse();
@@ -185,18 +180,16 @@ public class IsoVstlf implements IVstlfMain, PulseAction
 		   File f = new File(_dbName);
 			if(f.exists() && _DELETE) { 
 				if(!f.delete()) {
-					_logger.severe("???"); 
-					return false;
+					System.err.println("???"); 
+					System.exit(0);
 				}
 			}
-
 			_db = new PerstPowerDB(_dbName,300);
 			_db.open();
 			return true;
 	   }
 	   catch(Exception e){
 		   e.printStackTrace();
-		   _logger.severe(e.toString());
 		   return false;
 	   }		
    }

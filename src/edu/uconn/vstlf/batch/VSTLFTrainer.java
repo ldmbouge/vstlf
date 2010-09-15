@@ -62,13 +62,10 @@ public class VSTLFTrainer {
 		
 	public static double[][] test (String loadFile, Date stTest, Date edTest, int lo, int up){
 		try{
-			Handler hf = new FileHandler("train_test.log");
-			trainLog.addHandler(hf);
-			
 			double[][] result = new double[12][];
 			int offs = lo;
 //			for(int offs=lo;offs<=up;offs++){
-				trainLog.fine("Testing System for offset: "+ 5*offs +" minutes." );
+				System.out.println("Testing System for offset: "+ 5*offs +" minutes." );
 				///////////////////////////////////////////////////////////////////////////////////
 				//Initialize db and cal et cetera
 				///////////////////////////////////////////////////////////////////////////////////
@@ -125,10 +122,10 @@ public class VSTLFTrainer {
 				///////////////////////////////////////////////////////////////////////////////
 				//Run forecast test
 				//////////////////////////////////////////////////////////////////////////////
-				trainLog.fine("Running forecast test.  ");
+				System.out.println("Running forecast test.  ");
 				Vector<Series> errV = new Vector<Series>();
 				Vector<Series> difV = new Vector<Series>();
-				trainLog.fine("Forecasting from "+cal.string(ts)+" to "+ cal.string(ed));
+				System.out.println("Forecasting from "+cal.string(ts)+" to "+ cal.string(ed));
 				while(ts.before(ed)){
 					Series[] out = anns.execute(inputSetFor(ts,cal,loadHist));
 					anns.update(targetSetFor(ts, cal, loadHist));
@@ -159,7 +156,13 @@ public class VSTLFTrainer {
 						errV.add(err);
 						difV.add(dif);
 					//}
-
+					//System.out.println(act.element(12)+"\t"+pred.element(12));
+					
+					//System.out.println(ts+":");
+					//System.out.println(act);
+					//System.out.println(pred);
+					//System.out.println(err);
+					//System.out.println();
 					ts = cal.addMinutesTo(ts, 60);
 					//ts = cal.addDaysTo(ts, 1);
 					
@@ -175,17 +178,17 @@ public class VSTLFTrainer {
 					difs[k] = difV.elementAt(k);
 				}
 				int k = errs.length;
-				trainLog.fine(k+" forecasts made.");
+				System.out.println(k+" forecasts made.");
 				Series aveErr = new MeanFunction().imageOf(errs);
 				Series stdErr = new StDevFunction().imageOf(errs);
 				Series aveDif = new MeanFunction().imageOf(difs);
 				Series stdDif = new StDevFunction().imageOf(difs);
-				trainLog.fine("Mean Err: \t" + aveErr);
-				trainLog.fine("std(Err): \t" + stdErr);
-				trainLog.fine("Mean Dif: \t" + aveDif);
-				trainLog.fine("std(Dif): \t" + stdDif);
+				System.out.println("Mean Err: \t" + aveErr);
+				System.out.println("std(Err): \t" + stdErr);
+				System.out.println("Mean Dif: \t" + aveDif);
+				System.out.println("std(Dif): \t" + stdDif);
 				
-				for(int lns=0;lns<8;lns++) trainLog.fine("\n");
+				for(int lns=0;lns<8;lns++)System.out.println();		
 				//////////////////////////////////////////////////////////////////////////////////////
 				//Finish up the iteration.
 				//////////////////////////////////////////////////////////////////////////////////////
@@ -215,7 +218,7 @@ public class VSTLFTrainer {
 			trainLog.addHandler(hf);
 			
 			for(int offs=lo;offs<=up;offs++){
-				trainLog.fine("Training System for offset: "+ 5*offs +" minutes." );
+				System.out.println("Training System for offset: "+ 5*offs +" minutes." );
 				///////////////////////////////////////////////////////////////////////////////////
 				//Initialize db and cal et cetera
 				///////////////////////////////////////////////////////////////////////////////////
@@ -273,16 +276,16 @@ public class VSTLFTrainer {
 				//Build training set
 				/////////////////////////////////////////////////////////////////////////////////
 				Vector<Series[]>inS = new Vector<Series[]>(), tgS = new Vector<Series[]>();
-				trainLog.fine("Building training set from "+ cal.string(ts)+" to "+ cal.string(curr));
+				System.out.println("Building training set from "+ cal.string(ts)+" to "+ cal.string(curr));
 				while(ts.before(curr)){
-
+					//	System.err.println((++xxx)+": Added "+ cal.string(ts));
 						tgS.add(targetSetFor(ts,cal,loadHist));
 						inS.add(inputSetFor(ts, cal, loadHist));
-
+						//System.err.println(ts);
 						Series[] set = inS.lastElement();
 						for(int i = 0;i<set.length;i++){
 							if(set[i].countOf(Double.NaN)>0){
-							    trainLog.fine(ts.toString());
+								System.out.println(ts);
 								throw new Exception("WTF?");
 							}
 						}
@@ -294,8 +297,8 @@ public class VSTLFTrainer {
 					inputS[i] = inS.elementAt(i);
 					targS[i] = tgS.elementAt(i);
 				}
-				trainLog.fine(Integer.toString(inputS.length));
-				trainLog.fine("Training set contains "+inS.size()+" points.  ");
+				System.out.println(inputS.length);
+				System.out.println("Training set contains "+inS.size()+" points.  ");
 				///////////////////////////////////////////////////////////////////////////////
 				//Make ANNs and Train
 				///////////////////////////////////////////////////////////////////////////////
@@ -308,7 +311,7 @@ public class VSTLFTrainer {
 				}
 				long t0 = System.currentTimeMillis();
 				anns.train(inputS, targS, sec,mse);
-				trainLog.fine("after "+ (System.currentTimeMillis()-t0));
+				System.out.println("after "+ (System.currentTimeMillis()-t0));
 				anns.save("bank"+offs+".ann");
 				loadHist.close();
 			}
@@ -352,7 +355,7 @@ public class VSTLFTrainer {
 			 .append(new Series(sunHr,false))
 			 .append(new Series(sunMin,false));
 		
-
+		//System.err.println("---------USING-------"+t);
 		//get load		
 		Series prevHour = pdb.getLoad("filt", cal.addHoursTo(t, -11), t);
 		CheckLoadIntegrity("Input data set", prevHour, cal.addHoursTo(t, -11));
@@ -517,7 +520,7 @@ public class VSTLFTrainer {
 			if (nan.equals(s.element(i+1))) {
 				//String errMsg = "Load on " + cal.addSecondsTo(strt, (i+1)*300) + " does not exist";
 				String errMsg = tag + ": traning data on " + cal.addSecondsTo(strt, (i+1)*300) + " does not exist. Try to adjust the training range.";
-
+				//System.err.println(errMsg);
 				throw new Exception(errMsg);
 			}
 		}

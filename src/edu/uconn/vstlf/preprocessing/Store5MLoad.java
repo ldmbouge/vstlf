@@ -25,8 +25,6 @@
 
 package edu.uconn.vstlf.preprocessing;
 
-import java.io.IOException;
-
 import edu.uconn.vstlf.database.PowerDB;
 import edu.uconn.vstlf.realtime.PCBuffer;
 import edu.uconn.vstlf.realtime.VSTLF5MPoint;
@@ -70,20 +68,8 @@ public class Store5MLoad implements Runnable {
 			for (int i = 0; i < _loadType.length; ++i)
 				_db.addLoadNL(_loadType[i], p.getStamp(), p.getValue());
 			k++;
-			if (k % (12*24)==0) {
-			    try {
-				java.util.logging.Logger logger = java.util.logging.Logger.getLogger("Store5MLoad");
-				logger.addHandler(new java.util.logging.FileHandler("preprocessing.log"));
-				logger.fine("Load on " + p.getStamp() + " stored");
-			    } catch (SecurityException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			    } catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			    }
-
-			}
+			if (k % (12*24)==0)
+				System.err.println("Load on " + p.getStamp() + " stored");
 		}
 		_db.endTransaction();
 	}

@@ -31,11 +31,9 @@ import edu.uconn.vstlf.database.perst.*;
 
 import java.io.File;
 import java.util.Date;
-import java.util.logging.*;
 
 public class Audition {
-    static private Logger auditLogger = Logger.getLogger("auditLogger");
-    
+	
 	static String audit(Calendar cal,PerstPowerDB db, Date first, Date last, int mon, int hr, double thresh, boolean smry, boolean hist) throws Exception{
 		StringBuffer string = new StringBuffer("\n\n");
 		
@@ -74,10 +72,10 @@ public class Audition {
 					und = mini.imageOf(und,dif);
 					
 					if(maxi.imageOf(err.array(false))>thresh){
-					    auditLogger.fine(t.toString());
-						auditLogger.fine("actual:\t"+a);
-						auditLogger.fine("forecast:\t"+p);
-						auditLogger.fine("\t");
+						System.out.println(t);
+						System.out.println("actual:\t"+a);
+						System.out.println("forecast:\t"+p);
+						System.out.println();
 					}
 					nb++;
 					for(int i = 1;i<=12;i++){
@@ -121,10 +119,6 @@ public class Audition {
 	 */
 	public static void main(String[] args) {
 		try{
-		    Handler hf = new FileHandler("audit.log");
-		    
-		    auditLogger.addHandler(hf);
-
 			//if(args.length < 1)return;
 			String name = ".vstlf";
 			int mon = 0;
@@ -157,20 +151,20 @@ public class Audition {
 				PerstPowerDB db = new PerstPowerDB(name,300);
 				db.open();
 				Calendar cal = new Calendar();
-				auditLogger.fine("History File Contents: \n\n");
-				auditLogger.fine(db.toString());
-				auditLogger.fine("\n");
+				System.out.println("History File Contents: \n\n");
+				System.out.println(db);
+				System.out.println("\n");
 				
 				Date first = db.first("filt");
 				Date last = cal.addHoursTo(db.last("pred"), -1);
 				if(hist || smry){
 					String audit = audit(cal,db,first,last,mon, hr, thresh, smry, hist);
-					auditLogger.fine(audit);
+					System.out.println(audit);
 				}
 				db.close();
 			}
 			else{
-				auditLogger.info("[history file '" + name + "' does not exist]\n\n");
+				System.out.format("[history file '%s' does not exist]\n\n", name);
 			}
 			
 			
@@ -178,7 +172,7 @@ public class Audition {
 				printOptions();
 		}
 		catch(NumberFormatException nf){
-			auditLogger.warning("Values of parameters should be integers");
+			System.out.println("Values of parameters should be integers");
 		}
 		catch(Exception e){
 			e.printStackTrace();
