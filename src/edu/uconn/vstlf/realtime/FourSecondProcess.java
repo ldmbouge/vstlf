@@ -78,64 +78,10 @@ public class FourSecondProcess extends Thread {
 		synchronized(this) {
 			_at = st;
 		}
-		// setup a scheduled action to compute the four second average and produce it (happens 
+		// setup an action to compute the four second average and produce it (happens 
 		// on four second boundaries.
-		new Pulse(rate,new PulseAction() { // 250
-			public boolean run(Date at) {
-				Calendar cal = Items.makeCalendar();
-				//_at = cal.lastTick(4, at);
-				_at = cal.addSecondsTo(_at, 4);
-				Vector<VSTLFObservationPoint> v;
-				if(_rate < 4000){
-					v = new Vector<VSTLFObservationPoint>();
-					VSTLFObservationPoint thePoint = _input.consume();
-					if (!thePoint.isValid())  {
-						_4s.produce(new VSTLF4SPoint());
-						return false;  // stop it all
-					}
-					v.add(thePoint);
-				}
-				else{
-					v = _input.consumeAll();
-					for(VSTLFObservationPoint pt : v)
-						if (!pt.isValid()) {
-							_4s.produce(new VSTLF4SPoint());
-							return false;       // stop it all.
-						}
-				}
-        		//System.out.format("AT: %s  [v.size: %d]\n", _at,v.size());
-        		//Ignore any observations that are stamped more then <maxLag> seconds ago
-        		//for(int i=0;i<v.size(); i++){
-        			//System.err.format("\t4SBuffer[%d]:\t"+_at+":\tfound[%d] = %s\n",v.size(),i,v.elementAt(i).getStamp());
-        		//}
-    			Date boundary = cal.addSecondsTo(_at, -_maxLag);
-        		//System.out.format("BOUNDARY: %s  [maxlag = %d]\n", _at,_maxLag);
-        		
-        		
-        		for(int i=0;i<v.size(); i++){//System.err.println("DEBUG:\t"+_at+":\tfound "+v.elementAt(i).getStamp());
-        			boolean canDiscard = v.elementAt(i).getStamp().before(boundary) || v.elementAt(i).getValue()<=0;
-        			//System.err.format("\tcanDiscard?\t [%s] < [%s] => %b\n",v.elementAt(i).getStamp(),boundary,canDiscard);
-        			if(canDiscard) 
-        				v.remove(v.elementAt(i));        			
-        		}
-        		//System.err.format("number of entries left %d\n",v.size());
-        		//Average whatever is left into a 4s Point
-        		if(v.size()>0){
-        			double ave = 0;
-            		for(VSTLFObservationPoint p : v)
-            			ave += p.getValue();
-        			ave/=v.size();
-        			//System.out.format("Got a 4s data point " + _at + " value: %f\n",ave);
-        			_4s.produce(new VSTLF4SPoint(_at,ave));
-        			_notif.put(new FourSecMessage(_at,ave,v.size()));
-        		}
-        		else{//Complain if there are no observations since the last pulse.
-        			_4s.produce(new VSTLF4SPoint(_at,0));
-        			_notif.put(new MessageMissing4s(_at));
-        		}
-        		return true;
-			}
-		},st);
+		Integrate4sLoad itgThread = new Integrate4sLoad(_input, _4s, _at, _rate);
+		itgThread.init();
 	}
 	
 	/**
