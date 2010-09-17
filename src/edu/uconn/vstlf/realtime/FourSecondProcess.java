@@ -80,7 +80,7 @@ public class FourSecondProcess extends Thread {
 		}
 		// setup an action to compute the four second average and produce it (happens 
 		// on four second boundaries.
-		Integrate4sLoad itgThread = new Integrate4sLoad(_input, _4s, _at, _rate);
+		Integrate4sLoad itgThread = new Integrate4sLoad(_input, _4s, _at, 4);
 		itgThread.init();
 	}
 	
