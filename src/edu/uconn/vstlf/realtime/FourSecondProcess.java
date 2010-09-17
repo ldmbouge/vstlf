@@ -26,10 +26,12 @@
 package edu.uconn.vstlf.realtime;
 import java.util.Date;
 import java.util.Vector;
+import java.util.logging.Level;
 
 import edu.uconn.vstlf.config.Items;
 import edu.uconn.vstlf.data.Calendar;
 import edu.uconn.vstlf.data.doubleprecision.*;
+import edu.uconn.vstlf.data.message.LogMessage;
 import edu.uconn.vstlf.data.message.MessageCenter;
 import edu.uconn.vstlf.data.message.VSTLFMessage;
 
@@ -92,7 +94,7 @@ public class FourSecondProcess extends Thread {
 	 * 4s pulse.
 	 */
 	public void run() {
-		//boolean done = false;
+		MessageCenter.getInstance().put(new LogMessage(Level.INFO, "FourSecondProcess", "run", "Four second thread starts running"));
 		Calendar cal = Items.makeCalendar();
 		synchronized(this) { 
 			_lastAggTime = cal.lastTick(300, _at);		
@@ -106,6 +108,7 @@ public class FourSecondProcess extends Thread {
 			addAndMicroFilter(thePoint);	//add it to the vector to be aggregated
 		}
 		_output.produce(new VSTLF5MPoint(VSTLFMessage.Type.EOF, _at, 0.0, 0));
+		MessageCenter.getInstance().put(new LogMessage(Level.INFO, "FourSecondProcess", "run", "Four second thread stops"));
 	}
 	/**
 	 * Adds a point p the the running window of 4s data.

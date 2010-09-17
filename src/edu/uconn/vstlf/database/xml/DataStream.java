@@ -51,6 +51,10 @@ public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCen
 	private Calendar _cal;
 	boolean _isInput,_isOutput, _waiting = false;
 	
+	private boolean _test = false;
+	
+	public void SetTest(boolean tst) { _test = tst; }
+	
 	Series _aveP;
 	Series _ave;
 	Series _dev;
@@ -146,7 +150,9 @@ public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCen
 		return new VSTLF4SPoint(t,v);
 	}
 	
-	private void send(String xml){ /*
+	private void send(String xml){
+		if (_test) return;
+		
 		if(_out==null || _out.checkError()){		//if there is no outpipe
 			_out = new PrintWriter(_bufWriter);		//	then accumulate xml in the buffer
 			if(!_waiting){
@@ -159,7 +165,7 @@ public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCen
 		
 		if(_buf.length() > 1024*1024){
 			dump();
-		}*/
+		}
 	}
 	
 	private void sendOpen(String name){
@@ -226,7 +232,6 @@ public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCen
 				_ave = n.imageOf(_sum);
 				_aveP = n.imageOf(_sumP);
 				_dev = new SqrtFunction().imageOf(  n.imageOf(_sumOfSquares).minus(s.imageOf(_ave)));
-				//PrintTestResult();
 			}
 		}
 		catch(Exception e){
@@ -326,4 +331,16 @@ public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCen
     	}
     	_buf.delete(0, _buf.length()-1);  	
     }
+	
+	synchronized public void printSummary()
+	{
+		_out.println("Minutes Ahead\t\tMAPE\t\tMAE\t\tStDev\t\tMax Ovr Err\t\tMax Und Err");
+		double [] mape = _aveP.array(false);
+		double [] mae = _ave.array(false);
+		double [] stdev = _dev.array(false);
+		double [] maxovr = _ovr.array(false);
+		double [] maxund = _und.array(false);
+		for (int i = 0; i < 12; ++i) 
+			_out.println( (i+1)*5 + "\t\t" + mape[i] + "\t\t" + mae[i] + "\t\t" + stdev[i] + "\t\t" + maxovr[i] + "\t\t" + maxund[i]);	
+	}
 }

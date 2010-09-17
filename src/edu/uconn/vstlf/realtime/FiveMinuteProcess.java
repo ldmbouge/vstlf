@@ -25,9 +25,11 @@
 
 package edu.uconn.vstlf.realtime;
 import java.util.Date;
+import java.util.logging.Level;
 //import java.util.Vector;
 import edu.uconn.vstlf.data.Calendar;
 import edu.uconn.vstlf.data.doubleprecision.*;
+import edu.uconn.vstlf.data.message.LogMessage;
 import edu.uconn.vstlf.data.message.MessageCenter;
 import edu.uconn.vstlf.data.message.VSTLFMessage;
 import edu.uconn.vstlf.database.*;
@@ -89,6 +91,8 @@ public class FiveMinuteProcess extends Thread {
 	}
 	
 	public void run() {
+		MessageCenter.getInstance().put(new LogMessage(Level.INFO, "FiveMinuteProcess", "run", "Five minute thread starts running"));
+
 		VSTLF5MPoint thePoint;
 		while( (thePoint = _input.consume()).getType() != VSTLFMessage.Type.EOF ) {
 			if (!thePoint.isValid()) {				
@@ -102,6 +106,8 @@ public class FiveMinuteProcess extends Thread {
 			doUpdate();														//Update on 1hourAgo
 			doPrediction();
 		}
+		
+		MessageCenter.getInstance().put(new LogMessage(Level.INFO, "FiveMinuteProcess", "run", "Five minute thread stops"));
 	}
 	
 	private void checkData(Date from, Series s){

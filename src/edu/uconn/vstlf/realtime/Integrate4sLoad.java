@@ -34,6 +34,8 @@ private Thread _feedThread;
 	
 	public void run()
 	{
+		MessageCenter.getInstance().put(new LogMessage(Level.INFO, "Integrate4sLoad", "run", "Thread for integrating 4s loads starts running"));
+
 		LinkedList<VSTLFObservationPoint> inputAgg = new LinkedList<VSTLFObservationPoint>();
 		LinkedList<VSTLFObservationPoint> outputAgg = new LinkedList<VSTLFObservationPoint>();
 		LinkedList<Integer> nbObjs = new LinkedList<Integer>();
@@ -69,6 +71,7 @@ private Thread _feedThread;
 			
 		} // while
 		_output.produce(new VSTLF4SPoint(VSTLFMessage.Type.EOF, _at, 0.0));
+		MessageCenter.getInstance().put(new LogMessage(Level.INFO, "Integrate4sLoad", "run", "Thread for integrating 4s loads stops"));
 	}
 	
 	public void join() throws InterruptedException

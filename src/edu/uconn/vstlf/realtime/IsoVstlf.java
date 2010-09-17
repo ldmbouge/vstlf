@@ -53,11 +53,13 @@ import edu.uconn.vstlf.gui.IVstlfMain;
  * 
  */
 
-public class IsoVstlf implements IVstlfMain, PulseAction
+public class IsoVstlf implements IVstlfMain, PulseAction, Runnable
 {	
 	// VSTLF related objects
 		
 	int _TICK_INTERVAL = 4000;
+	
+	Thread _tstThread;
 	
 	//////////////////////////////////////////////////
 	Calendar _cal;
@@ -70,7 +72,11 @@ public class IsoVstlf implements IVstlfMain, PulseAction
 	
 	//Live feed of current load;
 	Date _TEST_TIME = null;
+	Date _TEST_END_TIME = null;
+	boolean _continuousTest = false;
 	////////////////////////////////////////////////////////
+	
+	public void setTestEndTime(Date tt) { _TEST_END_TIME = tt; }
 	
 	int _OUTSTREAM_PORT = 5281;
 	
@@ -92,7 +98,9 @@ public class IsoVstlf implements IVstlfMain, PulseAction
 	DataStream _out;
 	Socket _client = null;
 	
-   public IsoVstlf(boolean coldstart, String dbName, String currentDataXml, String dailyDataXml) throws Exception{
+	PerstPowerDB _currDB;
+	
+   public IsoVstlf(boolean coldstart, String dbName, String currentDataXml, String dailyDataXml, boolean continuousTest) throws Exception{
 	   _cal = Items.makeCalendar();
 		_coldStartSrcType = dailyDataXml.substring(dailyDataXml.lastIndexOf(".")+1).toLowerCase();
 		_currDataSrcType = currentDataXml.substring(currentDataXml.lastIndexOf(".")+1).toLowerCase();
@@ -100,8 +108,10 @@ public class IsoVstlf implements IVstlfMain, PulseAction
 		this._dbName = dbName;
 		this._currentDataFileName = currentDataXml;
 		this._historyDataFileName = dailyDataXml;	
+		_continuousTest = continuousTest;
 		
 		_out = new DataStream(this,(OutputStream)System.out);
+		if (_continuousTest) _out.SetTest(true);
    }
    
    public void setTestTime(Date tt){
@@ -183,7 +193,12 @@ public class IsoVstlf implements IVstlfMain, PulseAction
 		theLoad = theLoad.reverse();
 		final Calendar cal = Items.makeCalendar();
 		final Date ts = cal.lastTick(4, _TEST_TIME);
-		new Pulse (_engine.getUpdateRate(), this, ts);  // 250		
+		if (_continuousTest) {
+			_tstThread = new Thread(this);
+			_tstThread.start();
+		}
+		else	
+			new Pulse (_engine.getUpdateRate(), this, ts);  // 250		
 		_engine.startCollecting(ts);
 		_engine.startProcessing();
 	}
@@ -202,6 +217,12 @@ public class IsoVstlf implements IVstlfMain, PulseAction
 			}
 			_db = new PerstPowerDB(_dbName,300);
 			_db.open();
+			
+			if(!_currDataSrcType.equals("xml")){
+				_currDB = new PerstPowerDB(_currentDataFileName,4);
+				_currDB.open();
+				_TEST_END_TIME = _currDB.last("load");
+			}
 			return true;
 	   }
 	   catch(Exception e){
@@ -232,21 +253,25 @@ public class IsoVstlf implements IVstlfMain, PulseAction
 			_pulseTime = _cal.addSecondsTo(_pulseTime, 4);
 			at = _pulseTime;
 			LoadData currentData;
+			if (at.after(_TEST_END_TIME)) {
+				_engine.stop();
+				_currDB.close();
+				return false;
+			}
+			
 			if(this._currDataSrcType.equals("xml")){
 				//currentData = this._loadData.getCurrentData();
 				this._loadData.getData(this._currentDataFileName, false);
 				currentData = this._loadData.getCurrentData();
 			} else{
-				PerstPowerDB currDB = new PerstPowerDB(_currentDataFileName,4);
-				currDB.open();
-				currentData = new LoadData(currDB.getLoad("load", at),true,at);
-				currDB.close();
+				currentData = new LoadData(_currDB.getLoad("load", at),true,at);
 			}			
 			//System.out.format("Adding a 4s observation @%s : %f\n",currentData.getDate(),currentData.getValue());
 			_engine.addObservation(VSTLFMessage.Type.RT4sPoint, currentData.getDate(), currentData.getValue());
 		}
 		catch (Exception e) {
 			e.printStackTrace();
+			_currDB.close();
 			return false;
 		}
 
@@ -260,8 +285,9 @@ public class IsoVstlf implements IVstlfMain, PulseAction
 			return;
 		}
       try {
-    	 IsoVstlf proc = new IsoVstlf(Boolean.valueOf(args[0]), args[1], args[2], args[3]);
+    	 IsoVstlf proc = new IsoVstlf(Boolean.valueOf(args[0]), args[1], args[2], args[3], false);
          proc.init();
+         proc.join();
       } catch (Exception e) {
          System.err.println(e.toString());
          e.printStackTrace();
@@ -270,4 +296,18 @@ public class IsoVstlf implements IVstlfMain, PulseAction
    }
    
    public DataStream getDataStrem() { return _out; }
+   
+   public void join() throws InterruptedException
+   {
+	   if (_continuousTest) _tstThread.join();
+	   _engine.join();
+   }
+
+@Override
+public void run() {
+	// TODO Auto-generated method stub
+	while (run(_TEST_TIME))
+		;
+	_out.printSummary();
+}
 }
