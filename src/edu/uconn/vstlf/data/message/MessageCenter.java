@@ -1,5 +1,7 @@
 package edu.uconn.vstlf.data.message;
 
+import java.util.logging.Level;
+
 import edu.uconn.vstlf.realtime.PCBuffer;
 
 public class MessageCenter implements Runnable {	
@@ -38,16 +40,18 @@ public class MessageCenter implements Runnable {
 	/* dispatch the messages */
 	public void run() {
 		try {
-			while (true) {
-				VSTLFMessage msg = buf_.consume();
-				if (msg.getType() == VSTLFMessage.Type.EOF)
-					break;
-		
+			VSTLFMessage msg;
+			while ( (msg = buf_.consume()).getType() != VSTLFMessage.Type.StopMessageCenter ) {
 				dispatch(msg);
 			}
 		} catch (VSTLFMsgException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public void join() throws InterruptedException
+	{
+		thrd_.join();
 	}
 }

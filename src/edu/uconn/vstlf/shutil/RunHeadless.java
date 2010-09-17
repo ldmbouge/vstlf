@@ -32,6 +32,7 @@ import java.util.Date;
 import edu.uconn.vstlf.data.message.DummyMsgHandler;
 import edu.uconn.vstlf.data.message.MessageCenter;
 import edu.uconn.vstlf.data.message.RealTimeMsgHandler;
+import edu.uconn.vstlf.data.message.VSTLFMessage;
 import edu.uconn.vstlf.data.message.VSTLFMsgLogger;
 import edu.uconn.vstlf.realtime.IsoVstlf;
 
@@ -99,6 +100,9 @@ public class RunHeadless {
 	        MessageCenter.getInstance().init();
 	        
 	        frame.join();
+	        
+	        MessageCenter.getInstance().put(new VSTLFMessage(VSTLFMessage.Type.StopMessageCenter));
+	        MessageCenter.getInstance().join();
 	    } catch (Exception e) {
 	        System.out.println(e.toString());
 	        e.printStackTrace();
