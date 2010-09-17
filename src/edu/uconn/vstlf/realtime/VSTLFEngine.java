@@ -117,4 +117,11 @@ public class VSTLFEngine {
 	public int getUpdateRate() {
 		return _milliseconds;
 	}
+	
+	public void join() throws InterruptedException
+	{
+		_fsp.aggjoin();
+		_fsp.join();
+		_fmp.join();
+	}
 }

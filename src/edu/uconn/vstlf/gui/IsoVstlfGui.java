@@ -147,6 +147,10 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 		_TEST_TIME = tt;
 	}
 	
+	public void setTestEndTime(Date tt){
+		_end4SInput = tt;
+	}
+	
 	public void setClockRate(int rate){
 		_TICK_INTERVAL = rate;
 	}
@@ -641,7 +645,10 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
    public void windowIconified(WindowEvent e){}
    public void windowDeiconified(WindowEvent e){}
    
-
+   public void join() throws InterruptedException
+   {
+	   _engine.join();
+   }
 
    public static void main(String[] args) {
 		if (args.length < 4) {
@@ -652,6 +659,7 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
     	  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
          IsoVstlfGui frame = new IsoVstlfGui(Boolean.valueOf(args[0]), args[1], args[2], args[3]);
          frame.init();
+         frame.join();
       } catch (Exception e) {
          System.out.println(e.toString());
          e.printStackTrace();

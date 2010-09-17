@@ -27,7 +27,17 @@ package edu.uconn.vstlf.database.xml;
 import java.io.*;
 import java.util.Date;
 import java.text.*;
+
 import edu.uconn.vstlf.data.*;
+import edu.uconn.vstlf.data.doubleprecision.DivisorFunction;
+import edu.uconn.vstlf.data.doubleprecision.Function;
+import edu.uconn.vstlf.data.doubleprecision.MAEFunction;
+import edu.uconn.vstlf.data.doubleprecision.MAPEFunction;
+import edu.uconn.vstlf.data.doubleprecision.MaxFunction;
+import edu.uconn.vstlf.data.doubleprecision.Series;
+import edu.uconn.vstlf.data.doubleprecision.SqrtFunction;
+import edu.uconn.vstlf.data.doubleprecision.SquaringFunction;
+import edu.uconn.vstlf.database.PowerDB;
 import edu.uconn.vstlf.realtime.*;
 import edu.uconn.vstlf.config.*;
 
@@ -41,11 +51,37 @@ public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCen
 	private Calendar _cal;
 	boolean _isInput,_isOutput, _waiting = false;
 	
+	Series _aveP;
+	Series _ave;
+	Series _dev;
+	Series _ovr;
+	Series _und;
+	Series _sumP;
+	Series _sum;
+	Series _sumOfSquares;
+	int _nbErr;
+	
+	PowerDB _db;
+	public void setDB(PowerDB db) { _db = db; }
+	
 	public DataStream(){
 		_cal = Items.makeCalendar();
 		_bufWriter = new StringWriter();
 		_buf = _bufWriter.getBuffer();
 		_df = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
+		
+		try {
+		   _sum = new Series(12);
+		   _sumP = new Series(12);
+		   _sumOfSquares = new Series(12);
+		   _ovr = new Series(12);
+		   _und = new Series(12);
+		   _nbErr = 0;
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	public DataStream(InputStream in){
@@ -110,7 +146,7 @@ public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCen
 		return new VSTLF4SPoint(t,v);
 	}
 	
-	private void send(String xml){
+	private void send(String xml){ /*
 		if(_out==null || _out.checkError()){		//if there is no outpipe
 			_out = new PrintWriter(_bufWriter);		//	then accumulate xml in the buffer
 			if(!_waiting){
@@ -123,7 +159,7 @@ public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCen
 		
 		if(_buf.length() > 1024*1024){
 			dump();
-		}
+		}*/
 	}
 	
 	private void sendOpen(String name){
@@ -165,6 +201,37 @@ public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCen
 				sendContent(Integer.toString(nbObs));
 			sendClose("number-of-observations");
 		sendClose("5mObservation");
+		
+		//Update error distribution table
+		
+		try {
+			Date ovr1HrAgo = _cal.addMinutesTo(at, -65);
+			Date fvMinsAgo = _cal.addMinutesTo(at, -5);
+			Series pred = _db.getForecast(ovr1HrAgo);
+			Series act = _db.getLoad("filt", ovr1HrAgo, fvMinsAgo);
+			if(pred!=null && act.countOf(Double.NaN)==0 &&!_db.last("filt").before(at)){
+				Series error = new MAEFunction().imageOf(act,pred);
+				Series errorP = new MAPEFunction().imageOf(act,pred);
+				_nbErr++;
+				_sum = _sum.plus(error);
+				_sumP = _sumP.plus(errorP);
+				Function n = new DivisorFunction(_nbErr);
+				Function s = new SquaringFunction();
+				Function max = new MaxFunction();
+				Series ovr = pred.minus(act);
+				Series und = act.minus(pred);
+				_ovr = max.imageOf(_ovr, ovr);
+				_und = max.imageOf(_und, und);
+				_sumOfSquares = _sumOfSquares.plus(s.imageOf(error));
+				_ave = n.imageOf(_sum);
+				_aveP = n.imageOf(_sumP);
+				_dev = new SqrtFunction().imageOf(  n.imageOf(_sumOfSquares).minus(s.imageOf(_ave)));
+				//PrintTestResult();
+			}
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
 	}
 
 	public void didPrediction(final Date at, final double[] val) {
@@ -183,6 +250,13 @@ public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCen
 				sendClose("data");
 			}
 		sendClose("forecast");
+		
+			try{
+				_db.addForecastArray(at, val);
+			} catch(Exception e){
+				e.printStackTrace();
+			}
+
 	}
 
 	public void missing4SDataPoint(final Date at) {

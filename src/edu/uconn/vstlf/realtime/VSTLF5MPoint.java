@@ -40,6 +40,12 @@ public class VSTLF5MPoint extends VSTLFObservationPoint {
 		super(mtype, at,val);
 		_nbObs = nbObs;
 	}
+	
+	public VSTLF5MPoint(VSTLFMessage.Type type, Date at,double val, int nbObs) {
+		super(type, at,val);
+		_nbObs = nbObs;
+	}
+	
 	public String toString() { return "5 minute point:" + _at.toString() + " value=" + Double.toString(_val);}
 	public Date getStamp()   { return _at;}
 	public double getValue() { return _val;}

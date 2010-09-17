@@ -29,6 +29,7 @@ import java.util.Date;
 import edu.uconn.vstlf.data.Calendar;
 import edu.uconn.vstlf.data.doubleprecision.*;
 import edu.uconn.vstlf.data.message.MessageCenter;
+import edu.uconn.vstlf.data.message.VSTLFMessage;
 import edu.uconn.vstlf.database.*;
 import edu.uconn.vstlf.neuro.*;
 import edu.uconn.vstlf.config.Items;
@@ -88,9 +89,8 @@ public class FiveMinuteProcess extends Thread {
 	}
 	
 	public void run() {
-		boolean done = false;
-		while(!done) {
-			VSTLF5MPoint thePoint = _input.consume();						//Get next 5mPoint
+		VSTLF5MPoint thePoint;
+		while( (thePoint = _input.consume()).getType() != VSTLFMessage.Type.EOF ) {
 			if (!thePoint.isValid()) {				
 				break;
 			}

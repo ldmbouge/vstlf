@@ -31,6 +31,7 @@ import edu.uconn.vstlf.config.Items;
 import edu.uconn.vstlf.data.Calendar;
 import edu.uconn.vstlf.data.doubleprecision.*;
 import edu.uconn.vstlf.data.message.MessageCenter;
+import edu.uconn.vstlf.data.message.VSTLFMessage;
 
 public class FourSecondProcess extends Thread {
 	private final PCBuffer<VSTLFObservationPoint> _input;	//Incoming observations appear here
@@ -59,6 +60,8 @@ public class FourSecondProcess extends Thread {
 	
 	double _filterThreshold;
 	
+	Integrate4sLoad _itgThread;
+	
 	public FourSecondProcess(MessageCenter notif, PCBuffer<VSTLFObservationPoint> buf,PCBuffer<VSTLF5MPoint> out) { 
 		_input = buf;
 		_output = out;
@@ -80,8 +83,8 @@ public class FourSecondProcess extends Thread {
 		}
 		// setup an action to compute the four second average and produce it (happens 
 		// on four second boundaries.
-		Integrate4sLoad itgThread = new Integrate4sLoad(_input, _4s, _at, 4);
-		itgThread.init();
+		_itgThread = new Integrate4sLoad(_input, _4s, _at, 4);
+		_itgThread.init();
 	}
 	
 	/**
@@ -89,19 +92,20 @@ public class FourSecondProcess extends Thread {
 	 * 4s pulse.
 	 */
 	public void run() {
-		boolean done = false;
+		//boolean done = false;
 		Calendar cal = Items.makeCalendar();
 		synchronized(this) { 
 			_lastAggTime = cal.lastTick(300, _at);		
 		}
-		while(!done) {//A new point will come every four seconds
-			VSTLF4SPoint thePoint = _4s.consume(); //take it out,
+		VSTLF4SPoint thePoint;
+		while( (thePoint = _4s.consume()).getType() != VSTLFMessage.Type.EOF ) {//A new point will come every four seconds			
 			if (!thePoint.isValid()) {
 				_output.produce(new VSTLF5MPoint());
 				break;
 			}
 			addAndMicroFilter(thePoint);	//add it to the vector to be aggregated
 		}
+		_output.produce(new VSTLF5MPoint(VSTLFMessage.Type.EOF, _at, 0.0, 0));
 	}
 	/**
 	 * Adds a point p the the running window of 4s data.
@@ -174,5 +178,10 @@ public class FourSecondProcess extends Thread {
 	
 	public void setMaxLag(int lag){
 		_maxLag = lag;
+	}
+	
+	public void aggjoin() throws InterruptedException
+	{
+		_itgThread.join();
 	}
 }

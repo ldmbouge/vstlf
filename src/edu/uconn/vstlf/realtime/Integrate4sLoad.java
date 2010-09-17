@@ -67,7 +67,8 @@ private Thread _feedThread;
 				outputAgg.removeFirst();
 			}
 			
-		}
+		} // while
+		_output.produce(new VSTLF4SPoint(VSTLFMessage.Type.EOF, _at, 0.0));
 	}
 	
 	public void join() throws InterruptedException

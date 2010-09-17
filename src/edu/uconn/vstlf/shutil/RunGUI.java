@@ -43,15 +43,16 @@ import java.text.*;
 public class RunGUI {
 
 	static String _USAGE = "usage:\n\tjava -jar uconn-vstlf.jar run-gui <currentDataFile> <24hrDataFile>"+
-						   		 "\n\tjava -jar uconn-vstlf.jar run-gui <currentDataFile> <24hrDataFile> \"<testDate yyyy/MM/dd - HH:mm:ss>\" <clockInterval>";
+						   		 "\n\tjava -jar uconn-vstlf.jar run-gui <currentDataFile> <24hrDataFile> \"<testDate yyyy/MM/dd - HH:mm:ss>\" <clockInterval>"+
+						   		"\n\tjava -jar uconn-vstlf.jar run-gui <currentDataFile> <24hrDataFile> \"<testDate yyyy/MM/dd - HH:mm:ss>\" \"<testDate yyyy/MM/dd - HH:mm:ss>\" <clockInterval>";
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Date time = null;
+		Date time = null, edtime = null;
 		int rate = 4000;
 		String histFile = null, currFile = null;
-		if (args.length != 2 && args.length != 4) { //check # of args
+		if (args.length != 2 && args.length != 4 && args.length != 5) { //check # of args
 			System.out.println(_USAGE);
 			return;
 		}
@@ -69,6 +70,15 @@ public class RunGUI {
 				DateFormat df = new SimpleDateFormat("yyyy/MM/dd - HH:mm:ss");
 				df.setTimeZone(TimeZone.getTimeZone(Items.get(Items.TimeZone)));
 				time = df.parse(args[2]);
+			}
+			else if (args.length == 5){
+				rate = Integer.parseInt(args[4]);
+				if(4000%rate != 0)
+					throw new NumberFormatException();
+				DateFormat df = new SimpleDateFormat("yyyy/MM/dd - HH:mm:ss");
+				df.setTimeZone(TimeZone.getTimeZone(Items.get(Items.TimeZone)));
+				time = df.parse(args[2]);
+				edtime = df.parse(args[3]);
 			}
 		}
 		catch(ParseException e){
@@ -89,9 +99,12 @@ public class RunGUI {
 	    	frame.setTestTime(time);
 	    	frame.setClockRate(rate);
 	        frame.init();
-	        
+	    	if (edtime != null) frame.setTestEndTime(edtime);
+
 	        MessageCenter.getInstance().setHandler(new RealTimeMsgHandler(frame, new VSTLFMsgLogger("vstlf.log", new DummyMsgHandler())));
 	        MessageCenter.getInstance().init();
+	        
+	        frame.join();
 	    } catch (Exception e) {
 	        System.out.println(e.toString());
 	        e.printStackTrace();

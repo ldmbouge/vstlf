@@ -38,6 +38,11 @@ public class VSTLF4SPoint extends VSTLFObservationPoint {
 	public VSTLF4SPoint(Date at, double val) {
 		super(mtype, at,val);
 	}
+	
+	public VSTLF4SPoint(VSTLFMessage.Type type, Date at, double val) {
+		super(type, at,val);
+	}
+	
 	public String toString() {
 		return _at.toString() + " : " + Double.toString(_val);
 	}

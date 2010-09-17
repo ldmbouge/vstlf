@@ -121,6 +121,7 @@ public class IsoVstlf implements IVstlfMain, PulseAction
 				"Storing aggregated 5min data in '"+_dbName+"'\n\n"+
 				"Openning new working DB..."));
 		setupDatabases();
+		_out.setDB(_db);
 		MessageCenter.getInstance().put(new LogMessage(Level.INFO,
 				IsoVstlf.class.getName(), methodName, "\t done."));		
 		// setup VSTLF engine and data feed
