@@ -214,7 +214,8 @@ public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCen
 		//Update error distribution table
 		
 		try {
-			MessageCenter.getInstance().put(new LogMessage(Level.INFO, "DataStream", "fiveMTick", "Aggregate 5m point = "+val+" @ "+at+" from "+nbObs+" 4s points."));
+			if (at.getTime() % (1000*60*60) == 0)
+				MessageCenter.getInstance().put(new LogMessage(Level.INFO, "DataStream", "fiveMTick", "Aggregate 5m points for "+ at));
 			Date ovr1HrAgo = _cal.addMinutesTo(at, -65);
 			Date fvMinsAgo = _cal.addMinutesTo(at, -5);
 			Series pred = _db.getForecast(ovr1HrAgo);
@@ -336,16 +337,43 @@ public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCen
     	_buf.delete(0, _buf.length()-1);  	
     }
 	
-	synchronized public void printSummary()
+	public void logErrors()
 	{
-		_out.println("Minutes Ahead\tMAPE\t\t\t\tMAE\t\t\t\tStDev\t\t\t\tMax Ovr Err\t\t\tMax Und Err");
 		double [] mape = _aveP.array(false);
 		double [] mae = _ave.array(false);
 		double [] stdev = _dev.array(false);
 		double [] maxovr = _ovr.array(false);
 		double [] maxund = _und.array(false);
+		logErr(mape, "MAPE");
+		logErr(mae, "MAE");
+		logErr(stdev, "Std Dev");
+		logErr(maxovr, "Max Over Err");
+		logErr(maxund, "Max Under Err");
+	}
+	
+	synchronized public void printSummary()
+	{
+		double [] mape = _aveP.array(false);
+		double [] mae = _ave.array(false);
+		double [] stdev = _dev.array(false);
+		double [] maxovr = _ovr.array(false);
+		double [] maxund = _und.array(false);
+		logErr(mape, "MAPE");
+		logErr(mae, "MAE");
+		logErr(stdev, "Std Dev");
+		logErr(maxovr, "Max Over Err");
+		logErr(maxund, "Max Under Err");
+		_out.println("Minutes Ahead\tMAPE\t\t\t\tMAE\t\t\t\tStDev\t\t\t\tMax Ovr Err\t\t\tMax Und Err");
 		for (int i = 0; i < 12; ++i) 
 			_out.println( (i+1)*5 + "\t\t" + mape[i] + "\t\t" + mae[i] + "\t\t" + stdev[i] + "\t\t" + maxovr[i] + "\t\t" + maxund[i]);
 		_out.flush();
+	}
+	
+	static public void logErr(double[] err, String type)
+	{			
+		String msg = type + ":\t";
+		for (int i = 0; i < err.length; ++i)
+			msg += err[i] + "\t";
+		MessageCenter.getInstance().put(new LogMessage(Level.INFO, "LogError", "LogError", msg));
 	}
 }

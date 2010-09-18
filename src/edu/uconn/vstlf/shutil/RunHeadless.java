@@ -32,7 +32,6 @@ import java.util.Date;
 import edu.uconn.vstlf.data.message.DummyMsgHandler;
 import edu.uconn.vstlf.data.message.MessageCenter;
 import edu.uconn.vstlf.data.message.RealTimeMsgHandler;
-import edu.uconn.vstlf.data.message.VSTLFMessage;
 import edu.uconn.vstlf.data.message.VSTLFMsgLogger;
 import edu.uconn.vstlf.realtime.IsoVstlf;
 
@@ -40,8 +39,8 @@ public class RunHeadless {
 
 	
 	static String _USAGE = "usage:\n\tjava -jar uconn-vstlf.jar run <currentDataFile> <24hrDataFile>"+
-		 						 "\n\tjava -jar uconn-vstlf.jar run <currentDataFile> <24hrDataFile> \"<testDate yyyy/MM/dd - HH:mm:ss>\" <clockInterval>" +
-		 						"\n\tjava -jar uconn-vstlf.jar run <currentDataFile> <24hrDataFile> \"<testDate yyyy/MM/dd - HH:mm:ss>\" \"<testDate yyyy/MM/dd - HH:mm:ss>\" <clockInterval>";
+		 						 "\n\tjava -jar uconn-vstlf.jar run <currentDataFile> <24hrDataFile> \"<testDate yyyy/MM/dd - HH:mm:ss>\"" +
+		 						"\n\tjava -jar uconn-vstlf.jar run <currentDataFile> <24hrDataFile> \"<testDate yyyy/MM/dd - HH:mm:ss>\" \"<testDate yyyy/MM/dd - HH:mm:ss>\"";
 	
 	/**
 	 * @param args
@@ -50,7 +49,7 @@ public class RunHeadless {
 		Date time = null, edtime = null;
 		int rate = 4000;
 		String histFile = null, currFile = null;
-		if (args.length != 2 && args.length != 4 && args.length != 5) { //check # of args
+		if (args.length != 2 && args.length != 3 && args.length != 4) { //check # of args
 			System.out.println(_USAGE);
 			return;
 		}
@@ -61,17 +60,17 @@ public class RunHeadless {
 				throw new FileNotFoundException(currFile);
 			if(!new File(histFile).exists())
 				throw new FileNotFoundException(histFile);
-			if(args.length == 4){
-				rate = Integer.parseInt(args[3]);
-				if(4000%rate != 0)
-					throw new NumberFormatException();
+			if(args.length == 3){
+				//rate = Integer.parseInt(args[3]);
+				//if(4000%rate != 0)
+				//	throw new NumberFormatException();
 				DateFormat df = new SimpleDateFormat("yyyy/MM/dd - HH:mm:ss");
 				time = df.parse(args[2]);
 			}
-			else if (args.length == 5){
-				rate = Integer.parseInt(args[4]);
-				if(4000%rate != 0)
-					throw new NumberFormatException();
+			else if (args.length == 4){
+				//rate = Integer.parseInt(args[4]);
+				//if(4000%rate != 0)
+				//	throw new NumberFormatException();
 				DateFormat df = new SimpleDateFormat("yyyy/MM/dd - HH:mm:ss");
 				time = df.parse(args[2]);
 				edtime = df.parse(args[3]);

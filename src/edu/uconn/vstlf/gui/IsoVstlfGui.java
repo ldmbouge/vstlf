@@ -422,6 +422,18 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 			if (at.after(_end4SInput)) {
 				_engine.stop();
 				_engine.join();
+				
+				   double [] mape = _aveP.array(false);
+					double [] mae = _ave.array(false);
+					double [] stdev = _dev.array(false);
+					double [] maxovr = _ovr.array(false);
+					double [] maxund = _und.array(false);
+					DataStream.logErr(mape, "MAPE");
+					DataStream.logErr(mae, "MAE");
+					DataStream.logErr(stdev, "Std Dev");
+					DataStream.logErr(maxovr, "Max Over Err");
+					DataStream.logErr(maxund, "Max Under Err");
+					
 		        MessageCenter.getInstance().put(new VSTLFMessage(VSTLFMessage.Type.StopMessageCenter));
 				MessageCenter.getInstance().join();
 		        return false;
