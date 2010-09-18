@@ -1,7 +1,5 @@
 package edu.uconn.vstlf.data.message;
 
-import java.util.logging.Level;
-
 import edu.uconn.vstlf.realtime.PCBuffer;
 
 public class MessageCenter implements Runnable {	

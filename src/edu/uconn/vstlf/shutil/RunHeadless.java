@@ -100,8 +100,6 @@ public class RunHeadless {
 	        MessageCenter.getInstance().init();
 	        
 	        frame.join();
-	        
-	        MessageCenter.getInstance().put(new VSTLFMessage(VSTLFMessage.Type.StopMessageCenter));
 	        MessageCenter.getInstance().join();
 	    } catch (Exception e) {
 	        System.out.println(e.toString());

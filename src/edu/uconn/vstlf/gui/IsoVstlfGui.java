@@ -305,7 +305,7 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 		   _ovr = new Series(12);
 		   _und = new Series(12);
 		   _nbErr = 0;
-		   Date statDate = _db.last("stats");
+		   /*Date statDate = _db.last("stats");
 		   Function maxi = new MaxFunction(),// mini = new MinFunction(),
 	 				mae = new MAEFunction(), mape = new MAPEFunction(),
 	 				sqr = new SquaringFunction(), sqrt = new SqrtFunction();
@@ -350,7 +350,7 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 			   _distributionTableModel.setDev(dev.array(false));
 			   _distributionTableModel.setMaxOvr(_ovr.array(false));
 			   _distributionTableModel.setMaxUndr(_und.array(false));
-		   }
+		   }*/
 	   }
 	   catch(Exception e){
 		   MessageCenter.getInstance().put(
@@ -421,7 +421,10 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 		try {	
 			if (at.after(_end4SInput)) {
 				_engine.stop();
-				return false;
+				_engine.join();
+		        MessageCenter.getInstance().put(new VSTLFMessage(VSTLFMessage.Type.StopMessageCenter));
+				MessageCenter.getInstance().join();
+		        return false;
 			}
 			if(_currDataSrcType.equals("xml")){
 				this._loadData.getData(this._currentDataFileName, false);
@@ -644,11 +647,6 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
    public void windowDeactivated(WindowEvent e){}
    public void windowIconified(WindowEvent e){}
    public void windowDeiconified(WindowEvent e){}
-   
-   public void join() throws InterruptedException
-   {
-	   _engine.join();
-   }
 
    public static void main(String[] args) {
 		if (args.length < 4) {
@@ -659,7 +657,6 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
     	  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
          IsoVstlfGui frame = new IsoVstlfGui(Boolean.valueOf(args[0]), args[1], args[2], args[3]);
          frame.init();
-         frame.join();
       } catch (Exception e) {
          System.out.println(e.toString());
          e.printStackTrace();

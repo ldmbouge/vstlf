@@ -130,6 +130,13 @@ public class IsoVstlf implements IVstlfMain, PulseAction, Runnable
 				"Initial 12hrs of 5min data from '"+_historyDataFileName+"'\n" +
 				"Storing aggregated 5min data in '"+_dbName+"'\n\n"+
 				"Openning new working DB..."));
+		
+		if(!_currDataSrcType.equals("xml")){
+			_currDB = new PerstPowerDB(_currentDataFileName,4);
+			_currDB.open();
+			_TEST_END_TIME = _currDB.last("load");
+		}
+		
 		setupDatabases();
 		_out.setDB(_db);
 		MessageCenter.getInstance().put(new LogMessage(Level.INFO,
@@ -217,12 +224,6 @@ public class IsoVstlf implements IVstlfMain, PulseAction, Runnable
 			}
 			_db = new PerstPowerDB(_dbName,300);
 			_db.open();
-			
-			if(!_currDataSrcType.equals("xml")){
-				_currDB = new PerstPowerDB(_currentDataFileName,4);
-				_currDB.open();
-				_TEST_END_TIME = _currDB.last("load");
-			}
 			return true;
 	   }
 	   catch(Exception e){
@@ -255,6 +256,9 @@ public class IsoVstlf implements IVstlfMain, PulseAction, Runnable
 			LoadData currentData;
 			if (at.after(_TEST_END_TIME)) {
 				_engine.stop();
+				_engine.join();
+		        MessageCenter.getInstance().put(new VSTLFMessage(VSTLFMessage.Type.StopMessageCenter));
+		        MessageCenter.getInstance().join();
 				_currDB.close();
 				return false;
 			}
@@ -300,7 +304,6 @@ public class IsoVstlf implements IVstlfMain, PulseAction, Runnable
    public void join() throws InterruptedException
    {
 	   if (_continuousTest) _tstThread.join();
-	   _engine.join();
    }
 
 @Override

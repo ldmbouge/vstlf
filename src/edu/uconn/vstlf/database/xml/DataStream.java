@@ -26,6 +26,7 @@
 package edu.uconn.vstlf.database.xml;
 import java.io.*;
 import java.util.Date;
+import java.util.logging.Level;
 import java.text.*;
 
 import edu.uconn.vstlf.data.*;
@@ -37,6 +38,8 @@ import edu.uconn.vstlf.data.doubleprecision.MaxFunction;
 import edu.uconn.vstlf.data.doubleprecision.Series;
 import edu.uconn.vstlf.data.doubleprecision.SqrtFunction;
 import edu.uconn.vstlf.data.doubleprecision.SquaringFunction;
+import edu.uconn.vstlf.data.message.LogMessage;
+import edu.uconn.vstlf.data.message.MessageCenter;
 import edu.uconn.vstlf.database.PowerDB;
 import edu.uconn.vstlf.realtime.*;
 import edu.uconn.vstlf.config.*;
@@ -211,6 +214,7 @@ public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCen
 		//Update error distribution table
 		
 		try {
+			MessageCenter.getInstance().put(new LogMessage(Level.INFO, "DataStream", "fiveMTick", "Aggregate 5m point = "+val+" @ "+at+" from "+nbObs+" 4s points."));
 			Date ovr1HrAgo = _cal.addMinutesTo(at, -65);
 			Date fvMinsAgo = _cal.addMinutesTo(at, -5);
 			Series pred = _db.getForecast(ovr1HrAgo);
@@ -334,13 +338,14 @@ public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCen
 	
 	synchronized public void printSummary()
 	{
-		_out.println("Minutes Ahead\t\tMAPE\t\tMAE\t\tStDev\t\tMax Ovr Err\t\tMax Und Err");
+		_out.println("Minutes Ahead\tMAPE\t\t\t\tMAE\t\t\t\tStDev\t\t\t\tMax Ovr Err\t\t\tMax Und Err");
 		double [] mape = _aveP.array(false);
 		double [] mae = _ave.array(false);
 		double [] stdev = _dev.array(false);
 		double [] maxovr = _ovr.array(false);
 		double [] maxund = _und.array(false);
 		for (int i = 0; i < 12; ++i) 
-			_out.println( (i+1)*5 + "\t\t" + mape[i] + "\t\t" + mae[i] + "\t\t" + stdev[i] + "\t\t" + maxovr[i] + "\t\t" + maxund[i]);	
+			_out.println( (i+1)*5 + "\t\t" + mape[i] + "\t\t" + mae[i] + "\t\t" + stdev[i] + "\t\t" + maxovr[i] + "\t\t" + maxund[i]);
+		_out.flush();
 	}
 }
