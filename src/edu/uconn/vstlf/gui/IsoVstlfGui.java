@@ -305,7 +305,7 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
    {
 	   try
 	   {
-		   logger.handle(new LogMessage(Level.INFO, "LogError", "LogError", "Error at" + at));
+		   logger.handle(new LogMessage(Level.INFO, "LogError", "LogError", "Error at " + at));
 
 		   double [] mape = _aveP.array(false);
 		   double [] mae = _ave.array(false);

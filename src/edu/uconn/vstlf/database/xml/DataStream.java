@@ -344,18 +344,18 @@ public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCen
 	{
 		try
 		{
-			logger.handle(new LogMessage(Level.INFO, "LogError", "LogError", "Error at" + at));
+			logger.handle(new LogMessage(Level.INFO, "LogError", "LogError", "Error at " + at));
 
-		double [] mape = _aveP.array(false);
-		double [] mae = _ave.array(false);
-		double [] stdev = _dev.array(false);
-		double [] maxovr = _ovr.array(false);
-		double [] maxund = _und.array(false);
-		logErr(logger, mape, "MAPE");
-		logErr(logger, mae, "MAE");
-		logErr(logger, stdev, "Std Dev");
-		logErr(logger, maxovr, "Max Over Err");
-		logErr(logger, maxund, "Max Under Err");
+			double [] mape = _aveP.array(false);
+			double [] mae = _ave.array(false);
+			double [] stdev = _dev.array(false);
+			double [] maxovr = _ovr.array(false);
+			double [] maxund = _und.array(false);
+			logErr(logger, mape, "MAPE");
+			logErr(logger, mae, "MAE");
+			logErr(logger, stdev, "Std Dev");
+			logErr(logger, maxovr, "Max Over Err");
+			logErr(logger, maxund, "Max Under Err");
 		}
 		catch (Exception e)
 		{
