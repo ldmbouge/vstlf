@@ -123,7 +123,7 @@ public class IsoVstlf implements IVstlfMain, PulseAction, Runnable
 	}
    
 	public void init() throws Exception{
-		String methodName = IsoVstlf.class.getMethod("init", new Class[]{}).getName();
+		String methodName = "init";
 		MessageCenter.getInstance().put(new LogMessage(Level.INFO,
 				IsoVstlf.class.getName(), methodName, "initializing...\n" +
 				"4s stream from '"+_currentDataFileName+"'\n" +

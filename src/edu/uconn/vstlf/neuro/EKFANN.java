@@ -392,7 +392,7 @@ public class EKFANN implements Serializable{
 	
 	
 	public void EKFTrain(double[][] in, double[][] tg, double[][] inVar, int maxSeconds) throws Exception{
-		String methodName = EKFANN.class.getMethod("EKFTrain", new Class[]{Double[][].class, Double[][].class, Double[][].class, Integer.TYPE}).getName();
+		String methodName = "EKFTrain";
 		MessageCenter.getInstance().put(new LogMessage(Level.INFO, EKFANN.class.getName(), methodName, "Training"));
 		long st = System.currentTimeMillis();
 		long dt = maxSeconds*1000;
@@ -413,7 +413,7 @@ public class EKFANN implements Serializable{
 	}
 	
 	public void train(double[][] in, double[][] tg, int maxSeconds) throws Exception{
-		String methodName = EKFANN.class.getMethod("train", new Class[]{Double[][].class, Double[][].class, Integer.TYPE}).getName();
+		String methodName = "train";
 		MessageCenter.getInstance().put(new LogMessage(Level.INFO, EKFANN.class.getName(), methodName, "Training"));
 		long st = System.currentTimeMillis();
 		long dt = maxSeconds*1000;

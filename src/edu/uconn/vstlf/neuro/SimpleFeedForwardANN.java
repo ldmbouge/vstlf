@@ -255,7 +255,7 @@ public class SimpleFeedForwardANN {
 	}
 	
 	public void train(Series[] in, Series[] tg,double err)throws Exception{
-		String methodName = SimpleFeedForwardANN.class.getMethod("train", new Class[]{Series[].class, Series[].class, Double.TYPE}).getName();
+		String methodName = "train";
 		MessageCenter.getInstance().put(new LogMessage(Level.INFO, SimpleFeedForwardANN.class.getName(), methodName, "Training..."));
 		if(in.length!=tg.length) throw new Exception("You must have the same number of in and tg");
 		double[] mse = new double[in.length];
@@ -272,7 +272,7 @@ public class SimpleFeedForwardANN {
 	
 	public void train(Series[] in, Series[] tg, int seconds)throws Exception{
 		if(seconds==0)return;
-		String methodName = SimpleFeedForwardANN.class.getMethod("train", new Class[]{Series[].class, Series[].class, Integer.TYPE}).getName();
+		String methodName = "train";
 		MessageCenter.getInstance().put(new LogMessage(Level.INFO, SimpleFeedForwardANN.class.getName(), methodName, "Training..."));
 		long st = System.currentTimeMillis();
 		long dt = seconds*1000;
@@ -291,7 +291,7 @@ public class SimpleFeedForwardANN {
 	
 	public void train(Series[] in, Series[] tg, int seconds,double err)throws Exception{
 		if(seconds==0) return;
-		String methodName = SimpleFeedForwardANN.class.getMethod("train", new Class[]{Series[].class, Series[].class, Integer.TYPE, Double.TYPE}).getName();
+		String methodName = "train";
 		MessageCenter.getInstance().put(new LogMessage(Level.INFO, SimpleFeedForwardANN.class.getName(), methodName, "Training..."));
 		long st = System.currentTimeMillis();
 		long dt = seconds*1000;
@@ -309,7 +309,7 @@ public class SimpleFeedForwardANN {
 	}
 	
 	public void train(double[][] in, double[][] tg,double err)throws Exception{
-		String methodName = SimpleFeedForwardANN.class.getMethod("train", new Class[]{Double[][].class, Double[][].class,  Double.TYPE}).getName();
+		String methodName = "train";
 		MessageCenter.getInstance().put(new LogMessage(Level.INFO, SimpleFeedForwardANN.class.getName(), methodName, "Training..."));
 		if(in.length!=tg.length) throw new Exception("You must have the same number of in and tg");
 		int n =0;
@@ -328,7 +328,7 @@ public class SimpleFeedForwardANN {
 	}
 	
 	public void train(double[][] in, double[][] tg,int seconds)throws Exception{
-		String methodName = SimpleFeedForwardANN.class.getMethod("train", new Class[]{Double[][].class, Double[][].class,  Integer.TYPE}).getName();
+		String methodName = "train";
 		MessageCenter.getInstance().put(new LogMessage(Level.INFO, SimpleFeedForwardANN.class.getName(), methodName, "Training..."));
 		long st = System.currentTimeMillis();
 		long dt = seconds*1000;

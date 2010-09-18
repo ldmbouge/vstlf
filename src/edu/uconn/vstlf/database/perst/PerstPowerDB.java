@@ -56,8 +56,7 @@ public class PerstPowerDB extends PowerDB {
 	}
 
 	public static PerstPowerDB fromXML(String outFile, int inc, String inFile)throws Exception{
-		String methodName = PerstPowerDB.class.getMethod("fromXML", 
-				new Class[]{String.class, Integer.TYPE, String.class}).getName();
+		String methodName = "fromXML";
 		Calendar cal = Items.makeCalendar();
 		//DateFormat dateFormat =  cal.getDateFormat("M/dd/yyyy h:mm:ss a");
 		

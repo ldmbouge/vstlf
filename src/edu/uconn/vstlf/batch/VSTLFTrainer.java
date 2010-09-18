@@ -61,8 +61,7 @@ public class VSTLFTrainer {
 	public static double[][] test (String loadFile, Date stTest, Date edTest, int lo, int up)
 	{
 		try{
-			String methodName = VSTLFTrainer.class.getMethod("test", 
-					new Class[]{String.class, Date.class, Date.class, Integer.TYPE, Integer.TYPE}).getName();
+			String methodName = "test";
 
 			double[][] result = new double[12][];
 			int offs = lo;
@@ -216,9 +215,7 @@ public class VSTLFTrainer {
 								   int th, int tlh, int tllh, int tlllh, int tllll,
 								   double eh, double elh, double ellh, double elllh, double ellll, int lo, int up){
 		try{
-			String methodName = VSTLFTrainer.class.getMethod("train", 
-					new Class[]{String.class, Date.class, Date.class, Integer.TYPE, Integer.TYPE, Integer.TYPE, Integer.TYPE, Integer.TYPE,
-					Double.TYPE, Double.TYPE, Double.TYPE, Double.TYPE, Double.TYPE, Integer.TYPE, Integer.TYPE}).getName();
+			String methodName = "train";
 			for(int offs=lo;offs<=up;offs++){
 				MessageCenter.getInstance().put(
 						new LogMessage(Level.INFO, VSTLFTrainer.class.getName(), methodName, 

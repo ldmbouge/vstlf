@@ -110,7 +110,7 @@ public class Produce5MLoad {
 		Date st = indb.first(_inLoadType);
 		Date ed = indb.last(_inLoadType);
 		MessageCenter.getInstance().put(new LogMessage(Level.INFO, Produce5MLoad.class.getName(),
-				Produce5MLoad.class.getMethod("execute", new Class[]{}).getName(), String.format("Converting 4s signal between %s - %s\n", st,ed)));
+				"execute", String.format("Converting 4s signal between %s - %s\n", st,ed)));
 
 		executeImpl(indb, outdb, st, ed);
 		outdb.close();

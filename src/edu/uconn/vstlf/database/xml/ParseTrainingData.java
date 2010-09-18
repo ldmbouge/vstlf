@@ -64,8 +64,7 @@ public class ParseTrainingData extends ParseLoadData {
 			}
 			if (Math.abs(load.val) < 1E-10)
 				MessageCenter.getInstance().put(
-						new LogMessage(Level.WARNING, ParseTrainingData.class.getName(),
-						ParseTrainingData.class.getMethod("parseData", new Class[]{}).getName(),
+						new LogMessage(Level.WARNING, ParseTrainingData.class.getName(), "parseData",
 						"Load missing at " + load.getDate()));
 		}
 	}
