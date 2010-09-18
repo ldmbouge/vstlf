@@ -39,6 +39,7 @@ import edu.uconn.vstlf.data.doubleprecision.*;
 import edu.uconn.vstlf.data.message.LogMessage;
 import edu.uconn.vstlf.data.message.MessageCenter;
 import edu.uconn.vstlf.data.message.VSTLFMessage;
+import edu.uconn.vstlf.data.message.VSTLFMsgLogger;
 import edu.uconn.vstlf.database.*;
 import edu.uconn.vstlf.database.perst.*;
 import edu.uconn.vstlf.database.xml.*;
@@ -157,6 +158,7 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 	
 	public void init() throws Exception
 	{
+		logger  = new VSTLFMsgLogger("err.log", null);
 		//Set up the GUI.
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		//Indent the big window 25 pixels from each edge of the screen.
@@ -297,6 +299,57 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 	   }		
    }
    
+   VSTLFMsgLogger logger;
+
+   void logErrors(Date at)
+   {
+	   try
+	   {
+		   logger.handle(new LogMessage(Level.INFO, "LogError", "LogError", "Error at" + at));
+
+		   double [] mape = _aveP.array(false);
+		   double [] mae = _ave.array(false);
+		   double [] stdev = _dev.array(false);
+		   double [] maxovr = _ovr.array(false);
+		   double [] maxund = _und.array(false);
+		   DataStream.logErr(logger, mape, "MAPE");
+		   DataStream.logErr(logger, mae, "MAE");
+		   DataStream.logErr(logger, stdev, "Std Dev");
+		   DataStream.logErr(logger, maxovr, "Max Over Err");
+		   DataStream.logErr(logger, maxund, "Max Under Err");
+	   } catch (Exception e) {
+	   		e.printStackTrace();
+	   }
+   }
+   
+   void updateErrors(Date at)
+   {
+	   try {
+			Date ovr1HrAgo = _cal.addMinutesTo(at, -65);
+			Date fvMinsAgo = _cal.addMinutesTo(at, -5);
+			Series pred = _db.getForecast(ovr1HrAgo);
+			Series act = _db.getLoad("filt", ovr1HrAgo, fvMinsAgo);
+			if(pred!=null && act.countOf(Double.NaN)==0 &&!_db.last("filt").before(at)){
+				Series error = new MAEFunction().imageOf(act,pred);
+				Series errorP = new MAPEFunction().imageOf(act,pred);
+				_nbErr++;
+				_sum = _sum.plus(error);
+				_sumP = _sumP.plus(errorP);
+				Function n = new DivisorFunction(_nbErr);
+				Function s = new SquaringFunction();
+				Function max = new MaxFunction();
+				Series ovr = pred.minus(act);
+				Series und = act.minus(pred);
+				_ovr = max.imageOf(_ovr, ovr);
+				_und = max.imageOf(_und, und);
+				_sumOfSquares = _sumOfSquares.plus(s.imageOf(error));
+				_ave = n.imageOf(_sum);
+				_aveP = n.imageOf(_sumP);
+				_dev = new SqrtFunction().imageOf(  n.imageOf(_sumOfSquares).minus(s.imageOf(_ave)));
+			}
+		} catch (Exception e) { e.printStackTrace(); }
+   }
+   
    void importStatistics(){
 	   try{
 		   _sum = new Series(12);
@@ -422,20 +475,10 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 			if (at.after(_end4SInput)) {
 				_engine.stop();
 				_engine.join();
-				
-				   double [] mape = _aveP.array(false);
-					double [] mae = _ave.array(false);
-					double [] stdev = _dev.array(false);
-					double [] maxovr = _ovr.array(false);
-					double [] maxund = _und.array(false);
-					DataStream.logErr(mape, "MAPE");
-					DataStream.logErr(mae, "MAE");
-					DataStream.logErr(stdev, "Std Dev");
-					DataStream.logErr(maxovr, "Max Over Err");
-					DataStream.logErr(maxund, "Max Under Err");
 					
 		        MessageCenter.getInstance().put(new VSTLFMessage(VSTLFMessage.Type.StopMessageCenter));
 				MessageCenter.getInstance().join();
+				logErrors(at);
 		        return false;
 			}
 			if(_currDataSrcType.equals("xml")){
@@ -472,6 +515,8 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 	}
 
 	public void fiveMTick(final Date at, final double val,final int nbObs) {
+		updateErrors(at);
+		
 		if(_UPDATE_GUI){
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
@@ -482,34 +527,13 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 						Series history = _db.getLoad("raw", twelveHrsAgo, at);
 						double[] value = history.reverse().array(false);
 						_historyTableModel.updateTableData(at, value);					
-						
-					}
-					catch(Exception e){
-						e.printStackTrace();
-					}
-					//Update error distribution table
-					try{
+					
 						Date ovr1HrAgo = _cal.addMinutesTo(at, -65);
 						Date fvMinsAgo = _cal.addMinutesTo(at, -5);
 						Series pred = _db.getForecast(ovr1HrAgo);
 						Series act = _db.getLoad("filt", ovr1HrAgo, fvMinsAgo);
 						if(pred!=null && act.countOf(Double.NaN)==0 &&!_db.last("filt").before(at)){
-							Series error = new MAEFunction().imageOf(act,pred);
-							Series errorP = new MAPEFunction().imageOf(act,pred);
-							_nbErr++;
-							_sum = _sum.plus(error);
-							_sumP = _sumP.plus(errorP);
-							Function n = new DivisorFunction(_nbErr);
-							Function s = new SquaringFunction();
-							Function max = new MaxFunction();
-							Series ovr = pred.minus(act);
-							Series und = act.minus(pred);
-							_ovr = max.imageOf(_ovr, ovr);
-							_und = max.imageOf(_und, und);
-							_sumOfSquares = _sumOfSquares.plus(s.imageOf(error));
-							_ave = n.imageOf(_sum);
-							_aveP = n.imageOf(_sumP);
-							_dev = new SqrtFunction().imageOf(  n.imageOf(_sumOfSquares).minus(s.imageOf(_ave)));
+							//Update error distribution table
 							_distributionTableModel.setMean(_aveP.array(false), _ave.array(false));
 							_distributionTableModel.setDev(_dev.array(false));
 							_distributionTableModel.setMaxOvr(_ovr.array(false));

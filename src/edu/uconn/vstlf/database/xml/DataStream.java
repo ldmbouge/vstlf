@@ -40,6 +40,7 @@ import edu.uconn.vstlf.data.doubleprecision.SqrtFunction;
 import edu.uconn.vstlf.data.doubleprecision.SquaringFunction;
 import edu.uconn.vstlf.data.message.LogMessage;
 import edu.uconn.vstlf.data.message.MessageCenter;
+import edu.uconn.vstlf.data.message.VSTLFMsgLogger;
 import edu.uconn.vstlf.database.PowerDB;
 import edu.uconn.vstlf.realtime.*;
 import edu.uconn.vstlf.config.*;
@@ -84,6 +85,7 @@ public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCen
 		   _ovr = new Series(12);
 		   _und = new Series(12);
 		   _nbErr = 0;
+		   logger = new VSTLFMsgLogger("err.log", null);
 		}
 		catch (Exception e)
 		{
@@ -337,43 +339,49 @@ public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCen
     	_buf.delete(0, _buf.length()-1);  	
     }
 	
-	public void logErrors()
+	VSTLFMsgLogger logger;
+	public void logErrors(Date at)
 	{
+		try
+		{
+			logger.handle(new LogMessage(Level.INFO, "LogError", "LogError", "Error at" + at));
+
 		double [] mape = _aveP.array(false);
 		double [] mae = _ave.array(false);
 		double [] stdev = _dev.array(false);
 		double [] maxovr = _ovr.array(false);
 		double [] maxund = _und.array(false);
-		logErr(mape, "MAPE");
-		logErr(mae, "MAE");
-		logErr(stdev, "Std Dev");
-		logErr(maxovr, "Max Over Err");
-		logErr(maxund, "Max Under Err");
+		logErr(logger, mape, "MAPE");
+		logErr(logger, mae, "MAE");
+		logErr(logger, stdev, "Std Dev");
+		logErr(logger, maxovr, "Max Over Err");
+		logErr(logger, maxund, "Max Under Err");
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	synchronized public void printSummary()
 	{
-		double [] mape = _aveP.array(false);
-		double [] mae = _ave.array(false);
-		double [] stdev = _dev.array(false);
-		double [] maxovr = _ovr.array(false);
-		double [] maxund = _und.array(false);
-		logErr(mape, "MAPE");
-		logErr(mae, "MAE");
-		logErr(stdev, "Std Dev");
-		logErr(maxovr, "Max Over Err");
-		logErr(maxund, "Max Under Err");
-		_out.println("Minutes Ahead\tMAPE\t\t\t\tMAE\t\t\t\tStDev\t\t\t\tMax Ovr Err\t\t\tMax Und Err");
-		for (int i = 0; i < 12; ++i) 
-			_out.println( (i+1)*5 + "\t\t" + mape[i] + "\t\t" + mae[i] + "\t\t" + stdev[i] + "\t\t" + maxovr[i] + "\t\t" + maxund[i]);
-		_out.flush();
+
+			double [] mape = _aveP.array(false);
+			double [] mae = _ave.array(false);
+			double [] stdev = _dev.array(false);
+			double [] maxovr = _ovr.array(false);
+			double [] maxund = _und.array(false);
+			_out.println("Minutes Ahead\tMAPE\t\t\t\tMAE\t\t\t\tStDev\t\t\t\tMax Ovr Err\t\t\tMax Und Err");
+			for (int i = 0; i < 12; ++i) 
+				_out.println( (i+1)*5 + "\t\t" + mape[i] + "\t\t" + mae[i] + "\t\t" + stdev[i] + "\t\t" + maxovr[i] + "\t\t" + maxund[i]);
+			_out.flush();
 	}
 	
-	static public void logErr(double[] err, String type)
+	static public void logErr(VSTLFMsgLogger logger, double[] err, String type) throws Exception
 	{			
 		String msg = type + ":\t";
 		for (int i = 0; i < err.length; ++i)
 			msg += err[i] + "\t";
-		MessageCenter.getInstance().put(new LogMessage(Level.INFO, "LogError", "LogError", msg));
+		logger.handle(new LogMessage(Level.INFO, "LogError", "LogError", msg));
 	}
 }

@@ -257,7 +257,6 @@ public class IsoVstlf implements IVstlfMain, PulseAction, Runnable
 			if (at.after(_TEST_END_TIME)) {
 				_engine.stop();
 				_engine.join();
-				_out.logErrors();
 		        MessageCenter.getInstance().put(new VSTLFMessage(VSTLFMessage.Type.StopMessageCenter));
 		        MessageCenter.getInstance().join();
 				_currDB.close();
