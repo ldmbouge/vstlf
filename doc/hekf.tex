@@ -1,0 +1,229 @@
+\documentclass[letterpaper]{article}
+\usepackage{amssymb,amsmath}
+
+\title{Hybrid Kalman Algorithms}
+
+\begin{document}
+\maketitle
+
+\section*{Introduction}
+It is a brief summary of the key formulations for training and predicting using Hybrid Kalman Filter Algorithms. There are three parts
+\begin{enumerate}
+  \item Training Extended Kalman Filter Neural Network
+  \item Training Unscented Kalman Filter Neural Network
+  \item Deriving Confidence Interval
+\end{enumerate}
+
+\section*{Convention}
+\begin{enumerate}
+  \item 
+    Lower case letters are used for vector. Upper case letters are used for matrices.
+  \item
+    A vector with a hat (e.g. $\hat{\omega}$) is predicted. A vector with prime (e.g. $\omega^\prime$) is denormalized.
+  \item
+    A vector or matrix with a super script \emph{a} (e.g. $P^a$) is augmented (the meaning of augmentation is defined later when introducing UKFFN)
+  \item
+    A symbol following parentheses is a vector or matrix otherwise it is a single element (e.g. $u(t)$ is a vector but $u_t$ is an element in $u(t)$).
+\end{enumerate}
+
+\section*{Symbols and Their Meanings}
+The following table shows symbols appeared in formulas and their meanings. If hat, prime or other special super/sub scripts are used, the meaning is derived from the convention.
+
+\begin{tabular}{|l|l|}
+  \hline
+  Symbol & Meaning \\
+  \hline
+  $l_t$ & load at time $t$ \\
+  $l_t^{RI}$ & relative increment of load at time $t$ \\
+  $u_t$ & normalized input load to neural network at time $t$ \\
+  $z_t$ & normalized output load at time $t$ \\
+  $\hat{z}_{t+1}$ & predicted output load to NN at time $t+1$ \\
+  $n_x$ & size of the input layer size in NN \\
+  $n_h$ & size of the hidden layer in NN \\
+  $n_z$ & size of the output layer in NN \\
+  $n_w$ & size of the weight vector \\
+  $\hat{\omega}(t+1|t)$ & predicted weight vector at time $t+1$ using data from $t$ \\
+  $\hat{\omega}(t+1|t+1)$ & predicted weight vector at time $t+1$ using data from $t+1$ \\
+  $\varepsilon(t)$ & process noise (a zero mean Gaussian noise) \\
+  $v(t)$ & observation noise (a zero mean Gaussian noise)\\
+  $Q(t)$ & covariance of process noise \\
+  $R(t)$ & covariance of observation noise\\
+  $\hat{P}(t+1|t)$ & prior weight covariance \\
+  $\hat{P}(t+1|t+1)$ & posterior weight covariance \\
+  $\hat{z}(t+1|t)$ & predicted weight vector \\
+  $\hat{z}(t+1|t+1)$ & predicted weight vector \\
+  $h(u, \omega)$ & the forward propagation function of NN \\
+  $S(t+1)$ & measurement covariance matrix \\
+  $H(t+1)$ & partial derivation matrix of $h$ with respect to $\omega(t)$ \\
+  $K(t+1)$ & Kalman gain \\
+  $\chi^i$ & sigma points \\
+  \hline
+\end{tabular}
+
+\section*{EKFNN for Low Frequency Load}
+In low frequency network function output is nearly linear related to input. Thus a Extended Kalman Filter Neural Network (EKFNN) is used for predicting low frequency load. During training, weights are adjusted by a set of input-output observations $\{u(t), z(t), t=1,..,T\}$.
+
+The formula of training network via EKF is described via state and measurement functions:
+\begin{equation} \omega(t+1)=\omega(t)+\varepsilon(t) \end{equation}
+\begin{equation} z(t) = h(u(t-1), \omega(t)) + v(t) \end{equation}
+
+The process of training low frequency network is as follows:
+\begin{enumerate}
+\item Calculate the relative increment and normalize loads. Get input load to NN: \\
+  \begin{equation}l_t^{RI} = (l_t-l_{t-1})/l_{l-1}\end{equation}
+  \begin{equation}u_t = (l_t^{RI}-l_{min}^{RI})/(l_{max}^{RI}-l_{min}^{RI})\end{equation}
+\item Training iterations
+  \begin{equation} \hat{\omega}(t+1|t) = \hat{\omega}(t|t) \end{equation}
+  \begin{align}
+    P(t+1|t) = P(t|t) + Q(t) & \quad P_{ij} = Cov(\omega_i, \omega_j) 
+  \end{align}
+  $\omega$ is a $n_w*1$ weight vector and $P$ is a $n_w*n_w$ covariance matrix where $P_{ij}$ is the covariance of $\omega_i$ and $omega_j$.
+
+  \begin{equation} \hat{z}(t+1|t)=h(u(t), \hat{w}(t+1|t)) \end{equation}
+  \begin{align} 
+    S(t+1) = H(t+1)P(t+1|t)H(t+1)^T + R(t+1) \nonumber\\
+    where \quad H(t+1) = \partial h(u, \omega)/ \partial \omega) \quad and \quad u=u(t), \omega = \hat{\omega}(t+1|t)
+  \end{align}
+  $S(t+1)$ is the measurement covariance matrix and its diagonal $\sigma_{LL}^2(t)=\{\sigma_t^2,\sigma_{t+1}^2,...\}$ will be used to derive Confidence Interval later. For NN with 12 outputs its size is $12*12$.
+
+  $H$ is the Jacobian function matrix. Its elements are gotten from partial derivation of $\omega$. For NN with 12 outputs its size is $12*n_w$.
+
+  \begin{equation} K(t+1)=P(t+1|t)H(t+1)^TS(t+1)^{-1} \end{equation}
+  \begin{equation} \hat{\omega}(t+1|t+1)=\hat{\omega}(t+1|t)+K(t+1)(z(t+1)-\hat{z}(t+1|t)) \end{equation}
+  \begin{equation} 
+    \begin{split}
+      P = & (I - K(t+1)*H(t+1))*P(t+1|t)*(I-K(t+1)*H(t+1))^T \\
+          & +K(t+1)*R(t+1)*K(t+1)^T \\
+      P&(t+1|t+1) = (P+P^T)/2
+    \end{split}
+  \end{equation}
+    $K$ is the Kalman gain. From above equations we get $\omega$ and $P$ for the next iteration.
+
+\item Predicted loads for deriving 
+  With the network output vector $\hat{z}(t) = \{\hat{z}_t, \hat{z}_{t+1}...\}$ we can produce the predicted load after time $t$ ($\hat{l}(t) = \{\hat{l}_{t+1}, \hat{l}_{t+2}, ...\}^T$) from the following equations:
+  \begin{equation}
+    \hat{z}_{t+1}^\prime = \hat{z}_{t+1}(l_{max}^{RI}-l_{min}^{RI}) + l_{min}^{RI}
+  \end{equation}
+  \begin{align}
+    \hat{l}_{t+1}=(\hat{z}_{t+1}^\prime+1)l_{t}, \quad \hat{l}_{t+2}=(\hat{z}_{t+2}^\prime+1)\hat{l}_{t+1}...
+  \end{align}
+  They will be needed to derive Confidence Interval later.
+\end{enumerate}
+
+\section*{UKFNN for High Frequency Load}
+High frequency NN are nonlinear. The EKF can give poor performance because mean and covariance are propagated through linearlization of a non-linear model. UKF uses unscented transform to pick a minimal set of sample points(called sigma points). Sigma points are propagated through non-linear function from which mean and covariance are recovered.
+
+The process of training high frequency network is as follows:
+\begin{enumerate}
+  \item normalization of inputs
+    \begin{equation} u_t=(l_t-l_{min})/(l_{max}-l_{min}) \end{equation}
+  \item 
+    For predict equations, estimated state and covariance are written in augmented forms:
+    \begin{equation} \hat{\omega}^a(t|t)=
+      \begin{bmatrix} \hat{\omega}^T(t|t) & E(\varepsilon^T)\end{bmatrix}^T
+    \end{equation}
+    \begin{equation} P^a(t|t)=
+      \begin{bmatrix}
+        P(t|t) & 0 \\
+        0 & Q
+      \end{bmatrix}
+    \end{equation}
+    $E(\epsilon^T)$ is a $1*n_w$ vector, $Q$ is a $n_w*n_w$ noise matrix.
+
+    A set of 2N+1 sigma points $\chi$ is derived by the following equations:
+    \begin{equation}
+      \chi^i(t|t)=\hat(\omega)^a(t|t)+(\sqrt{(L+\lambda)(P^a(t|t)_i)}),i=1..N
+    \end{equation}
+    \begin{equation}
+      \chi^i(t|t)=\hat(\omega)^a(t|t)-(\sqrt{(L+\lambda)(P^a(t|t)_{i-N})}),i=N+1..2N
+    \end{equation}
+    \begin{equation}
+      \chi^0(t|t)=\hat{\omega}^a(t|t)
+    \end{equation}
+    $L$ and $\lambda$ are known constants. $P^a(t|t)_i$ is the $i$th column of $P^a(t|t)$
+
+    \begin{equation}
+      \chi^i(t+1|t)=\chi^i(t|t)
+    \end{equation}
+    \begin{align}
+      \hat{\omega}(t+1|t)=\displaystyle\sum\limits_{i=0}^{2N} W_s^i \chi^i(t+1|t)
+    \end{align}
+    \begin{equation}
+      P(t+1|t)=\displaystyle\sum\limits_{i=0}^{2N} W_c^i[\chi^i(t+1|t)-\hat{\omega}(t+1|t)][\chi^i(t+1|t)-\hat{\omega}(t+1|t)]^T
+    \end{equation}
+    $W_s^i$ and $W_c^i$ are constant weights.
+    
+    $\hat{\omega}|(t+1|t)$ and covariance $P(t+1|t)$ are augmented with noises again and derive another set of $2N+1$ sigma points which are projected via network function $h$ to calculate $\gamma$ points:
+    \begin{equation}
+      \hat{\omega}^a(t+1|t)=
+      \begin{bmatrix} \hat{\omega}^T(t+1|t) & E(v^T)\end{bmatrix}^T
+    \end{equation}
+    \begin{equation}
+      P^a(t+1|t)=
+      \begin{bmatrix}
+        P(t+1|t) & 0 \\
+        0 & R
+      \end{bmatrix}
+    \end{equation}      
+    \begin{equation}
+      \chi^i(t+1|t)=\hat(\omega)^a(t+1|t)+(\sqrt{(L+\lambda)(P^a(t+1|t)_i)}),i=1..N
+    \end{equation}
+    \begin{equation}
+      \chi^i(t+1|t)=\hat(\omega)^a(t+1|t)-(\sqrt{(L+\lambda)(P^a(t+1|t)_{i-N})}),i=N+1..2N
+    \end{equation}
+    \begin{equation}
+      \chi^0(t+1|t)=\hat{\omega}^a(t+1|t)
+    \end{equation}
+    \begin{equation}
+      \gamma^i(t+1)=h(\chi^i(t+1|t)), i = 0..2N
+    \end{equation}
+    $\gamma$ points are weighted to produce the posterior state $\hat{\omega}(t+1|t+1)$ and covariance $P(t+1|t+1)$, gain $K(t+1)$, prediction$\hat{z}(t+1|t)$ and innovation covariance $S(t+1)$:
+    \begin{equation}
+      \hat{z}(t+1|t)=\displaystyle\sum\limits_{i=0}^{2N} W_s^i \gamma^i(t+1)
+    \end{equation}
+    \begin{align}
+      S(t+1)=\displaystyle\sum\limits_{i=0}^{2N} W_c^i [\gamma^i(t+1)-\hat{z}(t+1|t)][\chi^i(t+1)-\hat{z}(t+1|t)]^T
+    \end{align}
+    \begin{equation}
+      P_{\omega(t+1)z(t+1)}=\displaystyle\sum\limits_{i=0}^{2N} W_c^i[\chi^i(t+1|t)-\hat{\omega}(t+1|t)][\gamma^i(t+1)-\hat{z}(t+1|t)]^T
+    \end{equation}
+    \begin{equation}
+      K(t+1)=P_{\omega(t+1)z(t+1)}S(t+1)^{-1}
+    \end{equation}
+    \begin{equation}
+      \hat{\omega}(t+1|t+1)=\hat{\omega}(t+1|t)+K(t+1)(z(t+1)-\hat{z}(t+1|t))
+    \end{equation}
+    \begin{equation}
+      P(t+1|t+1)=P(t+1|t)-K(t+1)S(t+1)K(t+1)^T
+    \end{equation}
+    To make propagation reasonable, the sum of $W_s$ and $W_c$ should be one. That is:
+    \begin{equation}
+      \displaystyle\sum\limits_{i=0}^{2N} W_s^i=\displaystyle\sum\limits_{i=0}^{2N} W_c^i = 1
+    \end{equation}
+\end{enumerate}
+
+\section*{Confidence Interval Estimation}
+The overall variance equals to the sum of three derived terms:
+\begin{equation}
+  \hat{\sigma}_{Final}^2(t)=\hat{\sigma}_{LL}^2(t)+\hat{\sigma}_{LH}^2(t)+\hat{\sigma}_{H}^2(t)
+\end{equation}
+For high frequency networks the estimated covariance diagonal has to be scaled because of the input normalization:
+\begin{equation}
+  \hat{\sigma}_{H or LH}^2(t)=(l_{max}-l_{min})^2diag(S_{HorLH}(t))
+\end{equation}
+Because the relative incrementation on low frequency network is nonlinear. The variance calculation is more complex. In the section for EKFNN we have known the predicted loads for low frequency network is:
+\[
+  \hat{l}_{t+1}=[\hat{z}_{t+1}^\prime+1]l_t
+\]
+\[
+  \hat{l}_{t+2}=[\hat{z}_{t+2}^\prime+1]l_{t+1}=[\hat{z}_{t+2}^\prime+1][\hat{z}_{t+1}^\prime+1]l_t
+\]
+\[
+  \hat{l}_{t+3}=[\hat{z}_{t+3}^\prime+1]l_{t+2}=[\hat{z}_{t+3}^\prime+1][\hat{z}_{t+2}^\prime+1][\hat{z}_{t+1}^\prime+1]l_t
+\]
+\[ ........ \]
+Take the variance of these terms and ignore small elements we get the an approximation equation:
+\begin{equation}
+  \hat{\sigma}_{t+k}^2(t)=\displaystyle\sum\limits_{j=1}^{k} \{(1+\displaystyle\sum\limits_{i=1}^{k}\hat{z}_{t+i}^{\prime2}-\hat{z}_{t+j}^{\prime2})\sigma_{t+j}^{\prime2}\}l_t^2,k=1,...,n_z
+\end{equation}
+\end{document}
