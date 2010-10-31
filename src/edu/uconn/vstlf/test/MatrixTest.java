@@ -94,5 +94,37 @@ public class MatrixTest {
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
+		
+	}
+	
+	@Test public void Invert()
+	{
+		try {
+			int n = 572;
+			Matrix m = new Matrix(n, n);
+			for (int i = 0; i < n; ++i)
+				for (int j = 0; j < n; ++j)
+					m.setVal(i, j, Math.random());
+			Matrix.inverse(m, new Matrix(n, n));
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
+		}
+	}
+	
+	@Test public void Mult()
+	{
+		try {
+			int n = 572;
+			Matrix m1 = new Matrix(n, n);
+			Matrix m2 = new Matrix(n, n);
+			for (int i = 0; i < n; ++i)
+				for (int j = 0; j < n; ++j) {
+					m1.setVal(i, j, Math.random());
+					m2.setVal(i, j, Math.random());
+				}
+			Matrix.multiply(m1, m2, new Matrix(n, n));
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
+		}
 	}
 }
