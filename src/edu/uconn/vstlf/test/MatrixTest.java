@@ -127,4 +127,47 @@ public class MatrixTest {
 			System.err.println(e.getMessage());
 		}
 	}
+	
+	@Test public void MultTrans()
+	{
+		try {
+			int n = 572, m = 200, t = 500;
+			Matrix m1 = new Matrix(n, m);
+			Matrix m2 = new Matrix(t, m);
+			for (int i = 0; i < n; ++i)
+				for (int j = 0; j < m; ++j) {
+					m1.setVal(i, j, Math.random());
+				}
+			
+			for (int i = 0; i < t; ++i)
+				for (int j = 0; j < m; ++j)
+					m2.setVal(i, j, Math.random());
+			
+			Matrix m2_trans = new Matrix(m, t);
+			Matrix.transpose(m2, m2_trans);
+			
+			Matrix r1 = new Matrix(n, t), r2 = new Matrix(n, t);
+			Matrix.multiply(m1, m2_trans, r1);
+			Matrix.multiply_trans2(m1, m2, r2);
+			
+			assertTrue(Matrix.equal(r1, r2, 0.0));
+			
+			int k = 1000;
+			Matrix m3 = new Matrix(n, k);
+			for (int i = 0; i < n; ++i)
+				for (int j = 0; j < k; ++j)
+					m3.setVal(i, j, Math.random());
+			
+			Matrix m1_trans = new Matrix(m, n);
+			Matrix.transpose(m1, m1_trans);
+			Matrix r3 = new Matrix(m, k), r4 = new Matrix(m, k);
+			Matrix.multiply(m1_trans, m2, r3);
+			Matrix.multiply_trans1(m1, m2, r4);
+			
+			assertTrue(Matrix.equal(r3, r4, 0.0));
+			
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
+		}
+	}
 }
