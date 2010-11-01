@@ -49,11 +49,11 @@ public class MatrixTest {
 		permRef.add(3);
 		permRef.add(1);
 		
-		Vector<Integer> permVec = Matrix.LUPDecompose(m);
+		int[] permVec = Matrix.LUPDecompose(m);
 		System.out.println(m);
 		assertTrue(Matrix.equal(m, LU, 10e-8));
-		for (int i = 0; i < permVec.size(); ++i)
-			assertTrue(permVec.get(i) == permRef.get(i));
+		for (int i = 0; i < permVec.length; ++i)
+			assertTrue(permVec[i] == permRef.get(i));
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}

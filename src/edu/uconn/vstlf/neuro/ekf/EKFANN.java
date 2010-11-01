@@ -2,8 +2,12 @@ package edu.uconn.vstlf.neuro.ekf;
 
 import java.util.Vector;
 
+import edu.uconn.vstlf.matrix.IncompatibleMatrixExpt;
+import edu.uconn.vstlf.matrix.Matrix;
+
 public class EKFANN {
 	static private double hiddenInput = 1.0;
+	static private double weightChange = 10E-8;
 	
 	private int[] layersShp_;
 	
@@ -35,12 +39,64 @@ public class EKFANN {
 		}
 	}
 	
+	public double[] getWeights()
+	{
+		int n = getWeightsSize();
+		double[] w = new double[n];
+		
+		int index = 0;
+		for (int l = 1; l < getNumLayers(); ++l) {
+			EKFNeuron[] neurons = neurons_.elementAt(l);
+			for (int i = 0; i < neurons.length; ++i) {
+				double[] srcw = neurons[i].getWeights();
+				System.arraycopy(srcw, 0, w, index, srcw.length);
+				index += srcw.length;
+			}
+		}
+		return w;
+	}
+	
+	public void setWeights(double[] weights) throws Exception
+	{
+		if (weights.length != getWeightsSize())
+			throw new Exception("the weights to be set is too large/small");
+		
+		int index = 0;
+		for (int l = 1; l < getNumLayers(); ++l) {
+			EKFNeuron[] neurons = neurons_.elementAt(l);
+			int wlen = getNeuronWeightSize(l);
+			for (int i = 0; i < neurons.length; ++i) {
+				EKFNeuron neu = neurons[i];
+				System.arraycopy(weights, index, neu.getWeights(), 0, wlen);
+				index += wlen;
+			}
+		}
+		
+		if (index != getWeightsSize())
+			throw new Exception("Error while setting weights");
+	}
+	
 	public int getNumLayers() { return layersShp_.length; }
 	public int getLayerSize(int layerIndex) { return layersShp_[layerIndex]; }
+	
+	private int getWeightsSize()
+	{
+		int n = 0;
+		for (int l = 1; l < getNumLayers(); ++l)
+			n += getLayerSize(l)*getNeuronWeightSize(l);
+		return n;
+	}
 	
 	private int getNeuronWeightSize(int layerIndex)
 	{
 		return getLayerSize(layerIndex-1)+1;
+	}
+	
+	public double[] execute(double[] inputs) throws Exception
+	{
+		setInput(inputs);
+		forwardPropagate();
+		return getOutput();
 	}
 	
 	public void setInput(double[] input) throws Exception
@@ -130,6 +186,100 @@ public class EKFANN {
 		
 		// forward propagate
 		forwardPropagate(nextLayer + 1, getNumLayers()-1);
+		
+		// restore the outputs;
+		for (int i = 0; i < savedata.size(); ++i) {
+			SavedNeuronData snd = savedata.elementAt(i);
+			EKFNeuron n = snd.neuron;
+			n.setWeightedSum(snd.weightedSum);
+			n.setOutput(snd.output);
+		}
+	}
+	
+	public void backwardPropagation(double[] inputs, double[] outputs, double[] weights, Matrix P) throws Exception
+	{
+		int wn = getWeightsSize();
+		int outn = neurons_.lastElement().length;
+		
+		Matrix Q = new Matrix(wn, wn), R = new Matrix(outn, outn);
+		
+		setWeights(weights);
+		double[] w_t_t1 = weights;
+		Matrix P_t1_t1 = P;
+		Matrix P_t_t1 = Matrix.copy(P_t1_t1);
+		Matrix.add(P_t_t1, Q);
+		// forward propagation;
+		double[] z_t_t1 = execute(inputs);
+		// get jacobian matrix
+		Matrix H_t = jacobian();
+		
+		// compute S(t)
+		Matrix S_t = new Matrix(outn, outn);
+		Matrix S_temp = new Matrix(P_t_t1.getRow(), H_t.getRow());
+		Matrix.multiply_trans2(P_t_t1, H_t, S_temp);
+		Matrix.multiply(H_t, S_temp, S_t);
+		Matrix.add(S_t, R);
+		
+		// compute K(t)
+		Matrix S_t_inv = new Matrix(outn, outn);
+		Matrix.inverse(Matrix.copy(S_t), S_t_inv);
+		Matrix K_t = new Matrix(wn, outn);
+		Matrix.multiply(S_temp, S_t_inv, K_t);
+		
+		// Compute w(t|t)
+		double [] uz = new double[outn];
+		for (int i = 0; i < outn; ++i)
+			uz[i] = outputs[i] - z_t_t1[i];
+		double [] w_t_t = new double[wn];
+		Matrix.multiply(K_t, uz, w_t_t);
+		for (int i = 0; i < wn; ++i)
+			w_t_t[i] += w_t_t1[i];
+		
+		Matrix KHMult = new Matrix(wn, wn);
+		Matrix.multiply(K_t, H_t, KHMult);
+		// Compute I-K(t)*H(t)
+		for (int i = 0; i < wn; ++i)
+			for (int j = 0; j < wn; ++j)
+				KHMult.setVal(i, j, (i == j ? 1.0 - KHMult.getVal(i, j) : -KHMult.getVal(i,j)));
+		Matrix I_minus_KHMult = KHMult;
+		
+		// Compute P(t|t)
+		Matrix KRMult = new Matrix(wn, outn);
+		Matrix.multiply(K_t, R, KRMult);
+		Matrix KRK_trans = new Matrix(wn, wn);
+		Matrix.multiply_trans2(KRMult, K_t, KRK_trans);
+		
+		Matrix P_temp_mult = new Matrix(wn, wn);
+		Matrix.multiply(I_minus_KHMult, P_t_t1, P_temp_mult);
+		Matrix P_temp = new Matrix(wn, wn);
+		Matrix.multiply_trans2(P_temp_mult, I_minus_KHMult, P_temp);
+		
+		for (int i = 0; i < wn; ++i)
+			for (int j = 0; j < wn; ++j)
+				P.setVal(i, j, (P_temp.getVal(i, j) + P_temp.getVal(j, i))/2.0);
+		// copy back weights
+		System.arraycopy(w_t_t, 0, weights, 0, wn);
+	}
+	
+	Matrix jacobian() throws Exception
+	{
+		Matrix H_t = new Matrix(neurons_.lastElement().length, getWeightsSize());
+		int hCol = 0;
+		for (int l = 1; l < getNumLayers(); ++l){
+			EKFNeuron[] neurons = neurons_.elementAt(l);
+			for (int toNeuronIndex = 0; toNeuronIndex < neurons.length; ++toNeuronIndex) {
+				EKFNeuron neu = neurons[toNeuronIndex];
+				for (int fromNeuronIndex = 0; fromNeuronIndex < neu.getWeights().length; ++fromNeuronIndex) {
+					// Compute a column of H(t)
+					fowardPropagateWeightChange(l, fromNeuronIndex, toNeuronIndex, weightChange);
+					double [] pout = getOutput();
+					for (int k = 0; k < pout.length; ++k)
+						H_t.setVal(k, hCol, pout[k]);
+					++hCol;
+				}
+			}
+		}
+		return H_t;
 	}
 }
 
