@@ -8,6 +8,7 @@ public class Matrix {
 		mtrx_ = new double[row][column];
 	}
 	
+	/*
 	public String toString()
 	{
 		String s = "{";
@@ -24,7 +25,7 @@ public class Matrix {
 		}
 		s += "}";
 		return s;
-	}
+	}*/
 	
 	public Matrix(double [][] vals) { mtrx_ = vals; }
 	
@@ -299,6 +300,7 @@ public class Matrix {
 			m.setVal(i, i, 1.0);
 		return m;
 	}
+	
 }
 
 

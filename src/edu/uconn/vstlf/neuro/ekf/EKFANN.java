@@ -6,7 +6,7 @@ import edu.uconn.vstlf.matrix.Matrix;
 
 public class EKFANN {
 	static private double hiddenInput = 1.0;
-	static private double weightChange = 10E-8;
+	static public double weightChange = 1.27009514017118e-13;
 	
 	private int[] layersShp_;
 	
@@ -39,11 +39,24 @@ public class EKFANN {
 		}
 	}
 	
-	public double[] getWeights()
+	public double[] getWeights() throws Exception
 	{
 		int n = getWeightsSize();
 		double[] w = new double[n];
 		
+		int index = 0;
+		for (int l = 0; l < getNumLayers()-1; ++l) {
+			for (int fromId = 0; fromId < getLayerSize(l) + 1; ++fromId) {
+				// get weights from neuron (l, id) to every neuron in the next layer
+				for (int toId = 0; toId < getLayerSize(l+1); ++toId) {
+					EKFNeuron neu = neurons_.get(l+1)[toId];
+					w[index] = neu.getWeights()[fromId];
+					++index;
+				}
+			}
+		}
+		
+		/*
 		int index = 0;
 		for (int l = 1; l < getNumLayers(); ++l) {
 			EKFNeuron[] neurons = neurons_.elementAt(l);
@@ -52,7 +65,9 @@ public class EKFANN {
 				System.arraycopy(srcw, 0, w, index, srcw.length);
 				index += srcw.length;
 			}
-		}
+		}*/
+		if (index != getWeightsSize())
+			throw new Exception("Error while getting weights");
 		return w;
 	}
 	
@@ -158,7 +173,7 @@ public class EKFANN {
 		
 	}
 	
-	public void fowardPropagateWeightChange(int toNeuronLayer, int fromNeuronIndex, int toNeuronIndex, double weightChange) throws Exception
+	public double[] fowardPropagateWeightChange(int toNeuronLayer, int fromNeuronIndex, int toNeuronIndex, double weightChange) throws Exception
 	{
 		if (toNeuronLayer < 1 || toNeuronLayer >= getNumLayers())
 			throw new Exception("Cannot change the weight in neuron at layer " + toNeuronLayer 
@@ -166,7 +181,8 @@ public class EKFANN {
 		
 		EKFNeuron[] prevLayer = neurons_.elementAt(toNeuronLayer-1);
 		EKFNeuron[] toLayer = neurons_.elementAt(toNeuronLayer);
-		double fromInput = prevLayer[fromNeuronIndex].getOutput();
+		double fromInput = (fromNeuronIndex == prevLayer.length ? 
+				hiddenInput : prevLayer[fromNeuronIndex].getOutput());
 		EKFNeuron toNeuron = toLayer[toNeuronIndex];
 		
 		// Save changed data
@@ -196,8 +212,10 @@ public class EKFANN {
 		}
 		
 		// forward propagate
-		forwardPropagate(nextLayer + 1, getNumLayers()-1);
+		if (nextLayer + 1 < getNumLayers())
+			forwardPropagate(nextLayer + 1, getNumLayers()-1);
 		
+		double[] changeOutput = getOutput();
 		// restore the outputs;
 		for (int i = 0; i < savedata.size(); ++i) {
 			SavedNeuronData snd = savedata.elementAt(i);
@@ -205,14 +223,16 @@ public class EKFANN {
 			n.setWeightedSum(snd.weightedSum);
 			n.setOutput(snd.output);
 		}
+		
+		return changeOutput;
 	}
 	
-	public void backwardPropagation(double[] inputs, double[] outputs, double[] weights) throws Exception
+	public void backwardPropagation(double[] inputs, double[] outputs, double[] weights, Matrix P) throws Exception
 	{
 		int wn = getWeightsSize();
 		int outn = neurons_.lastElement().length;
 		
-		Matrix P = Matrix.identityMatrix(wn), 
+		Matrix 
 			Q = Matrix.identityMatrix(wn), 
 			R = Matrix.identityMatrix(outn);
 		
@@ -279,18 +299,18 @@ public class EKFANN {
 	
 	Matrix jacobian() throws Exception
 	{
+		double[] refout = getOutput();
 		Matrix H_t = new Matrix(neurons_.lastElement().length, getWeightsSize());
 		int hCol = 0;
 		for (int l = 1; l < getNumLayers(); ++l){
-			EKFNeuron[] neurons = neurons_.elementAt(l);
-			for (int toNeuronIndex = 0; toNeuronIndex < neurons.length; ++toNeuronIndex) {
-				EKFNeuron neu = neurons[toNeuronIndex];
-				for (int fromNeuronIndex = 0; fromNeuronIndex < neu.getWeights().length; ++fromNeuronIndex) {
-					// Compute a column of H(t)
-					fowardPropagateWeightChange(l, fromNeuronIndex, toNeuronIndex, weightChange);
-					double [] pout = getOutput();
+			int fromLayer = l-1;
+			for (int fromNeuronIndex = 0; fromNeuronIndex < getLayerSize(fromLayer)+1; ++fromNeuronIndex) {
+				for (int toNeuronIndex = 0; toNeuronIndex < getLayerSize(l); ++toNeuronIndex) {
+					// Compute a column of H(t)					
+					double [] pout = fowardPropagateWeightChange(l, fromNeuronIndex, toNeuronIndex, weightChange);
+					
 					for (int k = 0; k < pout.length; ++k)
-						H_t.setVal(k, hCol, pout[k]);
+						H_t.setVal(k, hCol, (pout[k]-refout[k])/weightChange);
 					++hCol;
 				}
 			}
