@@ -68,26 +68,19 @@ OptHidNum=[];
 in=TraIn;
 y=TraOut;
 
-Q=0.000001*eye(ns);
-R=0.000001*eye(ny);
-
-TransPr = [0.9 0.1;0.1 0.9];
-modePr=[0.5  0.5]';
-for j=1:2
-   modeR(:,j) = R(:);
-   modevm(:,j) = zeros(ns,1);
-end
-   modeQ(:,1) = 1.*Q(:);
-   modeQ(:,2) = 100.*Q(:);
-
-for j=1:2
-    modex(:,j)=x(:);
-    modeP(:,j)=P(:);
-end
+nh=10;
+nx=43;
+ny=12;
+ns = nx * nh + nh + nh * ny + ny;
+x=randn(ns,1); % x is the weight of NN
+load PHKF;
+Q=0.000005*eye(ns);
+R=0.00001*eye(ny);
+cell2csv('P.csv', P);
 
 for TT=1:10
-%     for k=1:length(TraIn(:,1))
-          for k=length(TraIn(:,1))-2:length(TraIn(:,1))
+    for k=1:length(TraIn(:,1))
+%           for k=length(TraIn(:,1))-2:length(TraIn(:,1))
         [x,P,S]=nnekf2(x,TraIn(k,:)',TraOut(k,:)',P,Q,R);
     end
 end
@@ -102,8 +95,8 @@ SDArray1=[];
 LastLoad1=[];
 FocastLoadSD=[];
 tempvalin=[];
-% for i=1:length(ValIn)
-    for i=length(ValIn)-1:length(ValIn)
+for i=1:length(ValIn)
+%     for i=length(ValIn)-1:length(ValIn)
     W1=reshape(x(1:nx * nh + nh),nh,[]);
     W2=reshape(x(nx * nh + nh+1:end),12,[]);
     Output=W2(:,1:nh)*tanh(W1(:,1:nx)*ValIn(i,:)'+W1(:,nx+1))+W2(:,nh+1);

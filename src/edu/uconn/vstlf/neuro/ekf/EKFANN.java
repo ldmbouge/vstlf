@@ -2,7 +2,6 @@ package edu.uconn.vstlf.neuro.ekf;
 
 import java.util.Vector;
 
-import edu.uconn.vstlf.matrix.IncompatibleMatrixExpt;
 import edu.uconn.vstlf.matrix.Matrix;
 
 public class EKFANN {
@@ -16,7 +15,7 @@ public class EKFANN {
 	 * each neuron has layerSize[i-1]+1 weights. 
 	 * Thus layer i has (layerSize[i]*(layerSize[i-1]+1)) weights
 	 */
-	private Vector<EKFNeuron[]> neurons_;
+	private Vector<EKFNeuron[]> neurons_ = new Vector<EKFNeuron[]>();
 	
 	public EKFANN(int [] layersShape)
 	{
@@ -28,14 +27,15 @@ public class EKFANN {
 		
 		// Add interior layers and output layers
 		for (int il = 1; il < getNumLayers(); ++il) {
-			double [] weights = new double[getNeuronWeightSize(il)];
-			for (int j = 0; j < getNeuronWeightSize(il); ++j)
-				weights[j] = Math.random();
 			TransFunc func = (il == getNumLayers() - 1 ? new Identity() : new Tanh());
 			
 			neurons_.add(new EKFNeuron[getLayerSize(il)]);
-			for (int i = 0; i < getLayerSize(il); ++i)
+			for (int i = 0; i < getLayerSize(il); ++i) {
+				double [] weights = new double[getNeuronWeightSize(il)];
+				for (int j = 0; j < getNeuronWeightSize(il); ++j)
+					weights[j] = Math.random();
 				neurons_.lastElement()[i] = new EKFNeuron(weights, func);
+			}
 		}
 	}
 	
@@ -62,6 +62,17 @@ public class EKFANN {
 			throw new Exception("the weights to be set is too large/small");
 		
 		int index = 0;
+		for (int l = 0; l < getNumLayers()-1; ++l) {
+			for (int fromId = 0; fromId < getLayerSize(l) + 1; ++fromId) {
+				// Set weights from neuron (l, id) to every neuron in the next layer
+				for (int toId = 0; toId < getLayerSize(l+1); ++toId) {
+					EKFNeuron neu = neurons_.get(l+1)[toId];
+					neu.getWeights()[fromId] = weights[index];
+					++index;
+				}
+			}
+		}
+		/*
 		for (int l = 1; l < getNumLayers(); ++l) {
 			EKFNeuron[] neurons = neurons_.elementAt(l);
 			int wlen = getNeuronWeightSize(l);
@@ -70,7 +81,7 @@ public class EKFANN {
 				System.arraycopy(weights, index, neu.getWeights(), 0, wlen);
 				index += wlen;
 			}
-		}
+		}*/
 		
 		if (index != getWeightsSize())
 			throw new Exception("Error while setting weights");
@@ -196,12 +207,17 @@ public class EKFANN {
 		}
 	}
 	
-	public void backwardPropagation(double[] inputs, double[] outputs, double[] weights, Matrix P) throws Exception
+	public void backwardPropagation(double[] inputs, double[] outputs, double[] weights) throws Exception
 	{
 		int wn = getWeightsSize();
 		int outn = neurons_.lastElement().length;
 		
-		Matrix Q = new Matrix(wn, wn), R = new Matrix(outn, outn);
+		Matrix P = Matrix.identityMatrix(wn), 
+			Q = Matrix.identityMatrix(wn), 
+			R = Matrix.identityMatrix(outn);
+		
+		Matrix.multiply(0.000005, Q);
+		Matrix.multiply(0.00001, R);
 		
 		setWeights(weights);
 		double[] w_t_t1 = weights;
