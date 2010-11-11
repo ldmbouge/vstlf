@@ -1,7 +1,11 @@
 package edu.uconn.vstlf.neuro.ekf;
 
 import java.util.Vector;
+import java.util.logging.Level;
 
+import edu.uconn.vstlf.data.doubleprecision.Series;
+import edu.uconn.vstlf.data.message.LogMessage;
+import edu.uconn.vstlf.data.message.MessageCenter;
 import edu.uconn.vstlf.matrix.Matrix;
 
 public class EKFANN {
@@ -227,7 +231,7 @@ public class EKFANN {
 		return changeOutput;
 	}
 	
-	public void backwardPropagation(double[] inputs, double[] outputs, double[] weights, Matrix P) throws Exception
+	public void backwardPropagate(double[] inputs, double[] outputs, double[] weights, Matrix P) throws Exception
 	{
 		int wn = getWeightsSize();
 		int outn = neurons_.lastElement().length;
@@ -317,6 +321,24 @@ public class EKFANN {
 		}
 		return H_t;
 	}
+	
+	public void train(Series[] in, Series[] tg, int iterations) throws Exception
+	{
+		String methodName = "train";
+		MessageCenter.getInstance().put(new LogMessage(Level.INFO, EKFANNBank.class.getName(), methodName, "Training EKFANN for " + iterations + " iterations"));
+		if(in.length!=tg.length) throw new Exception("You must have the same number of in and tg");
+		double[] weights = getWeights();
+		Matrix P = Matrix.identityMatrix(weights.length);
+		for (int it = 0; it < iterations; ++it) {
+			for(int i = 0;i<in.length;i++){
+				backwardPropagate(in[i].array(), tg[i].array(), weights, P);
+				MessageCenter.getInstance().put(new LogMessage(Level.INFO, EKFANNBank.class.getName(), methodName, "complete back propagation of input " + i));
+			}
+			MessageCenter.getInstance().put(new LogMessage(Level.INFO, EKFANNBank.class.getName(), methodName, "Iteration " + it + " done"));
+		}
+		
+		MessageCenter.getInstance().put(new LogMessage(Level.INFO, EKFANNBank.class.getName(), methodName, "\tDone."));
+	}
 }
 
 class SavedNeuronData
@@ -386,4 +408,5 @@ class EKFNeuron
 	void setOutput(double out) { output_ = out; }
 	double computeOutput(double weightedSum) 
 	{ return func_.compute(weightedSum); }
+	
 }

@@ -35,6 +35,7 @@ import edu.uconn.vstlf.data.message.MessageCenter;
 import edu.uconn.vstlf.database.PowerDB;
 import edu.uconn.vstlf.database.perst.*;
 import edu.uconn.vstlf.neuro.*;
+import edu.uconn.vstlf.neuro.ekf.EKFANNBank;
 import edu.uconn.vstlf.config.Items;
 
 import com.web_tomorrow.utils.suntimes.*;
@@ -117,7 +118,7 @@ public class VSTLFTrainer {
 				///////////////////////////////////////////////////////////////////////////////
 				ANNBank anns;
 				try{
-					anns= new ANNBank("./anns/bank"+offs+".ann");
+					anns= new SimpANNBank("./anns/bank"+offs+".ann");
 				}
 				catch(Exception e){
 					throw new Exception("No ANNs have been trained");
@@ -308,12 +309,12 @@ public class VSTLFTrainer {
 				///////////////////////////////////////////////////////////////////////////////
 				//Make ANNs and Train
 				///////////////////////////////////////////////////////////////////////////////
-				ANNBank anns;
+				SimpANNBank anns;
 				try{
-					anns= new ANNBank("bank"+offs+".ann");
+					anns= new SimpANNBank("bank"+offs+".ann");
 				}
 				catch(Exception e){
-					anns = new ANNBank(lyrSz);
+					anns = new SimpANNBank(lyrSz);
 				}
 				long t0 = System.currentTimeMillis();
 				anns.train(inputS, targS, sec,mse);
@@ -534,6 +535,122 @@ public class VSTLFTrainer {
 				//System.err.println(errMsg);
 				throw new Exception(errMsg);
 			}
+		}
+	}
+	
+	
+	public static void trainEKFANNs(String loadFile, Date stTrain, Date edTrain, int lo, int up, int iterations)
+	{
+		try{
+			String methodName = "train";
+			for(int offs=lo; offs<=up; ++offs){
+				MessageCenter.getInstance().put(
+						new LogMessage(Level.INFO, "EKFANN", methodName, "Training System for offset: "+ 5*offs +" minutes."));
+	
+				///////////////////////////////////////////////////////////////////////////////////
+				//Initialize db and cal et cetera
+				///////////////////////////////////////////////////////////////////////////////////
+				Calendar cal = new Calendar();
+				PowerDB loadHist = new PerstPowerDB(loadFile,300);
+				loadHist.open();
+	
+				///////////////////////////////////////////////////////////////////////////////////
+				//Define test parameters//
+				//////////////////////////////////////////////////////////////////////////////////
+				Date ts = stTrain;    				//st train
+				Date curr = edTrain;					//ed train
+	
+				ts = cal.addMinutesTo(ts, 5*offs);
+				curr = cal.addMinutesTo(curr, 5*offs);
+				NormalizingFunction[] normalizers = {new NormalizingFunction(-500,500,0,1), //h
+												 new NormalizingFunction(-500,500,0,1),	//lh
+												 new NormalizingFunction(-500,500,0,1),//llh
+												 new NormalizingFunction(-500,500,0,1),//lllh
+												 new NormalizingFunction(-.1,.1,0,1)};//llll
+				NormalizingFunction[] denormalizers = {new NormalizingFunction(0,1,-500,500),
+												   new NormalizingFunction(0,1,-500,500),//ditto
+												   new NormalizingFunction(0,1,-500,500),
+												   new NormalizingFunction(0,1,-500,500),
+												   new NormalizingFunction(0,1,-.1,.1)};
+				int[][] layerSizes = {{12+15+12+24+7,6,12},
+									{12+15+12+24+7,13,12},
+									{12+15+12+24+7,12,12},
+									{12+15+12+24+7,13,12},
+									{12+15+12+24+7,18,12}};
+	
+				_norm = new NormalizingFunction[_lvls+1];
+				_denorm = new NormalizingFunction[_lvls+1];
+
+				int[][] lyrSz = new int[_lvls+1][];
+				for(int i = 0;i<_lvls;i++){
+					_norm[i] = normalizers[i];
+					_denorm[i] = denormalizers[i];
+					lyrSz[i] = layerSizes[i];
+				}
+				_norm[_lvls] = normalizers[4];
+				_denorm[_lvls] = denormalizers[4];
+				lyrSz[_lvls] = layerSizes[4];
+
+				double minload = new Double(Items.MinLoad.value());
+				double maxload = new Double(Items.MaxLoad.value());
+				_normAbs = new NormalizingFunction(minload,maxload,0,1);
+				_denormAbs = new NormalizingFunction(0,1,minload,maxload);
+	
+				////////////////////////////////////////////////////////////////////////////////
+				//Build training set
+				/////////////////////////////////////////////////////////////////////////////////
+				Vector<Series[]>inS = new Vector<Series[]>(), tgS = new Vector<Series[]>();
+				MessageCenter.getInstance().put(
+						new LogMessage(Level.INFO, VSTLFTrainer.class.getName(),
+								methodName, "Building training set from "+ cal.string(ts)+" to "+ cal.string(curr)));
+				
+				while(ts.before(curr)){
+					tgS.add(VSTLFTrainer.targetSetFor(ts,cal,loadHist));
+					inS.add(VSTLFTrainer.inputSetFor(ts, cal, loadHist));
+		
+					Series[] set = inS.lastElement();
+					for(int i = 0;i<set.length;i++){
+						if(set[i].countOf(Double.NaN)>0){
+							MessageCenter.getInstance().put(
+									new LogMessage(Level.INFO, VSTLFTrainer.class.getName(),
+											methodName, ts.toString()));
+							throw new Exception("WTF?");
+						}
+					}
+					ts = cal.addMinutesTo(ts, 60);
+				}
+				if(inS.size()!=tgS.size()) throw new Exception("#tg!=#in");
+				
+				Series[][] inputS = new Series[inS.size()][], targS = new Series[tgS.size()][];
+				for(int i=0;i<targS.length;i++){
+					inputS[i] = inS.elementAt(i);
+					targS[i] = tgS.elementAt(i);
+				}
+				MessageCenter.getInstance().put(
+						new LogMessage(Level.INFO, VSTLFTrainer.class.getName(),
+								methodName, inputS.length + "\nTraining set contains "+inS.size()+" points.  "));
+	
+				///////////////////////////////////////////////////////////////////////////////
+				//Make ANNs and Train
+				///////////////////////////////////////////////////////////////////////////////
+				EKFANNBank anns;
+				try{
+					anns= new EKFANNBank("bank"+offs+".ann");
+				}
+				catch(Exception e){
+					anns = new EKFANNBank(lyrSz);
+				}
+	
+				long t0 = System.currentTimeMillis();
+				anns.train(inputS, targS, iterations);
+				MessageCenter.getInstance().put(
+						new LogMessage(Level.INFO, VSTLFTrainer.class.getName(),
+								methodName, "after "+ (System.currentTimeMillis()-t0)));
+				anns.save("bank"+offs+".ann");
+				loadHist.close();
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
 		}
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////////

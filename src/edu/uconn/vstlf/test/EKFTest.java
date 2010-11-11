@@ -111,15 +111,17 @@ public class EKFTest {
 		double gap = 10E-6;
 
 		// First iteration
-		ekf.backwardPropagation(inputs1, outs1, weights, P);
+		ekf.backwardPropagate(inputs1, outs1, weights, P);
 		for (int i = 0; i < 572; ++i) {
 			assertTrue(Math.abs(weights[i] - wref1[i]) < gap);
 			for (int j = 0; j < 572; ++j)
 				assertTrue(Math.abs(P.getVal(i, j) - pref1[i][j]) < gap);
 		}
+		ekf.setWeights(weights);
 		
+		weights = ekf.getWeights();
 		// Second iteration
-		ekf.backwardPropagation(inputs2, outs2, weights, P);
+		ekf.backwardPropagate(inputs2, outs2, weights, P);
 		for (int i = 0; i < 572; ++i) {
 			assertTrue(Math.abs(weights[i] - wref2[i]) < gap);
 			for (int j = 0; j < 572; ++j)

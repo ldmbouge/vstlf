@@ -73,10 +73,10 @@ public class FiveMinuteProcess extends Thread {
 		_db = db;
 		_cal = Items.makeCalendar();
 		_gmt = new Calendar("GMT");
-		_annBanks = new ANNBank[12];
+		_annBanks = new SimpANNBank[12];
 		for(int i = 0;i<12;i++){
 			try{
-				_annBanks[i] = new ANNBank("anns/bank"+i+".ann");
+				_annBanks[i] = new SimpANNBank("anns/bank"+i+".ann");
 			}catch(Exception e){
 				_notif.put(new VSTLFRealTimeExceptionMessage(e));
 			}
