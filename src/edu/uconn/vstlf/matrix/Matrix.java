@@ -6,8 +6,11 @@ public class Matrix {
 	
 	public Matrix(int row, int column, boolean isRowMajor)
 	{
-		mtrx_ = new double[row][column];
 		isRMjr_ = isRowMajor;
+		if (isRMjr_)
+			mtrx_ = new double[row][column];
+		else
+			mtrx_ = new double[column][row];
 	}
 	
 	public Matrix(int row, int column)
@@ -174,9 +177,9 @@ public class Matrix {
 		}
 	}
 		
-	public static Matrix copy(Matrix mtrx) throws IncompatibleMatrixExpt
+	public static Matrix copy(Matrix mtrx, boolean isRowMajor) throws IncompatibleMatrixExpt
 	{
-		Matrix targ = new Matrix(mtrx.getRow(), mtrx.getCol());
+		Matrix targ = new Matrix(mtrx.getRow(), mtrx.getCol(), isRowMajor);
 		for (int r = 0; r < mtrx.getRow(); ++r)
 			for (int c = 0; c < mtrx.getCol(); ++c)
 				targ.setVal(r, c, mtrx.getVal(r, c));

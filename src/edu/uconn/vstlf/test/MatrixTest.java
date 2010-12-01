@@ -114,18 +114,22 @@ public class MatrixTest {
 	@Test public void Mult()
 	{
 		try {
-			int n = 572;
-			Matrix m1 = new Matrix(n, n);
-			Matrix m2 = new Matrix(n, n);
-			Matrix m2_col = new Matrix(n, n, false);
+			int n = 572; int k = 200;
+			Matrix m1 = new Matrix(n, k);
+			Matrix m2 = new Matrix(k, n);
+			Matrix m2_col = new Matrix(k, n, false);
 			Matrix result1 = new Matrix(n, n);
 			Matrix result2 = new Matrix(n, n);
 			for (int i = 0; i < n; ++i)
-				for (int j = 0; j < n; ++j) {
+				for (int j = 0; j < k; ++j) {
 					m1.setVal(i, j, Math.random());
+				}
+			for (int i = 0; i < k; ++i)
+				for (int j = 0; j < n; ++j) {
 					m2.setVal(i, j, Math.random());
 					m2_col.setVal(i, j, m2.getVal(i, j));
 				}
+			
 			Matrix.multiply(m1, m2, result1);
 			Matrix.multiply(m1, m2_col, result2);
 			for (int i = 0; i < n; ++i)
@@ -136,12 +140,12 @@ public class MatrixTest {
 		}
 	}
 	
-	@Test public void MultTrans()
+	@Test public void MultTrans() throws Exception
 	{
-		try {
+
 			int n = 572, m = 200, t = 572;
 			Matrix m1 = new Matrix(n, m);
-			Matrix m2 = new Matrix(t, m);
+			Matrix m2 = new Matrix(n, m);
 			for (int i = 0; i < n; ++i)
 				for (int j = 0; j < m; ++j) {
 					m1.setVal(i, j, Math.random());
@@ -168,14 +172,11 @@ public class MatrixTest {
 			
 			Matrix m1_trans = new Matrix(m, n);
 			Matrix.transpose(m1, m1_trans);
-			Matrix r3 = new Matrix(m, k), r4 = new Matrix(m, k);
+			Matrix r3 = new Matrix(m, m), r4 = new Matrix(m, m);
 			Matrix.multiply(m1_trans, m2, r3);
 			Matrix.multiply_trans1(m1, m2, r4);
 			
 			assertTrue(Matrix.equal(r3, r4, 0.0));
 			
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-		}
 	}
 }
