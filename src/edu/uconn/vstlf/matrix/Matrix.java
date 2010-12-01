@@ -2,10 +2,17 @@ package edu.uconn.vstlf.matrix;
 
 public class Matrix {
 	private double[][] mtrx_;
+	private boolean isRMjr_;
+	
+	public Matrix(int row, int column, boolean isRowMajor)
+	{
+		mtrx_ = new double[row][column];
+		isRMjr_ = isRowMajor;
+	}
 	
 	public Matrix(int row, int column)
 	{
-		mtrx_ = new double[row][column];
+		this(row, column, true);
 	}
 	
 	/*
@@ -27,10 +34,14 @@ public class Matrix {
 		return s;
 	}*/
 	
-	public Matrix(double [][] vals) { mtrx_ = vals; }
+	public Matrix(double [][] vals, boolean isRowMajor) 
+	{ isRMjr_ = isRowMajor; mtrx_ = vals; }
 	
-	public int getRow() { return mtrx_.length; }
-	public int getCol() { return mtrx_[0].length; }
+	public Matrix(double[][] vals)
+	{ this(vals, true); }
+	
+	public int getRow() { return (isRMjr_ ? mtrx_.length : mtrx_[0].length); }
+	public int getCol() { return (isRMjr_ ? mtrx_[0].length : mtrx_.length); }
 	
 	public double[] getRowVec(int r) 
 	{ 
@@ -50,12 +61,12 @@ public class Matrix {
 	
 	public double getVal(int r, int c)
 	{
-		return mtrx_[r][c];
+		return isRMjr_ ? mtrx_[r][c] : mtrx_[c][r];
 	}
 	
 	public void setVal(int r, int c, double v)
 	{
-		mtrx_[r][c] = v;
+		if (isRMjr_) mtrx_[r][c] = v; else mtrx_[c][r] = v;
 	}
 	
 	public static void add(Matrix m, Matrix other) throws IncompatibleMatrixExpt

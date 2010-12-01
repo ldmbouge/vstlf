@@ -117,12 +117,20 @@ public class MatrixTest {
 			int n = 572;
 			Matrix m1 = new Matrix(n, n);
 			Matrix m2 = new Matrix(n, n);
+			Matrix m2_col = new Matrix(n, n, false);
+			Matrix result1 = new Matrix(n, n);
+			Matrix result2 = new Matrix(n, n);
 			for (int i = 0; i < n; ++i)
 				for (int j = 0; j < n; ++j) {
 					m1.setVal(i, j, Math.random());
 					m2.setVal(i, j, Math.random());
+					m2_col.setVal(i, j, m2.getVal(i, j));
 				}
-			Matrix.multiply(m1, m2, new Matrix(n, n));
+			Matrix.multiply(m1, m2, result1);
+			Matrix.multiply(m1, m2_col, result2);
+			for (int i = 0; i < n; ++i)
+				for (int j = 0; j < n; ++j)
+					assertTrue(result1.getVal(i, j) == result2.getVal(i, j));
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
@@ -131,7 +139,7 @@ public class MatrixTest {
 	@Test public void MultTrans()
 	{
 		try {
-			int n = 572, m = 200, t = 500;
+			int n = 572, m = 200, t = 572;
 			Matrix m1 = new Matrix(n, m);
 			Matrix m2 = new Matrix(t, m);
 			for (int i = 0; i < n; ++i)
