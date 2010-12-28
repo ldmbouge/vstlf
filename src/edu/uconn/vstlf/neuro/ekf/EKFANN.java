@@ -255,16 +255,16 @@ public class EKFANN {
 		
 		// compute S(t)
 		Matrix S_t = new Matrix(outn, outn);
-		Matrix S_temp = new Matrix(P_t_t1.getRow(), H_t.getRow(), false);
-		Matrix.multiply_trans2(P_t_t1, H_t, S_temp);
-		Matrix.multiply(H_t, S_temp, S_t);
+		Matrix S_temp = new Matrix(P_t_t1.getRow(), H_t.getRow());
+		Matrix.multiply(false, true, P_t_t1, H_t, S_temp);
+		Matrix.multiply(false, false, H_t, S_temp, S_t);
 		Matrix.add(S_t, R);
 		
 		// compute K(t)
 		Matrix S_t_inv = new Matrix(outn, outn);
 		Matrix.inverse(Matrix.copy(S_t, true), S_t_inv);
 		Matrix K_t = new Matrix(wn, outn);
-		Matrix.multiply(Matrix.copy(S_temp, true), S_t_inv, K_t);
+		Matrix.multiply(false, false, Matrix.copy(S_temp, true), S_t_inv, K_t);
 		
 		// Compute w(t|t)
 		double [] uz = new double[outn];
@@ -276,7 +276,7 @@ public class EKFANN {
 			w_t_t[i] += w_t_t1[i];
 		
 		Matrix KHMult = new Matrix(wn, wn);
-		Matrix.multiply(K_t, Matrix.copy(H_t, false), KHMult);
+		Matrix.multiply(false, false, K_t, Matrix.copy(H_t, false), KHMult);
 		// Compute I-K(t)*H(t)
 		for (int i = 0; i < wn; ++i)
 			for (int j = 0; j < wn; ++j)
@@ -284,15 +284,15 @@ public class EKFANN {
 		Matrix I_minus_KHMult = KHMult;
 		
 		// Compute P(t|t)
-		Matrix RK_trans_mult = new Matrix(outn, wn, false);
-		Matrix.multiply_trans2(R, K_t, RK_trans_mult);
+		Matrix RK_trans_mult = new Matrix(outn, wn);
+		Matrix.multiply(false, true, R, K_t, RK_trans_mult);
 		Matrix KRK_trans = new Matrix(wn, wn);
-		Matrix.multiply(K_t, RK_trans_mult, KRK_trans);
+		Matrix.multiply(false, false, K_t, RK_trans_mult, KRK_trans);
 		
-		Matrix P_temp_mult = new Matrix(wn, wn, false);
-		Matrix.multiply_trans2(P_t_t1, I_minus_KHMult, P_temp_mult);
+		Matrix P_temp_mult = new Matrix(wn, wn);
+		Matrix.multiply(false, true, P_t_t1, I_minus_KHMult, P_temp_mult);
 		Matrix P_temp = new Matrix(wn, wn);
-		Matrix.multiply(I_minus_KHMult, P_temp_mult, P_temp);
+		Matrix.multiply(false, false, I_minus_KHMult, P_temp_mult, P_temp);
 		
 		for (int i = 0; i < wn; ++i)
 			for (int j = 0; j < wn; ++j)

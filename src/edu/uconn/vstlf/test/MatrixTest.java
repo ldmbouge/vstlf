@@ -20,9 +20,17 @@ public class MatrixTest {
 			Matrix m2 = new Matrix(d2);
 			Matrix m3 = new Matrix(d3);
 			Matrix result = new Matrix(2, 2);
-			Matrix.multiply(m1, m2, result);
+			Matrix.multiply(false, false, m1, m2, result);
 			
 			System.out.println(m3.toString());
+			
+			double [][] A = { {1.0, 2.0, 2.0}, {2.0, 1.0, 2.0}, {2.0, 2.0, 1.0}};
+			double [][] B = { {2.0, 3.0, 4.0, 5.0}, {6.0, 7.0, 8.0, 9.0}, {10.0, 11.0, 12.0, 13.0}};
+			Matrix a = new Matrix(A);
+			Matrix b = new Matrix(B);
+			Matrix c = new Matrix(A.length, B[0].length);
+			Matrix.multiply(false, false, a, b, c);
+			System.out.println(c);
 			
 			assertTrue(Matrix.equal(result, m3, 10e-8));
 		} catch (Exception e) {
@@ -117,7 +125,7 @@ public class MatrixTest {
 			int n = 572; int k = 200;
 			Matrix m1 = new Matrix(n, k);
 			Matrix m2 = new Matrix(k, n);
-			Matrix m2_col = new Matrix(k, n, false);
+			Matrix m2_col = new Matrix(k, n);
 			Matrix result1 = new Matrix(n, n);
 			Matrix result2 = new Matrix(n, n);
 			for (int i = 0; i < n; ++i)
@@ -130,8 +138,8 @@ public class MatrixTest {
 					m2_col.setVal(i, j, m2.getVal(i, j));
 				}
 			
-			Matrix.multiply(m1, m2, result1);
-			Matrix.multiply(m1, m2_col, result2);
+			Matrix.multiply(false, false, m1, m2, result1);
+			Matrix.multiply(false, false, m1, m2_col, result2);
 			for (int i = 0; i < n; ++i)
 				for (int j = 0; j < n; ++j)
 					assertTrue(result1.getVal(i, j) == result2.getVal(i, j));
@@ -159,8 +167,8 @@ public class MatrixTest {
 			Matrix.transpose(m2, m2_trans);
 			
 			Matrix r1 = new Matrix(n, t), r2 = new Matrix(n, t);
-			Matrix.multiply(m1, m2_trans, r1);
-			Matrix.multiply_trans2(m1, m2, r2);
+			Matrix.multiply(false, false, m1, m2_trans, r1);
+			Matrix.multiply(false, true, m1, m2, r2);
 			
 			assertTrue(Matrix.equal(r1, r2, 0.0));
 			
@@ -173,8 +181,8 @@ public class MatrixTest {
 			Matrix m1_trans = new Matrix(m, n);
 			Matrix.transpose(m1, m1_trans);
 			Matrix r3 = new Matrix(m, m), r4 = new Matrix(m, m);
-			Matrix.multiply(m1_trans, m2, r3);
-			Matrix.multiply_trans1(m1, m2, r4);
+			Matrix.multiply(false, false, m1_trans, m2, r3);
+			Matrix.multiply(true, false, m1, m2, r4);
 			
 			assertTrue(Matrix.equal(r3, r4, 0.0));
 			

@@ -1,22 +1,18 @@
 package edu.uconn.vstlf.matrix;
 
+import org.netlib.blas.DGEMM;
+import org.netlib.blas.DSYMM;
+
 public class Matrix {
 	private double[][] mtrx_;
-	private boolean isRMjr_;
 	
-	public Matrix(int row, int column, boolean isRowMajor)
-	{
-		isRMjr_ = isRowMajor;
-		if (isRMjr_)
-			mtrx_ = new double[row][column];
-		else
-			mtrx_ = new double[column][row];
-	}
+	public double[][] getArray() { return mtrx_; }
 	
 	public Matrix(int row, int column)
 	{
-		this(row, column, true);
+		mtrx_ = new double[row][column];
 	}
+	
 	
 	/*
 	public String toString()
@@ -38,13 +34,13 @@ public class Matrix {
 	}*/
 	
 	public Matrix(double [][] vals, boolean isRowMajor) 
-	{ isRMjr_ = isRowMajor; mtrx_ = vals; }
+	{ mtrx_ = vals; }
 	
 	public Matrix(double[][] vals)
 	{ this(vals, true); }
 	
-	public int getRow() { return (isRMjr_ ? mtrx_.length : mtrx_[0].length); }
-	public int getCol() { return (isRMjr_ ? mtrx_[0].length : mtrx_.length); }
+	public int getRow() { return mtrx_.length; }
+	public int getCol() { return mtrx_[0].length; }
 	
 	public double[] getRowVec(int r) 
 	{ 
@@ -64,12 +60,12 @@ public class Matrix {
 	
 	public double getVal(int r, int c)
 	{
-		return isRMjr_ ? mtrx_[r][c] : mtrx_[c][r];
+		return mtrx_[r][c];
 	}
 	
 	public void setVal(int r, int c, double v)
 	{
-		if (isRMjr_) mtrx_[r][c] = v; else mtrx_[c][r] = v;
+		mtrx_[r][c] = v;
 	}
 	
 	public static void add(Matrix m, Matrix other) throws IncompatibleMatrixExpt
@@ -90,15 +86,44 @@ public class Matrix {
 				m.setVal(r, c, m.getVal(r, c) - other.getVal(r, c));
 	}
 	
-	public static void multiply(Matrix m1, Matrix m2, Matrix result) throws IncompatibleMatrixExpt
+	public static void symmultiply(boolean m1Sym, Matrix m1, Matrix m2, Matrix result)
 	{
-		if (m1.getCol() != m2.getRow())
-			throw new IncompatibleMatrixExpt(m1, m2, "multiply matrices");
-		if (m1.getRow() != result.getRow())
-			throw new IncompatibleMatrixExpt(m1, result, "the row size of result matrix is not the same as multiplier's");
-		if (m2.getCol() != result.getCol())
-			throw new IncompatibleMatrixExpt(m2, result, "the column size of result matrix is not the same as multiplicand's");
+		String pos;
+		Matrix A, B;
 		
+		if (m1Sym) {
+			pos = "L";
+			A = m1; B = m2;
+		}
+		else {
+			pos = "R";
+			A = m2; B = m1;
+		}
+		
+		DSYMM.DSYMM(pos, "L", result.getRow(), result.getCol(), 1.0, A.getArray(), B.getArray(), 0.0, result.getArray());
+	}
+	
+	public static void multiply(boolean trans1, boolean trans2,
+			Matrix m1, Matrix m2, Matrix result) throws IncompatibleMatrixExpt
+	{
+		int row = trans1 ? m1.getCol() : m1.getRow();
+		int col = trans2 ? m2.getRow() : m2.getCol();
+		int k1 = trans1 ? m1.getRow() : m1.getCol();
+		int k2 = trans2 ? m2.getCol() : m2.getRow();
+		
+		if (row != result.getRow())
+			throw new IncompatibleMatrixExpt(m1, result, "the row size of result matrix is not the same as multiplier's");
+		if (col != result.getCol())
+			throw new IncompatibleMatrixExpt(m2, result, "the column size of result matrix is not the same as multiplicand's");
+		if (k1 != k2)
+			throw new IncompatibleMatrixExpt(m1, m2, "multiply matrices");		
+		
+		
+		String t1 = trans1 ? "T" : "N";
+		String t2 = trans2 ? "T" : "N";
+		DGEMM.DGEMM(t1, t2, row, col, k1, 1.0, m1.getArray(), m2.getArray(), 0.0, result.getArray());
+		
+		/*
 		for (int r = 0; r < m1.getRow(); ++r)
 			for (int c = 0; c < m2.getCol(); ++c) {
 				double v = 0.0;
@@ -106,8 +131,10 @@ public class Matrix {
 					v += m1.getVal(r, k)*m2.getVal(k, c);
 				result.setVal(r, c, v);
 			}
+		*/
 	}
 	
+	/*
 	// Multiply transpose(m1) with m2
 	public static void multiply_trans1(Matrix m1, Matrix m2, Matrix result) throws IncompatibleMatrixExpt
 	{
@@ -145,6 +172,7 @@ public class Matrix {
 				result.setVal(r, c, v);
 			}
 	}
+	*/
 	
 	public static void multiply(double coeff, Matrix m)
 	{
@@ -179,7 +207,7 @@ public class Matrix {
 		
 	public static Matrix copy(Matrix mtrx, boolean isRowMajor) throws IncompatibleMatrixExpt
 	{
-		Matrix targ = new Matrix(mtrx.getRow(), mtrx.getCol(), isRowMajor);
+		Matrix targ = new Matrix(mtrx.getRow(), mtrx.getCol());
 		for (int r = 0; r < mtrx.getRow(); ++r)
 			for (int c = 0; c < mtrx.getCol(); ++c)
 				targ.setVal(r, c, mtrx.getVal(r, c));
