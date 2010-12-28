@@ -290,11 +290,11 @@ public class EKFANN {
 		}
 		
 		for (int i = 0; i < wn; ++i)
-			Q.setVal(i, i, 1.0);
+			Q.setVal(i, i, 1.0f);
 		for (int i = 0; i < outn; ++i)
-			R.setVal(i, i, 1.0);
-		Matrix.multiply(0.000005, Q);
-		Matrix.multiply(0.00001, R);
+			R.setVal(i, i, 1.0f);
+		Matrix.multiply(0.000005f, Q);
+		Matrix.multiply(0.00001f, R);
 		
 		setWeights(weights);
 		double[] w_t_t1 = weights;
@@ -316,10 +316,14 @@ public class EKFANN {
 		Matrix.multiply(false, false, S_temp, S_t_inv, K_t);
 		
 		// Compute w(t|t)
-		double [] uz = new double[outn];
+		double [] uzd = new double[outn];
 		for (int i = 0; i < outn; ++i)
-			uz[i] = outputs[i] - z_t_t1[i];
-		double [] w_t_t = new double[wn];
+			uzd[i] = outputs[i] - z_t_t1[i];
+		float[] uz = new float[outn];
+		for (int i = 0; i < uzd.length; ++i)
+			uz[i] = (float)uzd[i];
+		
+		float [] w_t_t = new float[wn];
 		Matrix.multiply(K_t, uz, w_t_t);
 		for (int i = 0; i < wn; ++i)
 			w_t_t[i] += w_t_t1[i];
@@ -328,7 +332,7 @@ public class EKFANN {
 		// Compute I-K(t)*H(t)
 		for (int i = 0; i < wn; ++i)
 			for (int j = 0; j < wn; ++j)
-				KHMult.setVal(i, j, (i == j ? 1.0 - KHMult.getVal(i, j) : -KHMult.getVal(i,j)));
+				KHMult.setVal(i, j, (i == j ? 1.0f - KHMult.getVal(i, j) : -KHMult.getVal(i,j)));
 		Matrix I_minus_KHMult = KHMult;
 		
 		// Compute P(t|t)
@@ -340,9 +344,10 @@ public class EKFANN {
 		
 		for (int i = 0; i < wn; ++i)
 			for (int j = 0; j < wn; ++j)
-				P.setVal(i, j, (P_temp.getVal(i, j) + P_temp.getVal(j, i))/2.0);
+				P.setVal(i, j, (P_temp.getVal(i, j) + P_temp.getVal(j, i))/2.0f);
 		// copy back weights
-		System.arraycopy(w_t_t, 0, weights, 0, wn);
+		for (int i = 0; i < wn; ++i)
+			weights[i] = (double)w_t_t[i];
 	}
 	
 	Matrix jacobian(Matrix H_t) throws Exception
@@ -357,7 +362,7 @@ public class EKFANN {
 					double [] pout = fowardPropagateWeightChange(l, fromNeuronIndex, toNeuronIndex, weightChange);
 					
 					for (int k = 0; k < pout.length; ++k)
-						H_t.setVal(k, hCol, (pout[k]-refout[k])/weightChange);
+						H_t.setVal(k, hCol, (float)((pout[k]-refout[k])/weightChange));
 					++hCol;
 				}
 			}
