@@ -3,12 +3,20 @@ package edu.uconn.vstlf.neuro.ekf;
 import java.util.Vector;
 import java.util.logging.Level;
 
+import org.garret.perst.Index;
+import org.garret.perst.Key;
+import org.garret.perst.Storage;
+import org.garret.perst.StorageFactory;
+
 import edu.uconn.vstlf.data.doubleprecision.Series;
 import edu.uconn.vstlf.data.message.LogMessage;
 import edu.uconn.vstlf.data.message.MessageCenter;
 import edu.uconn.vstlf.matrix.Matrix;
+import edu.uconn.vstlf.neuro.ANN;
+import edu.uconn.vstlf.neuro.WeightObj;
+import edu.uconn.vstlf.neuro.WeightSet;
 
-public class EKFANN {
+public class EKFANN extends ANN {
 	static private double hiddenInput = 1.0;
 	static public double weightChange = 1.27009514017118e-13;
 	
@@ -17,6 +25,11 @@ public class EKFANN {
 	
 	private int[] layersShp_;
 	
+	private double[] lastInput_;
+	private Matrix   P_;
+	
+	private boolean isTraining_ = false;
+	
 	/* contain all neurons in EKFANN.
 	 * layer i has layerSize[i] neurons and
 	 * each neuron has layerSize[i-1]+1 weights. 
@@ -24,7 +37,7 @@ public class EKFANN {
 	 */
 	private Vector<EKFNeuron[]> neurons_ = new Vector<EKFNeuron[]>();
 	
-	public EKFANN(int [] layersShape)
+	public EKFANN(int [] layersShape) throws Exception
 	{
 		layersShp_ = layersShape;
 		// Add input layer
@@ -44,6 +57,9 @@ public class EKFANN {
 				neurons_.lastElement()[i] = new EKFNeuron(weights, func);
 			}
 		}
+		
+		lastInput_ = new double[getLayerSize(0)];
+		P_ = Matrix.identityMatrix(getWeights().length);
 	}
 	
 	public double[] getWeights() throws Exception
@@ -54,7 +70,7 @@ public class EKFANN {
 		int index = 0;
 		for (int l = 0; l < getNumLayers()-1; ++l) {
 			for (int fromId = 0; fromId < getLayerSize(l) + 1; ++fromId) {
-				// get weights from neuron (l, id) to every neuron in the next layer
+				// get weights from neuron (l, fromId) to every neuron in the next layer
 				for (int toId = 0; toId < getLayerSize(l+1); ++toId) {
 					EKFNeuron neu = neurons_.get(l+1)[toId];
 					w[index] = neu.getWeights()[fromId];
@@ -78,6 +94,13 @@ public class EKFANN {
 		return w;
 	}
 	
+	public void setWeight(int layer, int neuronIndex, int fromIndex, double weight)
+	{
+		EKFNeuron[] neurons = neurons_.elementAt(layer);
+		double[] weights = neurons[neuronIndex].getWeights();
+		weights[fromIndex] = weight;
+	}
+	
 	public void setWeights(double[] weights) throws Exception
 	{
 		if (weights.length != getWeightsSize())
@@ -94,16 +117,6 @@ public class EKFANN {
 				}
 			}
 		}
-		/*
-		for (int l = 1; l < getNumLayers(); ++l) {
-			EKFNeuron[] neurons = neurons_.elementAt(l);
-			int wlen = getNeuronWeightSize(l);
-			for (int i = 0; i < neurons.length; ++i) {
-				EKFNeuron neu = neurons[i];
-				System.arraycopy(weights, index, neu.getWeights(), 0, wlen);
-				index += wlen;
-			}
-		}*/
 		
 		if (index != getWeightsSize())
 			throw new Exception("Error while setting weights");
@@ -134,6 +147,7 @@ public class EKFANN {
 	
 	public void setInput(double[] input) throws Exception
 	{
+		System.arraycopy(input, 0, lastInput_, 0, input.length);
 		if (input.length != getLayerSize(0))
 			throw new Exception("Input is not compatible with the EKF neural network");
 		
@@ -243,7 +257,6 @@ public class EKFANN {
 		int wn = getWeightsSize();
 		int outn = neurons_.lastElement().length;
 		if (!spaceReserved_) {
-			System.out.println("!!!!!!In here!!!!!");
 			Q = new Matrix(wn, wn);
 			R = new Matrix(outn, outn);
 			//P_t_t1 = new Matrix(wn, wn);
@@ -285,9 +298,7 @@ public class EKFANN {
 		if (wn != weights.length) throw new Exception("Back propagation failed: the input weight array has a different size");
 		int outn = neurons_.lastElement().length;
 		
-		if (!spaceReserved_) {
-			ReserveBPSpace();
-		}
+		if (!isTraining_) ReserveBPSpace();
 		
 		for (int i = 0; i < wn; ++i)
 			Q.setVal(i, i, 1.0f);
@@ -348,6 +359,8 @@ public class EKFANN {
 		// copy back weights
 		for (int i = 0; i < wn; ++i)
 			weights[i] = (double)w_t_t[i];
+		
+		if (!isTraining_) ReleaseBPSpace();
 	}
 	
 	Matrix jacobian(Matrix H_t) throws Exception
@@ -377,6 +390,7 @@ public class EKFANN {
 		if(in.length!=tg.length) throw new Exception("You must have the same number of in and tg");
 		double[] weights = getWeights();
 		Matrix P = Matrix.identityMatrix(weights.length);
+		isTraining_ = true;
 		ReserveBPSpace();
 		for (int it = 0; it < iterations; ++it) {
 			int tenPercent = 0;
@@ -391,8 +405,87 @@ public class EKFANN {
 			MessageCenter.getInstance().put(new LogMessage(Level.INFO, EKFANNBank.class.getName(), methodName, "Iteration " + it + " done. 100% (" + in.length + "/" + in.length + ")"));
 		}
 		ReleaseBPSpace();
-		
+		isTraining_ = false;
+
 		MessageCenter.getInstance().put(new LogMessage(Level.INFO, EKFANNBank.class.getName(), methodName, "\tDone."));
+	}
+
+	@Override
+	public Series execute(Series in) throws Exception {
+		return new Series(execute(in.array(false)),false);
+	}
+
+	private WeightObj[] getWeightObjs() {
+		Vector<WeightObj> currV = new Vector<WeightObj>();
+		for (int l = 1; l < neurons_.size(); ++l) {
+			EKFNeuron[] ns = neurons_.elementAt(l);
+			for (int nid = 0; nid < ns.length; ++nid) {
+				EKFNeuron neu = ns[nid];
+				double[] weights = neu.getWeights();
+				for (int sid = 0; sid < weights.length; ++sid)
+					currV.add(new WeightObj(l, nid, sid, weights[sid]));
+			}
+		}
+		
+		WeightObj[] curr = new WeightObj[currV.size()];
+		for(int i = 0; i<curr.length;i++){
+			curr[i] = currV.elementAt(i);
+		}
+		return curr;
+	}
+
+	@Override
+	public int[] getLayerSize() {
+		return layersShp_;
+	}
+
+	@Override
+	public void update(Series trg) throws Exception {
+		double[] outputs = trg.array(false);
+		double[] weights = getWeights();
+		backwardPropagate(lastInput_, outputs, weights, P_);
+		setWeights(weights);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void save(String file, int id) throws Exception {
+		WeightObj[] curr = getWeightObjs();
+		WeightObj[] past = getWeightObjs();
+		WeightSet content = new WeightSet(id,getLayerSize(),curr,past);
+		Storage db = StorageFactory.getInstance().createStorage();
+		db.open(file, Storage.DEFAULT_PAGE_POOL_SIZE);
+		Index<WeightSet> sets = (Index<WeightSet>)db.getRoot();
+		if (sets == null) { 
+            sets = db.createIndex(int.class, true);
+            db.setRoot(sets);
+        }
+		if(sets.get(new Key(id))!=null) sets.remove(new Key(id));
+		sets.put(new Key(id),content);
+		db.commit();
+		db.close();		
+	}
+	
+	@SuppressWarnings("unchecked")
+	public
+	static EKFANN load(String file, int id)throws Exception{
+		Storage db = StorageFactory.getInstance().createStorage();
+		db.open(file, Storage.DEFAULT_PAGE_POOL_SIZE);
+		Index<WeightSet> sets = (Index<WeightSet>)db.getRoot();
+		if (sets == null) { 
+            throw new Exception("There are no ANNs stored in the file '" + file +"'.");
+        }
+		WeightSet content = sets.get(new Key(id));
+		if(content==null){
+			throw new Exception("ANN #"+id+"is not stored in the file '" + file +"'.");
+		}
+		EKFANN ann = new EKFANN(content._lyrSz);
+		WeightObj[] curr = content._curr;
+		for (int i = 0; i < curr.length; ++i) {
+			WeightObj wo = curr[i];
+			ann.setWeight(wo.lid(), wo.nid(), wo.cid(), wo.val());
+		}
+		return ann;
 	}
 }
 

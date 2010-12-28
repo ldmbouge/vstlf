@@ -7,4 +7,9 @@ public class SimpANNFac extends ANNFactory {
 		return new SimpANNBank(file);
 	}
 
+	@Override
+	public ANN buildANN(String file, int id) throws Exception {
+		return SimpleFeedForwardANN.load(file, id);
+	}
+
 }

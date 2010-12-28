@@ -34,7 +34,7 @@ import org.garret.perst.*;
 
 import java.util.Vector;
 import java.util.logging.Level;
-public class SimpleFeedForwardANN {
+public class SimpleFeedForwardANN extends ANN {
 	
 	private static final double ALPHA = .35;
 	private static final double ETA = .2;
@@ -348,6 +348,7 @@ public class SimpleFeedForwardANN {
 		MessageCenter.getInstance().put(new LogMessage(Level.INFO, SimpleFeedForwardANN.class.getName(), methodName, "\tDone."));
 	}
 	
+	
 	@SuppressWarnings("unchecked")
 	public void save(String file, int id){
 		Vector<WeightObj> currV = new Vector<WeightObj>(), pastV = new Vector<WeightObj>();
@@ -378,6 +379,7 @@ public class SimpleFeedForwardANN {
 		db.close();
 	}
 	
+	
 	@SuppressWarnings("unchecked")
 	public static SimpleFeedForwardANN load(String file, int id)throws Exception{
 		Storage db = StorageFactory.getInstance().createStorage();
@@ -397,6 +399,11 @@ public class SimpleFeedForwardANN {
 			ann._recentWeights[past[i].lid()][past[i].nid()][past[i].cid()] = past[i].val();
 		}
 		return ann;
+	}
+
+	@Override
+	public int[] getLayerSize() {
+		return _lyrSz;
 	}
 	
 }

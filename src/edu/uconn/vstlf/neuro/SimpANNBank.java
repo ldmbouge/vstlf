@@ -26,7 +26,6 @@
 package edu.uconn.vstlf.neuro;
 
 import org.garret.perst.Index;
-import org.garret.perst.Persistent;
 import org.garret.perst.Storage;
 import org.garret.perst.StorageFactory;
 
@@ -126,6 +125,7 @@ public class SimpANNBank extends ANNBank{
 	
 }
 
+/*
 class WeightSet extends Persistent{
 	long _id;
 	int[] _lyrSz;
@@ -145,6 +145,7 @@ class WeightSet extends Persistent{
 	public int hashCode() { return 7;}
 }
 
+
 class WeightObj extends Persistent{
 	int _lid,_nid,_cid;
 	double _val;
@@ -161,3 +162,4 @@ class WeightObj extends Persistent{
 	}
 	public int hashCode() { return 7;}
 }
+*/
