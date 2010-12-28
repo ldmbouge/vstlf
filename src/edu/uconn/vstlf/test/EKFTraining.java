@@ -73,6 +73,9 @@ public class EKFTraining {
 	 */
 	public static void main(String[] args) {
 		Calendar cal = Items.makeCalendar();
+		Date t0 = cal.now();
+		System.out.println("EKF Training starting from " + t0);
+		
 		String xmlFile = null; int lo=0, hi=0; Date st, ed;
 		if (args.length != 3 && args.length != 5) { 					//check # of args
 			System.out.println(_USAGE);
@@ -160,9 +163,11 @@ public class EKFTraining {
 			}
 			MessageCenter.getInstance().setHandler(new VSTLFMsgLogger("vstlf.log", new DummyMsgHandler()));
 			MessageCenter.getInstance().init();
-			edu.uconn.vstlf.batch.VSTLFTrainer.trainEKFANNs(tfName, st, ed, lo, hi, 1);
+			edu.uconn.vstlf.batch.VSTLFTrainer.trainEKFANNs(tfName, st, ed, lo, hi, 10);
 			MessageCenter.getInstance().put(new VSTLFMessage(VSTLFMessage.Type.EOF));
 			System.out.println("Training Complete");
+			
+			System.out.println("EKF Training ends at " + cal.now() + "(starting form " + t0 + ")");
 		} catch (Exception e) {
 		    System.out.println(e.toString());
 		    e.printStackTrace();

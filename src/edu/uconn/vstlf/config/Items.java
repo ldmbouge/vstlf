@@ -42,6 +42,7 @@ import edu.uconn.vstlf.data.Calendar;
 
 public enum Items{
 	
+	ANNType("anntype", "2"), // 1: simple ann, 2: EKF ann
 	MinLoad("minload","5000"),
 	MaxLoad("maxload","28000"),
 	TimeZone("timezone","America/New_York"),
@@ -123,6 +124,13 @@ public enum Items{
 	}
 	public static int getMaximumDataLag(){
 		return new Integer(get(Items.MaxDataLag));
+	}
+	
+	public static boolean useSimpANN() {
+		return new Integer(get(Items.ANNType)) == 1;
+	}
+	public static boolean useEKFANN() {
+		return new Integer(get(Items.ANNType)) == 2;
 	}
 	
 	public static synchronized void load(String filename)throws Exception{

@@ -43,6 +43,9 @@ import edu.uconn.vstlf.data.message.VSTLFMsgLogger;
 import edu.uconn.vstlf.database.*;
 import edu.uconn.vstlf.database.perst.*;
 import edu.uconn.vstlf.database.xml.*;
+import edu.uconn.vstlf.neuro.ANNFactory;
+import edu.uconn.vstlf.neuro.EKFANNFac;
+import edu.uconn.vstlf.neuro.SimpANNFac;
 import edu.uconn.vstlf.realtime.*;
 
 /*
@@ -203,7 +206,13 @@ public class IsoVstlfGui extends JFrame implements IVstlfMain, WindowListener,VS
 		else{
 			_logger.addMessage("TESTING FROM "+_TEST_TIME);
 		}	
-		this._engine = new VSTLFEngine(_db);
+		ANNFactory fac = null;
+		if (Items.useSimpANN())
+			fac = new SimpANNFac();
+		else if (Items.useEKFANN())
+			fac = new EKFANNFac();
+		if (fac == null) throw new Exception("ANN Factory configuration error");
+		this._engine = new VSTLFEngine(_db, fac);
 		this._engine.setUpdateRate(_TICK_INTERVAL);
 		this._engine.setMacroFilteringOn(Items.isMacroFilterOn());
 		this._engine.setMicroFilteringOn(Items.isMicroFilterOn());

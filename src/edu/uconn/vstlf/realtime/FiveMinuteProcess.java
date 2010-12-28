@@ -44,21 +44,23 @@ public class FiveMinuteProcess extends Thread {
 	private ANNBank[] _annBanks;
 	private DataFeed _dataFeed = new DataFeed();												
 	private Calendar _cal;
-   
+    
     private boolean _doFilter;
 	boolean _useSimDay;
 	double _filterThreshold;
-
-	FiveMinuteProcess(MessageCenter notif, PCBuffer<VSTLF5MPoint> buf, PowerDB db) {
+	private ANNFactory _annfac;
+	
+	FiveMinuteProcess(MessageCenter notif, PCBuffer<VSTLF5MPoint> buf, PowerDB db, ANNFactory annfac) {
 		_input = buf;		
 		_notif = notif;
 		_db = db;
-		_annBanks = new SimpANNBank[12];
+		_annBanks = new ANNBank[12];
 		_cal = Items.makeCalendar();
+		_annfac = annfac;
 
 		for(int i = 0;i<12;i++){
 			try{
-				_annBanks[i] = new SimpANNBank("anns/bank"+i+".ann");
+				_annBanks[i] = _annfac.buildANNBank("anns/bank"+i+".ann");
 			}catch(Exception e){
 				_notif.put(new VSTLFRealTimeExceptionMessage(e));
 			}

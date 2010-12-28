@@ -31,6 +31,7 @@ import edu.uconn.vstlf.data.Calendar;
 import edu.uconn.vstlf.data.message.MessageCenter;
 import edu.uconn.vstlf.data.message.VSTLFMessage;
 import edu.uconn.vstlf.database.*;
+import edu.uconn.vstlf.neuro.ANNFactory;
 
 public class VSTLFEngine {
 	private final PCBuffer<VSTLFObservationPoint> _obs;
@@ -41,15 +42,17 @@ public class VSTLFEngine {
 	private int     _milliseconds; // rate of updates
 	FourSecondProcess _fsp;
 	FiveMinuteProcess _fmp;
-
-	public VSTLFEngine(PowerDB db) {
+	private ANNFactory _annfac;
+	
+	public VSTLFEngine(PowerDB db, ANNFactory annfac) {
+		_annfac = annfac;
 		_obs = new PCBuffer<VSTLFObservationPoint>();
 		_fiveMinute = new PCBuffer<VSTLF5MPoint>();
 		_notif      = MessageCenter.getInstance();//new PCBuffer<VSTLFRealTimeMessage>(1024);
 		_cal        = Items.makeCalendar();
 		_db	= db;//"RawFiveMinuteLoad.pod";
 		_fsp = new FourSecondProcess(_notif,_obs,_fiveMinute);
-		_fmp = new FiveMinuteProcess(_notif,_fiveMinute,_db);
+		_fmp = new FiveMinuteProcess(_notif,_fiveMinute,_db, _annfac);
 		_milliseconds = 1000;
 	}
 	

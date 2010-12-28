@@ -40,6 +40,9 @@ import edu.uconn.vstlf.database.*;
 import edu.uconn.vstlf.database.perst.*;
 import edu.uconn.vstlf.database.xml.*;
 import edu.uconn.vstlf.gui.IVstlfMain;
+import edu.uconn.vstlf.neuro.ANNFactory;
+import edu.uconn.vstlf.neuro.EKFANNFac;
+import edu.uconn.vstlf.neuro.SimpANNFac;
 
 /*
  * TWO HARD_CODED VALUES BELOW SHOULD BE SET DEPENDING ON THE PARTICULAR TEST YOU WOULD LIKE TO DO:
@@ -150,7 +153,13 @@ public class IsoVstlf implements IVstlfMain, PulseAction, Runnable
 
 		_prevTick= _cal.lastTick(300, _TEST_TIME);
 		_pulseTime = _TEST_TIME;
-		this._engine = new VSTLFEngine(_db);
+		ANNFactory fac = null;
+		if (Items.useSimpANN())
+			fac = new SimpANNFac();
+		else if (Items.useEKFANN())
+			fac = new EKFANNFac();
+		if (fac == null) throw new Exception("ANN Factory configuration error");
+		this._engine = new VSTLFEngine(_db, fac);
 		this._engine.setUpdateRate(_TICK_INTERVAL);
 		this._engine.setMacroFilteringOn(Items.isMacroFilterOn());
 		this._engine.setMicroFilteringOn(Items.isMicroFilterOn());
