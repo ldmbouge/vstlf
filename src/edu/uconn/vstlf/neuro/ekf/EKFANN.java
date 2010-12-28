@@ -12,6 +12,9 @@ public class EKFANN {
 	static private double hiddenInput = 1.0;
 	static public double weightChange = 1.27009514017118e-13;
 	
+	// Hold the storage spaces during the computation
+	
+	
 	private int[] layersShp_;
 	
 	/* contain all neurons in EKFANN.
@@ -231,40 +234,86 @@ public class EKFANN {
 		return changeOutput;
 	}
 	
-	public void backwardPropagate(double[] inputs, double[] outputs, double[] weights, Matrix P) throws Exception
+	boolean spaceReserved_ = false;
+	Matrix Q, R;
+	Matrix /* P_t_t1,*/  H_t, S_t, S_temp, S_t_inv, K_t, KHMult, RK_trans_mult, KRK_trans, P_temp_mult, P_temp;
+	
+	public void ReserveBPSpace()
 	{
 		int wn = getWeightsSize();
 		int outn = neurons_.lastElement().length;
+		if (!spaceReserved_) {
+			System.out.println("!!!!!!In here!!!!!");
+			Q = new Matrix(wn, wn);
+			R = new Matrix(outn, outn);
+			//P_t_t1 = new Matrix(wn, wn);
+			H_t = new Matrix(outn, getWeightsSize());
+			K_t = new Matrix(wn, outn);
+			S_t = new Matrix(outn, outn);
+			S_t_inv = new Matrix(outn, outn);
+			S_temp = new Matrix(wn, outn);
+			KHMult = new Matrix(wn, wn);
+			RK_trans_mult = new Matrix(outn, wn);
+			KRK_trans = new Matrix(wn, wn);
+			P_temp_mult = new Matrix(wn, wn);
+			P_temp = new Matrix(wn, wn);
+			spaceReserved_ = true;
+		}
+	}
+	
+	public void ReleaseBPSpace()
+	{
+		Q = null;
+		R = null;
+		//P_t_t1 = null;
+		H_t = null;
+		K_t = null;
+		S_t = null;
+		S_t_inv = null;
+		S_temp = null;
+		KHMult = null;
+		RK_trans_mult = null;
+		KRK_trans = null;
+		P_temp_mult = null;
+		P_temp = null;
+		spaceReserved_ = false;
+	}
+	
+	public void backwardPropagate(double[] inputs, double[] outputs, double[] weights, Matrix P) throws Exception
+	{
+		int wn = getWeightsSize();
+		if (wn != weights.length) throw new Exception("Back propagation failed: the input weight array has a different size");
+		int outn = neurons_.lastElement().length;
 		
-		Matrix 
-			Q = Matrix.identityMatrix(wn), 
-			R = Matrix.identityMatrix(outn);
+		if (!spaceReserved_) {
+			ReserveBPSpace();
+		}
 		
+		for (int i = 0; i < wn; ++i)
+			Q.setVal(i, i, 1.0);
+		for (int i = 0; i < outn; ++i)
+			R.setVal(i, i, 1.0);
 		Matrix.multiply(0.000005, Q);
 		Matrix.multiply(0.00001, R);
 		
 		setWeights(weights);
 		double[] w_t_t1 = weights;
 		Matrix P_t1_t1 = P;
-		Matrix P_t_t1 = Matrix.copy(P_t1_t1, true);
+		Matrix P_t_t1 = P_t1_t1;
 		Matrix.add(P_t_t1, Q);
 		// forward propagation;
 		double[] z_t_t1 = execute(inputs);
 		// get jacobian matrix
-		Matrix H_t = jacobian();
+		jacobian(H_t);
 		
 		// compute S(t)
-		Matrix S_t = new Matrix(outn, outn);
-		Matrix S_temp = new Matrix(P_t_t1.getRow(), H_t.getRow());
 		Matrix.multiply(false, true, P_t_t1, H_t, S_temp);
 		Matrix.multiply(false, false, H_t, S_temp, S_t);
 		Matrix.add(S_t, R);
 		
 		// compute K(t)
-		Matrix S_t_inv = new Matrix(outn, outn);
-		Matrix.inverse(Matrix.copy(S_t, true), S_t_inv);
-		Matrix K_t = new Matrix(wn, outn);
-		Matrix.multiply(false, false, Matrix.copy(S_temp, true), S_t_inv, K_t);
+		Matrix.inverse(Matrix.copy(S_t), S_t_inv);
+		Matrix.multiply(false, false, S_temp, S_t_inv, K_t);
 		
 		// Compute w(t|t)
 		double [] uz = new double[outn];
@@ -275,8 +324,7 @@ public class EKFANN {
 		for (int i = 0; i < wn; ++i)
 			w_t_t[i] += w_t_t1[i];
 		
-		Matrix KHMult = new Matrix(wn, wn);
-		Matrix.multiply(false, false, K_t, Matrix.copy(H_t, false), KHMult);
+		Matrix.multiply(false, false, K_t, H_t, KHMult);
 		// Compute I-K(t)*H(t)
 		for (int i = 0; i < wn; ++i)
 			for (int j = 0; j < wn; ++j)
@@ -284,14 +332,10 @@ public class EKFANN {
 		Matrix I_minus_KHMult = KHMult;
 		
 		// Compute P(t|t)
-		Matrix RK_trans_mult = new Matrix(outn, wn);
 		Matrix.multiply(false, true, R, K_t, RK_trans_mult);
-		Matrix KRK_trans = new Matrix(wn, wn);
 		Matrix.multiply(false, false, K_t, RK_trans_mult, KRK_trans);
 		
-		Matrix P_temp_mult = new Matrix(wn, wn);
 		Matrix.multiply(false, true, P_t_t1, I_minus_KHMult, P_temp_mult);
-		Matrix P_temp = new Matrix(wn, wn);
 		Matrix.multiply(false, false, I_minus_KHMult, P_temp_mult, P_temp);
 		
 		for (int i = 0; i < wn; ++i)
@@ -301,10 +345,9 @@ public class EKFANN {
 		System.arraycopy(w_t_t, 0, weights, 0, wn);
 	}
 	
-	Matrix jacobian() throws Exception
+	Matrix jacobian(Matrix H_t) throws Exception
 	{
 		double[] refout = getOutput();
-		Matrix H_t = new Matrix(neurons_.lastElement().length, getWeightsSize());
 		int hCol = 0;
 		for (int l = 1; l < getNumLayers(); ++l){
 			int fromLayer = l-1;
@@ -329,13 +372,20 @@ public class EKFANN {
 		if(in.length!=tg.length) throw new Exception("You must have the same number of in and tg");
 		double[] weights = getWeights();
 		Matrix P = Matrix.identityMatrix(weights.length);
+		ReserveBPSpace();
 		for (int it = 0; it < iterations; ++it) {
+			int tenPercent = 0;
 			for(int i = 0;i<in.length;i++){
 				backwardPropagate(in[i].array(), tg[i].array(), weights, P);
-				MessageCenter.getInstance().put(new LogMessage(Level.INFO, EKFANNBank.class.getName(), methodName, "complete back propagation of input " + i));
+				int p = (int)((double)i/(double)in.length*10);
+				if ( p != tenPercent) {
+					MessageCenter.getInstance().put(new LogMessage(Level.INFO, EKFANNBank.class.getName(), methodName, "complete back propagation of " + p*10 + "% (" + i + "/" + in.length + ")inputs"));
+					tenPercent = p;
+				}
 			}
-			MessageCenter.getInstance().put(new LogMessage(Level.INFO, EKFANNBank.class.getName(), methodName, "Iteration " + it + " done"));
+			MessageCenter.getInstance().put(new LogMessage(Level.INFO, EKFANNBank.class.getName(), methodName, "Iteration " + it + " done. 100% (" + in.length + "/" + in.length + ")"));
 		}
+		ReleaseBPSpace();
 		
 		MessageCenter.getInstance().put(new LogMessage(Level.INFO, EKFANNBank.class.getName(), methodName, "\tDone."));
 	}

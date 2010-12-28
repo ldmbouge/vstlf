@@ -205,13 +205,18 @@ public class Matrix {
 		}
 	}
 		
-	public static Matrix copy(Matrix mtrx, boolean isRowMajor) throws IncompatibleMatrixExpt
+	public static Matrix copy(Matrix mtrx) throws IncompatibleMatrixExpt
 	{
 		Matrix targ = new Matrix(mtrx.getRow(), mtrx.getCol());
+		copy(mtrx, targ);
+		return targ;
+	}
+	
+	public static void copy(Matrix mtrx, Matrix targ) 
+	{
 		for (int r = 0; r < mtrx.getRow(); ++r)
 			for (int c = 0; c < mtrx.getCol(); ++c)
 				targ.setVal(r, c, mtrx.getVal(r, c));
-		return targ;
 	}
 	
 	public static void transpose(Matrix mtrx, Matrix targ) throws IncompatibleMatrixExpt
