@@ -10,7 +10,13 @@
 	<path id="vstlf.classpath">
 		<pathelement location="bin"/>
 		<pathelement location="lib/perst15.jar"/>
-		<pathelement location="lib/junit.jar"/>
+		<pathelement location="lib/junit-4.4.jar"/>
+		<pathelement location="lib/blas.jar"/>
+		<pathelement location="lib/f2jutil.jar"/>
+		<pathelement location="lib/lapack.jar"/>
+		<pathelement location="lib/blas_simple.jar"/>
+		<pathelement location="lib/lapack_simple.jar"/>
+		<pathelement location="lib/xerbla.jar"/>
 	</path>
 
 	<!-- DESTROY:  DELETE THE CURRENTLY EXISTING JAR -->
@@ -42,6 +48,13 @@
 				<attribute name="Main-Class" value="edu.uconn.vstlf.shutil.Run"/>
 			</manifest>
 			<zipfileset src="lib/perst15.jar" includes="**/*"/>
+			<zipfileset src="lib/junit-4.4.jar" includes="**/*"/>
+			<zipfileset src="lib/blas.jar" includes="**/*"/>
+			<zipfileset src="lib/f2jutil.jar" includes="**/*"/>
+			<zipfileset src="lib/lapack.jar" includes="**/*"/>
+			<zipfileset src="lib/blas_simple.jar" includes="**/*"/>
+			<zipfileset src="lib/lapack_simple.jar" includes="**/*"/>
+			<zipfileset src="lib/xerbla.jar" includes="**/*"/>
 		</jar>
 	</target>
 

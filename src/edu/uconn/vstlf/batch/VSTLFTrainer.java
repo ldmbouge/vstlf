@@ -336,13 +336,13 @@ public class VSTLFTrainer {
 		///Time Index
 		double[] wdi = new double[7];
 		double[] hri = new double[24];
-		double[] mid = new double[12];
+		//double[] mid = new double[12];
 		hri[cal.getHour(t)] = 1;
 		wdi[cal.getDayOfWeek(t)-1] = 1;
-		mid[cal.getMonth(t)] = 1;
+		//mid[cal.getMonth(t)] = 1;
 		
 		
-		
+		/*
 		double[] sunHr = new double[3];
 		double[] sunMin = new double[12];
 		int zYr = _gmt.getYear(t);
@@ -358,11 +358,12 @@ public class VSTLFTrainer {
 		if(sunHr[1]==1){
 			int zMin = cal.getMinute(zDate)/5; sunMin[zMin] = 1;
 		}
+		*/
 		Series idx = new Series(hri,false)
 			 .append(new Series(wdi,false))
-			 .append(new Series(mid,false))
+			 /*.append(new Series(mid,false))
 			 .append(new Series(sunHr,false))
-			 .append(new Series(sunMin,false));
+			 .append(new Series(sunMin,false))*/;
 		
 		//System.err.println("---------USING-------"+t);
 		//get load		
@@ -572,11 +573,11 @@ public class VSTLFTrainer {
 												   new NormalizingFunction(0,1,-500,500),
 												   new NormalizingFunction(0,1,-500,500),
 												   new NormalizingFunction(0,1,-.1,.1)};
-				int[][] layerSizes = {{12+15+12+24+7,6,12},
-									{12+15+12+24+7,13,12},
-									{12+15+12+24+7,12,12},
-									{12+15+12+24+7,13,12},
-									{12+15+12+24+7,18,12}};
+				int[][] layerSizes = {{12+/*15+12+*/24+7,6,12},
+									{12+/*15+12+*/24+7,6,12},
+									{12+/*15+12+*/24+7,6,12},
+									{12+/*15+12+*/24+7,6,12},
+									{12+/*15+12+*/24+7,6,12}};
 	
 				_norm = new NormalizingFunction[_lvls+1];
 				_denorm = new NormalizingFunction[_lvls+1];

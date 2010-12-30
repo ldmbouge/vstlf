@@ -95,7 +95,7 @@ public class PlotPanel extends Canvas implements MouseInputListener{
 	 */
 	private static final long serialVersionUID = 6191227181180819348L;
 	private Calendar _cal;
-	enum Curve {actual,s5,s10,s15,s20,s25,s30,s35,s40,s45,s50,s55,s60};
+	enum Curve {actual,s5};//,s10,s15,s20,s25,s30,s35,s40,s45,s50,s55,s60};
 	Vector<Plot> _model;
 	Date _now;
 	Date _paint;
@@ -254,14 +254,17 @@ public class PlotPanel extends Canvas implements MouseInputListener{
 	
 	void addPoint(Date at,double[] values,double actual) {
 		_now = at;
-		for(Curve c: EnumSet.complementOf(EnumSet.of(Curve.actual))) {
-			Plot vec = _model.get(c.ordinal());	
-			double theVal = values[c.ordinal()-1];
-			_minv = Math.min(_minv, theVal);
-			_maxv = Math.max(_maxv, theVal);
-			vec.addPoint(theVal);
-			//System.out.format("Added point [%s] on [%s] @ %f\n",at,c,values[c.ordinal()-1]);
-		}
+		int off = _cal.getMinute(at);
+		if (off == 0) 
+			for (int i = 0; i < 12; ++i)
+				for(Curve c: EnumSet.complementOf(EnumSet.of(Curve.actual))) {
+					Plot vec = _model.get(c.ordinal());	
+					double theVal = values[i];
+					_minv = Math.min(_minv, theVal);
+					_maxv = Math.max(_maxv, theVal);
+					vec.addPoint(theVal);
+					//System.out.format("Added point [%s] on [%s] @ %f\n",at,c,values[c.ordinal()-1]);
+				}
 		_model.get(Curve.actual.ordinal()).addPoint(actual);
 		this.repaint();
 	}

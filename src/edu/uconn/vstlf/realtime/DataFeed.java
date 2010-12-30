@@ -47,13 +47,13 @@ public class DataFeed {
 		///Time Index
 		double[] wdi = new double[7];
 		double[] hri = new double[24];
-		double[] mid = new double[12];
+		//double[] mid = new double[12];
 		hri[cal.getHour(t)] = 1;
 		wdi[cal.getDayOfWeek(t)-1] = 1;
-		mid[cal.getMonth(t)] = 1;
+		//mid[cal.getMonth(t)] = 1;
 		
 		//sunset stuff
-		double[] sunHr = new double[3];
+		/*double[] sunHr = new double[3];
 		double[] sunMin = new double[12];
 		int zYr = _gmt.getYear(t);
 		int zMonth = _gmt.getMonth(t)+1;
@@ -67,12 +67,12 @@ public class DataFeed {
 		sunHr[0] = (tHour+1==zHour)?1:0;  sunHr[1] = (tHour==zHour)?1:0;  sunHr[2] = (tHour-1==zHour)?1:0;
 		if(sunHr[1]==1){
 			int zMin = cal.getMinute(zDate)/5; sunMin[zMin] = 1;
-		}
+		}*/
 		Series idx = new Series(hri,false)
 			 .append(new Series(wdi,false))
-			 .append(new Series(mid,false))
+			 /*.append(new Series(mid,false))
 			 .append(new Series(sunHr,false))
-			 .append(new Series(sunMin,false));
+			 .append(new Series(sunMin,false))*/;
 		
 		//get load		
 		Series prevHour = pdb.getLoad("filt", cal.addHoursTo(t, -11), t);

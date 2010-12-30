@@ -26,6 +26,8 @@
 package edu.uconn.vstlf.shutil;
 
 import edu.uconn.vstlf.config.Items;
+import edu.uconn.vstlf.test.EKFTraining;
+
 import java.util.TimeZone;
 
 public class Run {
@@ -88,6 +90,9 @@ public class Run {
 		//Execute the command///////////////////////////////////////////
 		if(cmd.equals("train")){	
 			RunTraining.main(cargs);
+		}
+		else if (cmd.equals("train-ekf")) {
+			EKFTraining.main(cargs);
 		}
 		else if(cmd.equals("validate")){
 			RunValidation.main(cargs);
