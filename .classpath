@@ -6,9 +6,6 @@
 	<classpathentry kind="lib" path="/home/yuting/Projects/vstlf/lib/perst15.jar"/>
 	<classpathentry kind="lib" path="/home/yuting/Projects/jlapack-0.8/blas.jar"/>
 	<classpathentry kind="lib" path="/home/yuting/Projects/jlapack-0.8/blas_simple.jar"/>
-	<classpathentry kind="lib" path="/home/yuting/Projects/jlapack-0.8/f2jutil.jar"/>
-	<classpathentry kind="lib" path="/home/yuting/Projects/jlapack-0.8/lapack.jar"/>
-	<classpathentry kind="lib" path="/home/yuting/Projects/jlapack-0.8/lapack_simple.jar"/>
-	<classpathentry kind="lib" path="/home/yuting/Projects/jlapack-0.8/xerbla.jar"/>
+	<classpathentry kind="lib" path="/home/yuting/Projects/vstlf/lib/f2jutil.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

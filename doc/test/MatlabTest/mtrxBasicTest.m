@@ -50,3 +50,16 @@ for i=1:x
         assert( mdata(i,j) == mtMtrx.getVal(i-1, j-1) );
     end
 end
+
+mdata = data*data;
+mtMtrx1 = matrix.Matrix(data);
+mtMtrx2 = matrix.Matrix(data);
+mtMtrx = matrix.Matrix(data);% result
+matrix.Matrix.multiply(false, false, mtMtrx1, mtMtrx2, mtMtrx);
+[x, y] = size(data);
+for i = 1:x
+    for j = 1:y
+        assert( mdata(i,j) == mtMtrx.getVal(i-1, j-1) );
+    end
+end
+
