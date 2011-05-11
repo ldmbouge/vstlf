@@ -13,9 +13,9 @@ public class MatrixTest {
 	@Test public void multTest()
 	{		
 		try {
-			float[][] d1 = {{1.0f, 0.0f, 2.0f}, {-1.0f, 3.0f, 1.0f}};
-			float[][] d2 = {{3.0f, 1.0f}, {2.0f, 1.0f}, {1.0f, 0.0f}};
-			float[][] d3 = {{5.0f, 1.0f}, {4.0f, 2.0f}};
+			double[][] d1 = {{1.0, 0.0, 2.0}, {-1.0, 3.0, 1.0}};
+			double[][] d2 = {{3.0, 1.0}, {2.0, 1.0}, {1.0, 0.0}};
+			double[][] d3 = {{5.0, 1.0}, {4.0, 2.0}};
 			Matrix m1 = new Matrix(d1);
 			Matrix m2 = new Matrix(d2);
 			Matrix m3 = new Matrix(d3);
@@ -24,15 +24,15 @@ public class MatrixTest {
 			
 			System.out.println(m3.toString());
 			
-			float [][] A = { {1.0f, 2.0f, 2.0f}, {2.0f, 1.0f, 2.0f}, {2.0f, 2.0f, 1.0f}};
-			float [][] B = { {2.0f, 3.0f, 4.0f, 5.0f}, {6.0f, 7.0f, 8.0f, 9.0f}, {10.0f, 11.0f, 12.0f, 13.0f}};
+			double [][] A = { {1.0, 2.0, 2.0}, {2.0, 1.0, 2.0}, {2.0, 2.0, 1.0}};
+			double [][] B = { {2.0, 3.0, 4.0, 5.0}, {6.0, 7.0, 8.0, 9.0}, {10.0, 11.0, 12.0, 13.0}};
 			Matrix a = new Matrix(A);
 			Matrix b = new Matrix(B);
 			Matrix c = new Matrix(A.length, B[0].length);
 			Matrix.multiply(false, false, a, b, c);
 			System.out.println(c);
 			
-			assertTrue(Matrix.equal(result, m3, 10e-8f));
+			assertTrue(Matrix.equal(result, m3, 10e-8));
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
@@ -41,15 +41,15 @@ public class MatrixTest {
 	@Test public void LUPDecomposeTst()
 	{
 		try {
-		float d[][] = {{2.0f, 0.0f, 2.0f, 0.6f},
-				        {3.0f, 3.0f, 4.0f, -2.0f},
-				        {5.0f, 5.0f, 4.0f, 2.0f},
-				        {-1.0f, -2.0f, 3.4f, -1.0f}};
+		double d[][] = {{2.0, 0.0, 2.0, 0.6},
+				        {3.0, 3.0, 4.0, -2.0},
+				        {5.0, 5.0, 4.0, 2.0},
+				        {-1.0, -2.0, 3.4, -1.0}};
 		Matrix m = new Matrix(d);
-		float lu[][] = {{5.0f, 5.0f, 4.0f, 2.0f},
-				         {0.4f, -2.0f, 0.4f, -0.2f},
-				         {-0.2f, 0.5f, 4.0f, -0.5f},
-				         {0.6f, 0f, 0.4f, -3.0f}};
+		double lu[][] = {{5.0, 5.0, 4.0, 2.0},
+				         {0.4, -2.0, 0.4, -0.2},
+				         {-0.2, 0.5, 4.0, -0.5},
+				         {0.6, 0, 0.4, -3.0}};
 		Matrix LU = new Matrix(lu);
 		Vector<Integer> permRef = new Vector<Integer>();
 		permRef.add(2);
@@ -59,7 +59,7 @@ public class MatrixTest {
 		
 		int[] permVec = Matrix.LUPDecompose(m);
 		System.out.println(m);
-		assertTrue(Matrix.equal(m, LU, 10e-7f));
+		assertTrue(Matrix.equal(m, LU, 10e-8));
 		for (int i = 0; i < permVec.length; ++i)
 			assertTrue(permVec[i] == permRef.get(i));
 		} catch (Exception e) {
@@ -70,35 +70,35 @@ public class MatrixTest {
 	@Test public void inverseTest()
 	{
 		try {
-		float d[][] = {{1.0f, 2.0f, 3.0f}, {0.0f, 4.0f, 5.0f}, {1.0f, 0.0f, 6.0f}};
+		double d[][] = {{1.0, 2.0, 3.0}, {0.0, 4.0, 5.0}, {1.0, 0.0, 6.0}};
 		Matrix m = new Matrix(d);
 		Matrix result = new Matrix(m.getRow(), m.getCol());
 		Matrix.inverse(m, result);
 		
-		float r[][] = {{24.0f, -12.0f, -2.0f}, {5.0f, 3.0f, -5.0f}, {-4.0f, 2.0f, 4.0f}};
+		double r[][] = {{24.0, -12.0, -2.0}, {5.0, 3.0, -5.0}, {-4.0, 2.0, 4.0}};
 		Matrix ref = new Matrix(r);
-		Matrix.multiply(1.0f/22.0f, ref);
+		Matrix.multiply(1.0/22.0, ref);
 		
 		System.out.println("Result: " + result);
 		System.out.println("Ref" + ref);
-		assertTrue(Matrix.equal(result, ref, 10e-8f));
+		assertTrue(Matrix.equal(result, ref, 10e-8));
 		
-		float d1[][] = {{3.0f, 5.0f, 12.0f, 3.0f, -23.0f},
-		                 {5.0f, 89.0f, 0.0f, 12.0f, 66.0f},
-		                 {-20.0f, -1.0f, -0.0f, 0.6f, 71.0f},
-		                 {2.6f, -2.6f, 3.0f, 100.0f, 3.4f},
-		                 {33.0f, -33.0f, 10.0f, 24.0f, -4.0f}};
+		double d1[][] = {{3.0, 5.0, 12.0, 3.0, -23.0},
+		                 {5.0, 89.0, 0.0, 12.0, 66.0},
+		                 {-20.0, -1.0, -0.0, 0.6, 71.0},
+		                 {2.6, -2.6, 3.0, 100.0, 3.4},
+		                 {33.0, -33.0, 10.0, 24.0, -4.0}};
 		Matrix m1 = new Matrix(d1);
 		result = new Matrix(m1.getRow(), m1.getCol());
 		Matrix.inverse(m1, result);
 		
-		float r1[][] = {{-0.017836819371067f,  0.009292951817202f, -0.012817004007217f, -0.006077749560082f,  0.023227508113305f},
-				         {0.004875345730042f,  0.008693243056048f, -0.006849161280530f,  0.000275587283737f, -0.005933091061172f},
-				         {0.076672922156298f, -0.000669815559993f,  0.026210510219574f, -0.004628525083829f,  0.009381050937591f},
-				         {-0.001541617478807f, -0.000088689323833f, -0.000984273155749f,  0.010365098112351f, -0.001259588459136f},
-				         {-0.004942761566254f,  0.002740922436541f,  0.010385934119276f, -0.001795752996976f,  0.006470039778597f}};
+		double r1[][] = {{-0.017836819371067,  0.009292951817202, -0.012817004007217, -0.006077749560082,  0.023227508113305},
+				         {0.004875345730042,  0.008693243056048, -0.006849161280530,  0.000275587283737, -0.005933091061172},
+				         {0.076672922156298, -0.000669815559993,  0.026210510219574, -0.004628525083829,  0.009381050937591},
+				         {-0.001541617478807, -0.000088689323833, -0.000984273155749,  0.010365098112351, -0.001259588459136},
+				         {-0.004942761566254,  0.002740922436541,  0.010385934119276, -0.001795752996976,  0.006470039778597}};
 		ref = new Matrix(r1);
-		assertTrue(Matrix.equal(result, ref, 010e-8f));
+		assertTrue(Matrix.equal(result, ref, 010e-8));
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
@@ -112,7 +112,7 @@ public class MatrixTest {
 			Matrix m = new Matrix(n, n);
 			for (int i = 0; i < n; ++i)
 				for (int j = 0; j < n; ++j)
-					m.setVal(i, j, (float)Math.random());
+					m.setVal(i, j, Math.random());
 			Matrix.inverse(m, new Matrix(n, n));
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
@@ -130,11 +130,11 @@ public class MatrixTest {
 			Matrix result2 = new Matrix(n, n);
 			for (int i = 0; i < n; ++i)
 				for (int j = 0; j < k; ++j) {
-					m1.setVal(i, j, (float)Math.random());
+					m1.setVal(i, j, Math.random());
 				}
 			for (int i = 0; i < k; ++i)
 				for (int j = 0; j < n; ++j) {
-					m2.setVal(i, j, (float)Math.random());
+					m2.setVal(i, j, Math.random());
 					m2_col.setVal(i, j, m2.getVal(i, j));
 				}
 			
@@ -156,12 +156,12 @@ public class MatrixTest {
 			Matrix m2 = new Matrix(n, m);
 			for (int i = 0; i < n; ++i)
 				for (int j = 0; j < m; ++j) {
-					m1.setVal(i, j, (float)Math.random());
+					m1.setVal(i, j, Math.random());
 				}
 			
 			for (int i = 0; i < t; ++i)
 				for (int j = 0; j < m; ++j)
-					m2.setVal(i, j, (float)Math.random());
+					m2.setVal(i, j, Math.random());
 			
 			Matrix m2_trans = new Matrix(m, t);
 			Matrix.transpose(m2, m2_trans);
@@ -170,13 +170,13 @@ public class MatrixTest {
 			Matrix.multiply(false, false, m1, m2_trans, r1);
 			Matrix.multiply(false, true, m1, m2, r2);
 			
-			assertTrue(Matrix.equal(r1, r2, 0.0f));
+			assertTrue(Matrix.equal(r1, r2, 0.0));
 			
 			int k = 1000;
 			Matrix m3 = new Matrix(n, k);
 			for (int i = 0; i < n; ++i)
 				for (int j = 0; j < k; ++j)
-					m3.setVal(i, j, (float)Math.random());
+					m3.setVal(i, j, Math.random());
 			
 			Matrix m1_trans = new Matrix(m, n);
 			Matrix.transpose(m1, m1_trans);
@@ -184,7 +184,7 @@ public class MatrixTest {
 			Matrix.multiply(false, false, m1_trans, m2, r3);
 			Matrix.multiply(true, false, m1, m2, r4);
 			
-			assertTrue(Matrix.equal(r3, r4, 0.0f));
+			assertTrue(Matrix.equal(r3, r4, 0.0));
 			
 	}
 }

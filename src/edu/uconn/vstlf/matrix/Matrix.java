@@ -1,16 +1,16 @@
 package edu.uconn.vstlf.matrix;
 
-import org.netlib.blas.SGEMM;
-import org.netlib.blas.SSYMM;
+import org.netlib.blas.DGEMM;
+import org.netlib.blas.DSYMM;
 
 public class Matrix {
-	private float[][] mtrx_;
+	private double[][] mtrx_;
 	
-	public float[][] getArray() { return mtrx_; }
+	public double[][] getArray() { return mtrx_; }
 	
 	public Matrix(int row, int column)
 	{
-		mtrx_ = new float[row][column];
+		mtrx_ = new double[row][column];
 	}
 	
 	
@@ -33,37 +33,34 @@ public class Matrix {
 		return s;
 	}*/
 	
-	public Matrix(float [][] vals, boolean isRowMajor) 
+	public Matrix(double[][] vals)
 	{ mtrx_ = vals; }
-	
-	public Matrix(float[][] vals)
-	{ this(vals, true); }
 	
 	public int getRow() { return mtrx_.length; }
 	public int getCol() { return mtrx_[0].length; }
 	
-	public float[] getRowVec(int r) 
+	public double[] getRowVec(int r) 
 	{ 
-		float[] rVals = new float[getCol()];
+		double[] rVals = new double[getCol()];
 		for (int c = 0; c < getCol(); ++c)
 			rVals[c] = getVal(r, c);
 		return rVals;
 	}
 	
-	public float[] getColVec(int c) 
+	public double[] getColVec(int c) 
 	{ 
-		float[] cVals = new float[getRow()];
+		double[] cVals = new double[getRow()];
 		for (int r = 0; r < getRow(); ++r)
 			cVals[r] = getVal(r, c);
 		return cVals;
 	}
 	
-	public float getVal(int r, int c)
+	public double getVal(int r, int c)
 	{
 		return mtrx_[r][c];
 	}
 	
-	public void setVal(int r, int c, float v)
+	public void setVal(int r, int c, double v)
 	{
 		mtrx_[r][c] = v;
 	}
@@ -100,7 +97,7 @@ public class Matrix {
 			A = m2; B = m1;
 		}
 		
-		SSYMM.SSYMM(pos, "L", result.getRow(), result.getCol(), (float)1.0, A.getArray(), B.getArray(), (float)0.0, result.getArray());
+		DSYMM.DSYMM(pos, "L", result.getRow(), result.getCol(), 1.0, A.getArray(), B.getArray(), 0.0, result.getArray());
 	}
 	
 	public static void multiply(boolean trans1, boolean trans2,
@@ -121,12 +118,12 @@ public class Matrix {
 		
 		String t1 = trans1 ? "T" : "N";
 		String t2 = trans2 ? "T" : "N";
-		SGEMM.SGEMM(t1, t2, row, col, k1, (float)1.0, m1.getArray(), m2.getArray(), (float)0.0, result.getArray());
+		DGEMM.DGEMM(t1, t2, row, col, k1, 1.0, m1.getArray(), m2.getArray(), 0.0, result.getArray());
 		
 		/*
 		for (int r = 0; r < m1.getRow(); ++r)
 			for (int c = 0; c < m2.getCol(); ++c) {
-				float v = 0.0;
+				double v = 0.0;
 				for (int k = 0; k < m1.getCol(); ++k)
 					v += m1.getVal(r, k)*m2.getVal(k, c);
 				result.setVal(r, c, v);
@@ -147,7 +144,7 @@ public class Matrix {
 	
 		for (int r = 0; r < m1.getCol(); ++r)
 			for (int c = 0; c < m2.getCol(); ++c) {
-				float v = 0.0;
+				double v = 0.0;
 				for (int k = 0; k < m1.getRow(); ++k)
 					v += m1.getVal(k, r)*m2.getVal(k, c);
 				result.setVal(r, c, v);
@@ -166,7 +163,7 @@ public class Matrix {
 	
 		for (int r = 0; r < m1.getRow(); ++r)
 			for (int c = 0; c < m2.getRow(); ++c) {
-				float v = 0.0;
+				double v = 0.0;
 				for (int k = 0; k < m1.getCol(); ++k)
 					v += m1.getVal(r, k)*m2.getVal(c, k);
 				result.setVal(r, c, v);
@@ -174,32 +171,32 @@ public class Matrix {
 	}
 	*/
 	
-	public static void multiply(float coeff, Matrix m)
+	public static void multiply(double coeff, Matrix m)
 	{
 		for (int r = 0; r < m.getRow(); ++r)
 			for (int c = 0; c < m.getCol(); ++c)
 				m.setVal(r, c, coeff*m.getVal(r, c));
 	}
 	
-	public static void multiply(float[] rowVec, Matrix mtrx, float[] outVec) throws Exception
+	public static void multiply(double[] rowVec, Matrix mtrx, double[] outVec) throws Exception
 	{
 		if (rowVec.length != mtrx.getRow() || mtrx.getCol() != outVec.length)
 			throw new Exception("cannot multiply vector with matrix. Wrong size of vector or matrix");
 		
 		for (int i = 0; i < outVec.length; ++i) {
-			outVec[i] = (float)0.0;
+			outVec[i] = 0.0;
 			for (int j = 0; j < rowVec.length; ++j)
 				outVec[i] += rowVec[j]*mtrx.getVal(j, i);
 		}
 	}
 	
-	public static void multiply(Matrix mtrx, float[] colVec, float[] outVec) throws Exception
+	public static void multiply(Matrix mtrx, double[] colVec, double[] outVec) throws Exception
 	{
 		if (mtrx.getCol() != colVec.length || mtrx.getRow() != outVec.length)
 			throw new Exception("cannot multiply matrix with vector. Wrong size of vector or matrix");
 		
 		for (int i = 0; i < outVec.length; ++i) {
-			outVec[i] = 0.0f;
+			outVec[i] = 0.0;
 			for (int j = 0; j < colVec.length; ++j)
 				outVec[i] += mtrx.getVal(i, j)*colVec[j];
 		}
@@ -243,14 +240,14 @@ public class Matrix {
 		for (int i = 0; i < n; ++i) {
 			// select the row with maximum head value
 			int maxR = i; 
-			float maxV = Math.abs(mtrx.getVal(maxR, i));
+			double maxV = Math.abs(mtrx.getVal(maxR, i));
 			for (int k = i+1; k < n; ++k) {
 				if (Math.abs(mtrx.getVal(k, i)) > maxV) {
 					maxR = k;
 					maxV = Math.abs(mtrx.getVal(k, i));
 				}	
 			}
-			if (maxV == 0.0)
+			if (maxV < 10E-6)
 				throw new SingularMatrixExpt(mtrx, "LUP decomposition");
 			
 			if (maxR != i) {
@@ -261,16 +258,16 @@ public class Matrix {
 				
 				// Exchange the i'th row and the maxR'th row of this matrix
 				for (int k = 0; k < n; ++k) {
-					float tempv = mtrx.getVal(maxR, k);
+					double tempv = mtrx.getVal(maxR, k);
 					mtrx.setVal(maxR, k, mtrx.getVal(i, k));
 					mtrx.setVal(i, k, tempv);
 				}
 			}
 			
 			// LU decompose the sub matrix (Shur complement)
-			float headV = mtrx.getVal(i, i);
+			double headV = mtrx.getVal(i, i);
 			for (int k = i+1; k < n; ++k) {
-				float coeff = mtrx.getVal(k, i)/headV;
+				double coeff = mtrx.getVal(k, i)/headV;
 				mtrx.setVal(k, i, coeff);
 				for (int u = i+1; u < n; ++u)
 					mtrx.setVal(k, u, mtrx.getVal(k, u) - coeff*mtrx.getVal(i, u));
@@ -281,7 +278,7 @@ public class Matrix {
 		return permVec;
 	}
 	
-	public static void LUSolve(Matrix LUMtrx, float[] b) throws NotSquareMatrix
+	public static void LUSolve(Matrix LUMtrx, double[] b) throws NotSquareMatrix
 	{
 		if (LUMtrx.getRow() != LUMtrx.getCol())
 			throw new NotSquareMatrix(LUMtrx, "LUSolve");
@@ -289,7 +286,7 @@ public class Matrix {
 		int n = LUMtrx.getRow();
 		// Forward substitution (using L)
 		for (int i = 0; i < n; ++i) {
-			float delSum = 0.0f;
+			double delSum = 0.0;
 			for (int j = 0; j < i; ++j)
 				delSum += LUMtrx.getVal(i, j)*b[j];
 			b[i] = b[i]-delSum;
@@ -297,7 +294,7 @@ public class Matrix {
 		
 		// Back substitution (using U)
 		for (int i = n-1; i >= 0; --i) {
-			float delSum = 0.0f;
+			double delSum = 0.0;
 			for (int j = i+1; j < n; ++j)
 				delSum += LUMtrx.getVal(i, j)*b[j];
 			b[i] = (b[i] - delSum)/LUMtrx.getVal(i, i);
@@ -317,9 +314,9 @@ public class Matrix {
 		int n = mtrx.getRow();
 		for (int i = 0; i < n; ++i) {
 			// solve the equation for the permVec[i]'th column of the result matrix
-			float[] b = new float[n];
+			double[] b = new double[n];
 			for (int j=0; j < n; ++j)
-				b[j] = (j==i ? 1.0f: 0.0f);
+				b[j] = (j==i ? 1.0: 0.0);
 			LUSolve(mtrx, b);
 			// put the result into the permVec[i]'th column of the result matrix
 			int col = permVec[i];
@@ -328,7 +325,7 @@ public class Matrix {
 		}
 	}
 	
-	public static boolean equal(Matrix m1, Matrix m2, float e) throws IncompatibleMatrixExpt
+	public static boolean equal(Matrix m1, Matrix m2, double e) throws IncompatibleMatrixExpt
 	{
 		if (m1.getRow() != m2.getRow() || m1.getCol() != m2.getCol())
 			throw new IncompatibleMatrixExpt(m1, m2, "equal e=" + e);
@@ -344,7 +341,7 @@ public class Matrix {
 	{
 		Matrix m = new Matrix(n, n);
 		for (int i = 0; i < n; ++i)
-			m.setVal(i, i, 1.0f);
+			m.setVal(i, i, 1.0);
 		return m;
 	}
 	

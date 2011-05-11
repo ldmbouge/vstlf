@@ -298,14 +298,19 @@ public class EKFANN extends ANN {
 		if (wn != weights.length) throw new Exception("Back propagation failed: the input weight array has a different size");
 		int outn = neurons_.lastElement().length;
 		
+		// Test if elements in P is too small
+		for (int i = 0; i < P.getRow(); ++i)
+			for (int j = 0; j < P.getCol(); ++j)
+				if (P.getVal(i, j) != 0.0 && Math.abs(P.getVal(i, j)) < 10e-20)
+					throw new Exception(P.getVal(i, j) + "!!!!!!!!!P is too small!!!!!!!!!!!!!!");
 		if (!isTraining_) ReserveBPSpace();
 		
 		for (int i = 0; i < wn; ++i)
-			Q.setVal(i, i, 1.0f);
+			Q.setVal(i, i, 1.0);
 		for (int i = 0; i < outn; ++i)
-			R.setVal(i, i, 1.0f);
-		Matrix.multiply(0.000005f, Q);
-		Matrix.multiply(0.00001f, R);
+			R.setVal(i, i, 1.0);
+		Matrix.multiply(0.000005, Q);
+		Matrix.multiply(0.00001, R);
 		
 		setWeights(weights);
 		double[] w_t_t1 = weights;
@@ -327,14 +332,10 @@ public class EKFANN extends ANN {
 		Matrix.multiply(false, false, S_temp, S_t_inv, K_t);
 		
 		// Compute w(t|t)
-		double [] uzd = new double[outn];
+		double [] uz = new double[outn];
 		for (int i = 0; i < outn; ++i)
-			uzd[i] = outputs[i] - z_t_t1[i];
-		float[] uz = new float[outn];
-		for (int i = 0; i < uzd.length; ++i)
-			uz[i] = (float)uzd[i];
-		
-		float [] w_t_t = new float[wn];
+			uz[i] = outputs[i] - z_t_t1[i];
+		double [] w_t_t = new double[wn];
 		Matrix.multiply(K_t, uz, w_t_t);
 		for (int i = 0; i < wn; ++i)
 			w_t_t[i] += w_t_t1[i];
@@ -343,7 +344,7 @@ public class EKFANN extends ANN {
 		// Compute I-K(t)*H(t)
 		for (int i = 0; i < wn; ++i)
 			for (int j = 0; j < wn; ++j)
-				KHMult.setVal(i, j, (i == j ? 1.0f - KHMult.getVal(i, j) : -KHMult.getVal(i,j)));
+				KHMult.setVal(i, j, (i == j ? 1.0 - KHMult.getVal(i, j) : -KHMult.getVal(i,j)));
 		Matrix I_minus_KHMult = KHMult;
 		
 		// Compute P(t|t)
@@ -355,12 +356,11 @@ public class EKFANN extends ANN {
 		
 		for (int i = 0; i < wn; ++i)
 			for (int j = 0; j < wn; ++j)
-				P.setVal(i, j, (P_temp.getVal(i, j) + P_temp.getVal(j, i))/2.0f);
+				P.setVal(i, j, (P_temp.getVal(i, j) + P_temp.getVal(j, i))/2.0);
 		// copy back weights
-		for (int i = 0; i < wn; ++i)
-			weights[i] = (double)w_t_t[i];
-		
+
 		if (!isTraining_) ReleaseBPSpace();
+		System.arraycopy(w_t_t, 0, weights, 0, wn);
 	}
 	
 	Matrix jacobian(Matrix H_t) throws Exception
@@ -375,7 +375,7 @@ public class EKFANN extends ANN {
 					double [] pout = fowardPropagateWeightChange(l, fromNeuronIndex, toNeuronIndex, weightChange);
 					
 					for (int k = 0; k < pout.length; ++k)
-						H_t.setVal(k, hCol, (float)((pout[k]-refout[k])/weightChange));
+						H_t.setVal(k, hCol, (pout[k]-refout[k])/weightChange);
 					++hCol;
 				}
 			}

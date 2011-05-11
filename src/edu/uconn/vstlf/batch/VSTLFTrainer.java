@@ -380,9 +380,20 @@ public class VSTLFTrainer {
 		phComps[_lvls] = phComps[_lvls].suffix(12).prefix(1).append(phComps[_lvls].suffix(12).differentiate().suffix(11));
 		inputSet[_lvls] = _normAbs.imageOf(phComps[_lvls].prefix(1)).append(_norm[_lvls].imageOf(phComps[_lvls].suffix(11)))
 								.append(idx);
+		
+		for (int i = 0; i < inputSet.length; ++i)
+			for (int j = 0; j < inputSet[i].array().length; ++j) {
+				double v = inputSet[i].array()[j];
+				if (v > 1.0 || v < 0.0) {
+					System.err.println("Input out of range: " + v);
+					throw new Exception("Input out of range");
+				}
+			}
+					
 		return inputSet;		
 	}
 	
+	static double s_;
 	////////////////////////////////////////////////////////////////////////////////////////////
 	//Define target Vector Set
 	///////////////////////////////////////////////////////////////////////////////////////////
@@ -402,6 +413,15 @@ public class VSTLFTrainer {
 		prev = prev.daub4Separation(_lvls, _db4LD,_db4HD,_db4LR,_db4HR)[_lvls];
 		components[_lvls] = prev.append(components[_lvls].suffix(12));
 		targetSet[_lvls] = _norm[_lvls].imageOf(components[_lvls].differentiate().suffix(12));
+		for (int i = 0; i < targetSet.length; ++i)
+			for (int j = 0; j < targetSet[i].array().length; ++j) {
+				double v = targetSet[i].array()[j];
+				if (v > s_) s_ = v;
+				if (v > 1.0 || v < 0.0) {
+					System.err.println("Target out of range: " + v);
+					throw new Exception("Target out of range");
+				}
+			}
 		return targetSet;
 	}
 	
@@ -545,6 +565,7 @@ public class VSTLFTrainer {
 		try{
 			String methodName = "train";
 			for(int offs=lo; offs<=up; ++offs){
+				s_ = 0.0;
 				MessageCenter.getInstance().put(
 						new LogMessage(Level.INFO, "EKFANN", methodName, "Training System for offset: "+ 5*offs +" minutes."));
 	
@@ -573,11 +594,11 @@ public class VSTLFTrainer {
 												   new NormalizingFunction(0,1,-500,500),
 												   new NormalizingFunction(0,1,-500,500),
 												   new NormalizingFunction(0,1,-.1,.1)};
-				int[][] layerSizes = {{12+/*15+12+*/24+7,6,12},
-									{12+/*15+12+*/24+7,6,12},
-									{12+/*15+12+*/24+7,6,12},
-									{12+/*15+12+*/24+7,6,12},
-									{12+/*15+12+*/24+7,6,12}};
+				int[][] layerSizes = {{12+/*15+12+*/24+7,10,12},
+									{12+/*15+12+*/24+7,10,12},
+									{12+/*15+12+*/24+7,10,12},
+									{12+/*15+12+*/24+7,10,12},
+									{12+/*15+12+*/24+7,10,12}};
 	
 				_norm = new NormalizingFunction[_lvls+1];
 				_denorm = new NormalizingFunction[_lvls+1];
@@ -620,6 +641,7 @@ public class VSTLFTrainer {
 					}
 					ts = cal.addMinutesTo(ts, 60);
 				}
+				
 				if(inS.size()!=tgS.size()) throw new Exception("#tg!=#in");
 				
 				Series[][] inputS = new Series[inS.size()][], targS = new Series[tgS.size()][];
@@ -627,6 +649,9 @@ public class VSTLFTrainer {
 					inputS[i] = inS.elementAt(i);
 					targS[i] = tgS.elementAt(i);
 				}
+				
+				System.out.println("Largest target set value is " + s_);
+
 				MessageCenter.getInstance().put(
 						new LogMessage(Level.INFO, VSTLFTrainer.class.getName(),
 								methodName, inputS.length + "\nTraining set contains "+inS.size()+" points.  "));

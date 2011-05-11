@@ -163,7 +163,7 @@ public class EKFTraining {
 			}
 			MessageCenter.getInstance().setHandler(new VSTLFMsgLogger("vstlf.log", new DummyMsgHandler()));
 			MessageCenter.getInstance().init();
-			edu.uconn.vstlf.batch.VSTLFTrainer.trainEKFANNs(tfName, st, ed, lo, hi, 10);
+			edu.uconn.vstlf.batch.VSTLFTrainer.trainEKFANNs(tfName, st, ed, lo, hi, 1);
 			MessageCenter.getInstance().put(new VSTLFMessage(VSTLFMessage.Type.EOF));
 			System.out.println("Training Complete");
 			
