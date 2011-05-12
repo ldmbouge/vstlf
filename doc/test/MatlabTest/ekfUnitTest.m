@@ -26,6 +26,18 @@ symMulTest(symData, data1);
 data = [[1, 0.125, 0.25]; 
         [0.125, 1, 0.5];
         [0.25, 0.5, 1]];
-%inversionTest(data);
+inversionTest(data);
 
 [refInv, inved] = inversionTest(symData);
+
+% random inversion test
+%{
+n = 100;
+mtrx = eye(n);
+for i=1:n
+    for j=1:n
+        mtrx(i,j)=rand;
+    end
+end
+inversionTest(mtrx);
+%}
