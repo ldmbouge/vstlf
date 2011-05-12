@@ -2,6 +2,8 @@ package edu.uconn.vstlf.matrix;
 
 import org.netlib.blas.DGEMM;
 import org.netlib.blas.DSYMM;
+import org.netlib.lapack.DGETRI;
+import org.netlib.util.intW;
 
 public class Matrix {
 	private double[][] mtrx_;
@@ -309,6 +311,23 @@ public class Matrix {
 			throw new NotSquareMatrix(result, "inverse");
 		if (mtrx.getRow() != result.getRow())
 			throw new IncompatibleMatrixExpt(mtrx, result, "inverse");
+		
+		int n = mtrx.getRow();
+
+		double[] workSpace = new double[n*n];
+		int[] piv = new int[n];
+		for (int i = 0; i < n; ++i)
+			piv[i] = i;
+		
+		for (int i = 0; i < n; ++i)
+			for (int j = 0; j < n; ++j)
+				result.setVal(i, j, mtrx.getVal(i, j));
+		
+		intW ret = new intW(0);
+		DGETRI.DGETRI(n, result.getArray(), piv, workSpace, workSpace.length, ret);
+		if (ret.val != 0) throw new SingularMatrixExpt(mtrx, "DGETRI error");
+		
+		/*
 		int[] permVec = LUPDecompose(mtrx);
 		
 		int n = mtrx.getRow();
@@ -323,6 +342,7 @@ public class Matrix {
 			for (int r = 0; r < n; ++r)
 				result.setVal(r, col, b[r]);
 		}
+		*/
 	}
 	
 	public static boolean equal(Matrix m1, Matrix m2, double e) throws IncompatibleMatrixExpt

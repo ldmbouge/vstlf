@@ -7,5 +7,7 @@
 	<classpathentry kind="lib" path="/home/yuting/Projects/jlapack-0.8/blas.jar"/>
 	<classpathentry kind="lib" path="/home/yuting/Projects/jlapack-0.8/blas_simple.jar"/>
 	<classpathentry kind="lib" path="/home/yuting/Projects/vstlf/lib/f2jutil.jar"/>
+	<classpathentry kind="lib" path="/home/yuting/Projects/vstlf/lib/lapack_simple.jar"/>
+	<classpathentry kind="lib" path="/home/yuting/Projects/vstlf/lib/lapack.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
