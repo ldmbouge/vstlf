@@ -6,13 +6,15 @@ import java.util.Vector;
 
 import org.junit.Test;
 
+import edu.uconn.vstlf.matrix.IncompatibleMatrixExpt;
 import edu.uconn.vstlf.matrix.Matrix;
+import edu.uconn.vstlf.matrix.NotSquareMatrix;
+import edu.uconn.vstlf.matrix.SingularMatrixExpt;
 
 
 public class MatrixTest {
-	@Test public void multTest()
+	@Test public void multTest() throws IncompatibleMatrixExpt
 	{		
-		try {
 			double[][] d1 = {{1.0, 0.0, 2.0}, {-1.0, 3.0, 1.0}};
 			double[][] d2 = {{3.0, 1.0}, {2.0, 1.0}, {1.0, 0.0}};
 			double[][] d3 = {{5.0, 1.0}, {4.0, 2.0}};
@@ -33,14 +35,10 @@ public class MatrixTest {
 			System.out.println(c);
 			
 			assertTrue(Matrix.equal(result, m3, 10e-8));
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-		}
 	}
 	
-	@Test public void LUPDecomposeTst()
+	@Test public void LUPDecomposeTst() throws IncompatibleMatrixExpt, NotSquareMatrix, SingularMatrixExpt
 	{
-		try {
 		double d[][] = {{2.0, 0.0, 2.0, 0.6},
 				        {3.0, 3.0, 4.0, -2.0},
 				        {5.0, 5.0, 4.0, 2.0},
@@ -62,14 +60,10 @@ public class MatrixTest {
 		assertTrue(Matrix.equal(m, LU, 10e-8));
 		for (int i = 0; i < permVec.length; ++i)
 			assertTrue(permVec[i] == permRef.get(i));
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-		}
 	}
 	
-	@Test public void inverseTest()
+	@Test public void inverseTest() throws IncompatibleMatrixExpt, NotSquareMatrix, SingularMatrixExpt
 	{
-		try {
 		double d[][] = {{1.0, 2.0, 3.0}, {0.0, 4.0, 5.0}, {1.0, 0.0, 6.0}};
 		Matrix m = new Matrix(d);
 		Matrix result = new Matrix(m.getRow(), m.getCol());
@@ -99,29 +93,20 @@ public class MatrixTest {
 				         {-0.004942761566254,  0.002740922436541,  0.010385934119276, -0.001795752996976,  0.006470039778597}};
 		ref = new Matrix(r1);
 		assertTrue(Matrix.equal(result, ref, 010e-8));
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-		}
-		
 	}
 	
-	@Test public void Invert()
+	@Test public void Invert() throws NotSquareMatrix, IncompatibleMatrixExpt, SingularMatrixExpt
 	{
-		try {
 			int n = 572;
 			Matrix m = new Matrix(n, n);
 			for (int i = 0; i < n; ++i)
 				for (int j = 0; j < n; ++j)
 					m.setVal(i, j, Math.random());
 			Matrix.inverse(m, new Matrix(n, n));
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-		}
 	}
 	
-	@Test public void Mult()
+	@Test public void Mult() throws IncompatibleMatrixExpt
 	{
-		try {
 			int n = 572; int k = 200;
 			Matrix m1 = new Matrix(n, k);
 			Matrix m2 = new Matrix(k, n);
@@ -143,9 +128,6 @@ public class MatrixTest {
 			for (int i = 0; i < n; ++i)
 				for (int j = 0; j < n; ++j)
 					assertTrue(result1.getVal(i, j) == result2.getVal(i, j));
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-		}
 	}
 	
 	@Test public void MultTrans() throws Exception

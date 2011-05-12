@@ -3,6 +3,7 @@ package edu.uconn.vstlf.matrix;
 import org.netlib.blas.DGEMM;
 import org.netlib.blas.DSYMM;
 import org.netlib.lapack.DGETRI;
+import org.netlib.lapack.DGETRF;
 import org.netlib.util.intW;
 
 public class Matrix {
@@ -313,19 +314,26 @@ public class Matrix {
 			throw new IncompatibleMatrixExpt(mtrx, result, "inverse");
 		
 		int n = mtrx.getRow();
-
-		double[] workSpace = new double[n*n];
-		int[] piv = new int[n];
-		for (int i = 0; i < n; ++i)
-			piv[i] = i;
 		
 		for (int i = 0; i < n; ++i)
 			for (int j = 0; j < n; ++j)
 				result.setVal(i, j, mtrx.getVal(i, j));
 		
-		intW ret = new intW(0);
-		DGETRI.DGETRI(n, result.getArray(), piv, workSpace, workSpace.length, ret);
-		if (ret.val != 0) throw new SingularMatrixExpt(mtrx, "DGETRI error");
+		int[] piv = new int[n];
+		intW info = new intW(0);
+		DGETRF.DGETRF(n, n, result.getArray(), piv, info);
+		
+		if (info.val < 0) 
+			throw new SingularMatrixExpt(mtrx, "DGETRF: argument " + (-info.val) + " invalid");
+		else if (info.val > 0)
+			throw new SingularMatrixExpt(mtrx, "DGETRF: U[" + info.val + ", " + info.val +"] is 0");
+		
+		double[] workSpace = new double[n*n];
+		DGETRI.DGETRI(n, result.getArray(), piv, workSpace, workSpace.length, info);
+		if (info.val < 0) 
+			throw new SingularMatrixExpt(mtrx, "DGETRI: argument " + (-info.val) + " invalid");
+		else if (info.val > 0)
+			throw new SingularMatrixExpt(mtrx, "DGETRI: U[" + info.val + ", " + info.val +"] is 0");
 		
 		/*
 		int[] permVec = LUPDecompose(mtrx);
