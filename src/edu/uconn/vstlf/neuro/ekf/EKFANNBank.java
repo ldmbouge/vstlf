@@ -69,7 +69,9 @@ public class EKFANNBank extends ANNBank {
 			double[] inputs = inputs_[i];
 			double[] outputs = tg[i].array();
 			double[] weights = anns_[i].getWeights();
-			anns_[i].backwardPropagate(inputs, outputs, weights, P_[i]);
+			Matrix Q = anns_[i].getQ();
+			Matrix R = anns_[i].getR();
+			anns_[i].backwardPropagate(inputs, outputs, weights, P_[i], Q, R);
 			anns_[i].setWeights(weights);
 		}
 	}

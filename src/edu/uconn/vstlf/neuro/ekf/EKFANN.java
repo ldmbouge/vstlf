@@ -249,7 +249,7 @@ public class EKFANN extends ANN {
 	}
 	
 	boolean spaceReserved_ = false;
-	Matrix Q, R;
+	//Matrix Q, R;
 	Matrix /* P_t_t1,*/  H_t, S_t, S_temp, S_t_inv, K_t, KHMult, RK_trans_mult, KRK_trans, P_temp_mult, P_temp;
 	
 	public void ReserveBPSpace()
@@ -257,8 +257,8 @@ public class EKFANN extends ANN {
 		int wn = getWeightsSize();
 		int outn = neurons_.lastElement().length;
 		if (!spaceReserved_) {
-			Q = new Matrix(wn, wn);
-			R = new Matrix(outn, outn);
+			//Q = new Matrix(wn, wn);
+			//R = new Matrix(outn, outn);
 			//P_t_t1 = new Matrix(wn, wn);
 			H_t = new Matrix(outn, getWeightsSize());
 			K_t = new Matrix(wn, outn);
@@ -276,8 +276,8 @@ public class EKFANN extends ANN {
 	
 	public void ReleaseBPSpace()
 	{
-		Q = null;
-		R = null;
+		//Q = null;
+		//R = null;
 		//P_t_t1 = null;
 		H_t = null;
 		K_t = null;
@@ -292,7 +292,7 @@ public class EKFANN extends ANN {
 		spaceReserved_ = false;
 	}
 	
-	public void backwardPropagate(double[] inputs, double[] outputs, double[] weights, Matrix P) throws Exception
+	public void backwardPropagate(double[] inputs, double[] outputs, double[] weights, Matrix P, Matrix Q, Matrix R) throws Exception
 	{
 		int wn = getWeightsSize();
 		if (wn != weights.length) throw new Exception("Back propagation failed: the input weight array has a different size");
@@ -304,13 +304,6 @@ public class EKFANN extends ANN {
 				if (P.getVal(i, j) != 0.0 && Math.abs(P.getVal(i, j)) < 10e-20)
 					throw new Exception(P.getVal(i, j) + "!!!!!!!!!P is too small!!!!!!!!!!!!!!");
 		if (!isTraining_) ReserveBPSpace();
-		
-		for (int i = 0; i < wn; ++i)
-			Q.setVal(i, i, 1.0);
-		for (int i = 0; i < outn; ++i)
-			R.setVal(i, i, 1.0);
-		Matrix.multiply(0.000005, Q);
-		Matrix.multiply(0.00001, R);
 		
 		setWeights(weights);
 		double[] w_t_t1 = weights;
@@ -383,6 +376,22 @@ public class EKFANN extends ANN {
 		return H_t;
 	}
 	
+	public Matrix getQ()
+	{
+		int wn = getWeightsSize();
+		Matrix Q = Matrix.identityMatrix(wn);
+		Matrix.multiply(0.000005, Q);
+		return Q;
+	}
+	
+	public Matrix getR()
+	{
+		int outn = neurons_.lastElement().length;
+		Matrix R = Matrix.identityMatrix(outn);
+		Matrix.multiply(0.00001, R);
+		return R;
+	}
+	
 	public void train(Series[] in, Series[] tg, int iterations) throws Exception
 	{
 		String methodName = "train";
@@ -394,8 +403,11 @@ public class EKFANN extends ANN {
 		ReserveBPSpace();
 		for (int it = 0; it < iterations; ++it) {
 			int tenPercent = 0;
+			
+			Matrix Q = getQ();
+			Matrix R = getR();
 			for(int i = 0;i<in.length;i++){
-				backwardPropagate(in[i].array(), tg[i].array(), weights, P);
+				backwardPropagate(in[i].array(), tg[i].array(), weights, P, Q, R);
 				int p = (int)((double)i/(double)in.length*10);
 				if ( p != tenPercent) {
 					MessageCenter.getInstance().put(new LogMessage(Level.INFO, EKFANNBank.class.getName(), methodName, "complete back propagation of " + p*10 + "% (" + i + "/" + in.length + ")inputs"));
@@ -443,7 +455,11 @@ public class EKFANN extends ANN {
 	public void update(Series trg) throws Exception {
 		double[] outputs = trg.array(false);
 		double[] weights = getWeights();
-		backwardPropagate(lastInput_, outputs, weights, P_);
+		
+		Matrix Q = getQ();
+		Matrix R = getR();
+		
+		backwardPropagate(lastInput_, outputs, weights, P_, Q, R);
 		setWeights(weights);
 	}
 

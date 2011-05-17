@@ -111,7 +111,7 @@ public class EKFTest {
 		double gap = 10E-6;
 
 		// First iteration
-		ekf.backwardPropagate(inputs1, outs1, weights, P);
+		ekf.backwardPropagate(inputs1, outs1, weights, P, ekf.getQ(), ekf.getR());
 		for (int i = 0; i < 572; ++i) {
 			assertTrue(Math.abs(weights[i] - wref1[i]) < gap);
 			for (int j = 0; j < 572; ++j)
@@ -121,7 +121,7 @@ public class EKFTest {
 		
 		weights = ekf.getWeights();
 		// Second iteration
-		ekf.backwardPropagate(inputs2, outs2, weights, P);
+		ekf.backwardPropagate(inputs2, outs2, weights, P, ekf.getQ(), ekf.getR());
 		for (int i = 0; i < 572; ++i) {
 			assertTrue(Math.abs(weights[i] - wref2[i]) < gap);
 			for (int j = 0; j < 572; ++j)

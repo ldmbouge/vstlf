@@ -77,9 +77,14 @@ load PHKF;
 Q=0.000005*eye(ns);
 R=0.00001*eye(ny);
 
+javaaddpath('/home/yuting/Projects/vstlf/uconn-vstlf.jar');
+import edu.uconn.vstlf.*;
+jann = neuro.ekf.EKFANN([43, 10, 12]);
+
 for TT=1:10
     for k=1:length(TraIn(:,1))
 %           for k=length(TraIn(:,1))-2:length(TraIn(:,1))
+        
         [x,P,S]=nnekf2(x,TraIn(k,:)',TraOut(k,:)',P,Q,R);
     end
 end

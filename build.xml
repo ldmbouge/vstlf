@@ -16,7 +16,6 @@
 		<pathelement location="lib/lapack.jar"/>
 		<pathelement location="lib/blas_simple.jar"/>
 		<pathelement location="lib/lapack_simple.jar"/>
-		<pathelement location="lib/xerbla.jar"/>
 	</path>
 
 	<!-- DESTROY:  DELETE THE CURRENTLY EXISTING JAR -->
@@ -54,7 +53,6 @@
 			<zipfileset src="lib/lapack.jar" includes="**/*"/>
 			<zipfileset src="lib/blas_simple.jar" includes="**/*"/>
 			<zipfileset src="lib/lapack_simple.jar" includes="**/*"/>
-			<zipfileset src="lib/xerbla.jar" includes="**/*"/>
 		</jar>
 	</target>
 
