@@ -37,7 +37,7 @@ load LLoad;
 load HLoad;
 
 % LL Load
-[LowForecastLoad,LowSD,LowMinErr,RIOutput]=VSTLFEKFLowForecaster(StrTrainTime,EndTrainTime,StrValTime,EndValTime,LLoad);
+[LowForecastLoad,LowSD,LowMinErr,RIOutput]=VSTLFEKFLowForecaster_test(StrTrainTime,EndTrainTime,StrValTime,EndValTime,LLoad);
 % [LowForecastLoad,LowSD,LowMinErr,RIOutput]=VSTLFUKFLowForecaster3(StrTrainTime,EndTrainTime,StrValTime,EndValTime,LLoad,LSMDLoadAct,LSMDLoadPred,LowHidNum,LowStopCreteria,NNNum,MinMaxTag);
 % H Load
 i=1; [HighForecastLoad(i,:),HighSD1,HighMinErr(i,:)]=VSTLFUKFHighForecaster(StrTrainTime,EndTrainTime,StrValTime,EndValTime,HLoad(i,:));

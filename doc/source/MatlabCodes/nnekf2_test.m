@@ -7,17 +7,6 @@ in=x;
 [theta,P,S]=ekf(theta,y(:),P,Q,R,f,h, wghChange);    % the EKF
 % e=h(theta);                             % returns trained model output
 
-% The NN model. It can be modified for different NN structure.
-function y=nn(theta,x,ny)
-[nx,N]=size(x);
-ns=numel(theta);                            
-nh=(ns-ny)/(nx+ny+1);                   % calculate number of hidden nodes
-W1=reshape(theta(1:nh*(nx+1)),nh,[]);   % extract weights from theta
-W2=reshape(theta(nh*(nx+1)+1:end),ny,[]); 
-% the NN model
-y=W2(:,1:nh)*tanh(W1(:,1:nx)*x+W1(:,nx+ones(1,N)))+W2(:,nh+ones(1,N));
-y=y(:);                                 % correct vector orientation for EKF
-
 function [x,P,S]=ekf(x,z,P,Q,R,fstate,hmeas, h)
 % [x1,A]=jaccsd(fstate,x);    %nonlinear update and linearization at current state
 % P=A*P*A'+Q;                 %partial update
@@ -42,19 +31,3 @@ W     = Pkk_1*H'*inv(S);
 x     = xkk_1 + W*nu;
 P     = (eye(size(W*H))-W*H)*Pkk_1*(eye(size(W*H))-W*H)'+W*R*W'; %Joseph Form
 P     = (P + P')./ 2;
-
-function [z,A]=jaccsd(fun,x, h)
-% JACCSD Jacobian through complex step differentiation
-% [z J] = jaccsd(f,x)
-% z = f(x)
-% J = f'(x)
-%
-z=fun(x);
-n=numel(x);
-m=numel(z);
-A=zeros(m,n);
-for k=1:n
-    x1=x;
-    x1(k)=x1(k)+h;
-    A(:,k)=(fun(x1)-z)/h;
-end

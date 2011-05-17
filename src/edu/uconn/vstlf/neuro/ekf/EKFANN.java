@@ -125,7 +125,7 @@ public class EKFANN extends ANN {
 	public int getNumLayers() { return layersShp_.length; }
 	public int getLayerSize(int layerIndex) { return layersShp_[layerIndex]; }
 	
-	private int getWeightsSize()
+	public int getWeightsSize()
 	{
 		int n = 0;
 		for (int l = 1; l < getNumLayers(); ++l)
@@ -202,8 +202,6 @@ public class EKFANN extends ANN {
 		
 		EKFNeuron[] prevLayer = neurons_.elementAt(toNeuronLayer-1);
 		EKFNeuron[] toLayer = neurons_.elementAt(toNeuronLayer);
-		double fromInput = (fromNeuronIndex == prevLayer.length ? 
-				hiddenInput : prevLayer[fromNeuronIndex].getOutput());
 		EKFNeuron toNeuron = toLayer[toNeuronIndex];
 		
 		// Save changed data
@@ -216,12 +214,18 @@ public class EKFANN extends ANN {
 		}
 		
 		// incrementally compute the weighted sum and output after weight adjustment
-		toNeuron.setWeightedSum(toNeuron.getWeightedSum() + weightChange*fromInput);
-		toNeuron.setOutput(toNeuron.computeOutput(toNeuron.getWeightedSum()));
-		
+		double oldWeight = toNeuron.getWeights()[fromNeuronIndex];
+		toNeuron.getWeights()[fromNeuronIndex] += weightChange;
+		double[] prevInput = new double[getLayerSize(toNeuronLayer-1)+1];
+		for (int pi = 0; pi < getLayerSize(toNeuronLayer-1); ++pi)
+			prevInput[pi] = prevLayer[pi].getOutput();
+		prevInput[getLayerSize(toNeuronLayer-1)] = hiddenInput;
+		// Forward propagate toNeuron
+		toNeuron.forwardPropagate(prevInput);
+				
 		// incrementally compute the weighted sum and output in the next layer
-		int nextLayer = toNeuronLayer + 1;
-		if (nextLayer < getNumLayers()) {
+		int nextLayer = toNeuronLayer;
+		/*if (nextLayer < getNumLayers()) {
 			double inputChange = toNeuron.getOutput() - savedata.firstElement().output;
 			EKFNeuron[] neurons = neurons_.elementAt(nextLayer);
 			for (int i = 0; i < neurons.length; ++i) {
@@ -230,7 +234,7 @@ public class EKFANN extends ANN {
 				neu.setWeightedSum(neu.getWeightedSum() + inputChange*weight);
 				neu.setOutput(neu.computeOutput(neu.getWeightedSum()));
 			}
-		}
+		}*/
 		
 		// forward propagate
 		if (nextLayer + 1 < getNumLayers())
@@ -245,6 +249,7 @@ public class EKFANN extends ANN {
 			n.setOutput(snd.output);
 		}
 		
+		toNeuron.getWeights()[fromNeuronIndex] = oldWeight;
 		return changeOutput;
 	}
 	
@@ -367,7 +372,7 @@ public class EKFANN extends ANN {
 		System.arraycopy(w_t_t, 0, weights, 0, wn);
 	}
 	
-	Matrix jacobian(Matrix H_t) throws Exception
+	public Matrix jacobian(Matrix H_t) throws Exception
 	{
 		double[] refout = getOutput();
 		int hCol = 0;
