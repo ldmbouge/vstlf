@@ -1,10 +1,10 @@
 
-function [theta,P,S]=nnekf2(theta,x,y,P,Q,R)
+function [theta,P,S]=nnekf2_test(theta,x,y,P,Q,R, wghChange)
 
 f=@(u)u;                                % dumy process function to update parameters  
 h=@(u)nn(u,x,size(y,1));                % NN model
 in=x;    
-[theta,P,S]=ekf(theta,y(:),P,Q,R,f,h);    % the EKF
+[theta,P,S]=ekf(theta,y(:),P,Q,R,f,h, wghChange);    % the EKF
 % e=h(theta);                             % returns trained model output
 
 % The NN model. It can be modified for different NN structure.
@@ -18,7 +18,7 @@ W2=reshape(theta(nh*(nx+1)+1:end),ny,[]);
 y=W2(:,1:nh)*tanh(W1(:,1:nx)*x+W1(:,nx+ones(1,N)))+W2(:,nh+ones(1,N));
 y=y(:);                                 % correct vector orientation for EKF
 
-function [x,P,S]=ekf(x,z,P,Q,R,fstate,hmeas)
+function [x,P,S]=ekf(x,z,P,Q,R,fstate,hmeas, h)
 % [x1,A]=jaccsd(fstate,x);    %nonlinear update and linearization at current state
 % P=A*P*A'+Q;                 %partial update
 % [z1,H]=jaccsd(hmeas,x1);    %nonlinear measurement and linearization
@@ -33,9 +33,9 @@ function [x,P,S]=ekf(x,z,P,Q,R,fstate,hmeas)
 xk_1k_1=x;
 Qk_1=Q;
 Pk_1k_1=P;
-[xkk_1,Fk_1]=jaccsd(fstate,xk_1k_1);
+[xkk_1,Fk_1]=jaccsd(fstate,xk_1k_1, h);
 Pkk_1 = Fk_1*Pk_1k_1*Fk_1' + Qk_1;
-[zkk_1,H]=jaccsd(hmeas,xkk_1);
+[zkk_1,H]=jaccsd(hmeas,xkk_1, h);
 nu    = z - zkk_1;
 S     = H*Pkk_1*H' +R;
 W     = Pkk_1*H'*inv(S);
@@ -43,7 +43,7 @@ x     = xkk_1 + W*nu;
 P     = (eye(size(W*H))-W*H)*Pkk_1*(eye(size(W*H))-W*H)'+W*R*W'; %Joseph Form
 P     = (P + P')./ 2;
 
-function [z,A]=jaccsd(fun,x)
+function [z,A]=jaccsd(fun,x, h)
 % JACCSD Jacobian through complex step differentiation
 % [z J] = jaccsd(f,x)
 % z = f(x)
@@ -53,9 +53,8 @@ z=fun(x);
 n=numel(x);
 m=numel(z);
 A=zeros(m,n);
-h= 1.27009514017118e-6;
 for k=1:n
     x1=x;
     x1(k)=x1(k)+h;
-    A(:,k)=fun(x1))/h;
+    A(:,k)=(fun(x1)-z)/h;
 end

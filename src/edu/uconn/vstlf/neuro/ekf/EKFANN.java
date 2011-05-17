@@ -292,6 +292,17 @@ public class EKFANN extends ANN {
 		spaceReserved_ = false;
 	}
 	
+	// for matlab test case
+	// since we need to modify the weights in back propagation, it need
+	// to be an array to references
+	public void backwardPropTest(double[] inputs, double[] outputs, Double[] weights, Matrix P, Matrix Q, Matrix R) throws Exception
+	{
+		double[] w = new double[weights.length];
+		for (int i = 0; i < w.length; ++i) w[i] = weights[i];
+		backwardPropagate(inputs, outputs, w, P, Q, R);
+		for (int i = 0; i < w.length; ++i) weights[i] = w[i];
+	}
+	
 	public void backwardPropagate(double[] inputs, double[] outputs, double[] weights, Matrix P, Matrix Q, Matrix R) throws Exception
 	{
 		int wn = getWeightsSize();
