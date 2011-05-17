@@ -81,7 +81,7 @@ javaaddpath('/home/yuting/Projects/vstlf/uconn-vstlf.jar');
 import edu.uconn.vstlf.*;
 jann = neuro.ekf.EKFANN([43, 10, 12]);
 wChange = 1.27009514017118e-6;
-neuro.ekf.EKFANN.weightChange = wChange;
+jann.setWeightChange(wChange);
 jQ = matrix.Matrix(Q);
 jR = matrix.Matrix(R);
 jP = matrix.Matrix(P);

@@ -44,10 +44,6 @@ public class EKFTest {
 	
 	@Test public void backwardTest() throws Exception
 	{
-		// For test we have to set partial weight change to a relative large value
-		// because the reference data from matlab has limitied precision
-		
-		EKFANN.weightChange = 1.27009514017118e-6;
 
 		String weigthCSV1 = "doc/test/BackwardPropagation/orgweight.csv",
 		  refOutCSV1 = "doc/test/BackwardPropagation/refout1.csv",
@@ -106,6 +102,11 @@ public class EKFTest {
 		layers[2] = 12;
 		EKFANN ekf = new EKFANN(layers);
 		ekf.setWeights(weights);
+	
+		// For test we have to set partial weight change to a relative large value
+		// because the reference data from matlab has limitied precision
+		
+		ekf.setWeightChange(1.27009514017118e-6);
 		
 		Matrix P = Matrix.identityMatrix(weights.length); 
 		double gap = 10E-6;
