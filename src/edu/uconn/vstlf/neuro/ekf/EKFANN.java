@@ -339,9 +339,12 @@ public class EKFANN extends ANN {
 		Matrix.multiply(false, false, H_t, S_temp, S_t);
 		Matrix.add(S_t, R);
 		
-		// compute K(t)
-		Matrix.inverse(Matrix.copy(S_t), S_t_inv);
-		Matrix.multiply(false, false, S_temp, S_t_inv, K_t);
+		// compute K(t) = P(t|t-1)*H(t)'*S(t)^-1
+		// compute X(t) = H(t)'*S(t)^-1 first, it is the same to solve 
+		// S(t)'X(t)'=H(t)
+		Matrix X_t_trans = new Matrix(H_t.getRow(), H_t.getCol());
+		Matrix.solveLinearEqu(true, Matrix.copy(S_t), Matrix.copy(H_t), X_t_trans);
+		Matrix.multiply(false, true, P_t_t1, X_t_trans, K_t);
 		
 		// Compute w(t|t)
 		double [] uz = new double[outn];

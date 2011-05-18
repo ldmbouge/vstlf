@@ -4,6 +4,8 @@ import org.netlib.blas.DGEMM;
 import org.netlib.blas.DSYMM;
 import org.netlib.lapack.DGETRI;
 import org.netlib.lapack.DGETRF;
+import org.netlib.lapack.DGETRS;
+
 import org.netlib.util.intW;
 
 public class Matrix {
@@ -317,6 +319,43 @@ public class Matrix {
 			b[i] = (b[i] - delSum)/LUMtrx.getVal(i, i);
 		}
 	}
+	
+	/* Solve linear equation 
+	 * A *X = B  if transA == true
+	 * A'*X = B  if transA == false
+	 * */
+	public static void solveLinearEqu(boolean transA, Matrix A, Matrix B, Matrix X) throws Exception
+	{
+		if (A.getRow()  != A.getCol())
+			throw new NotSquareMatrix(A, "solvRightLinearEquation");
+		if (A.getRow()  != B.getRow())
+			throw new IncompatibleMatrixExpt(A, B, "solvRightLinearEquation");
+		if (A.getCol()  != X.getRow())
+			throw new IncompatibleMatrixExpt(A, X, "solvRightLinearEquation");
+		if (X.getCol() != B.getCol())
+			throw new IncompatibleMatrixExpt(X, B, "solvRightLinearEquation");
+		
+		int n = A.getRow();
+		int nrhs = B.getCol();
+		
+		int[] piv = new int[n];
+		intW info = new intW(0);
+		DGETRF.DGETRF(n, A.getCol(), A.getArray(), piv, info);
+
+		if (info.val < 0) 
+			throw new SingularMatrixExpt(A, "DGETRF: argument " + (-info.val) + " invalid");
+		else if (info.val > 0)
+			throw new SingularMatrixExpt(A, "DGETRF: U[" + info.val + ", " + info.val +"] is 0");
+
+		String trans = transA ? "T" : "N";
+		DGETRS.DGETRS(trans, n, nrhs, A.getArray(), piv, B.getArray(), info);
+		if (info.val < 0) 
+			throw new SingularMatrixExpt(A, "DGETRS: argument " + (-info.val) + " invalid");
+		
+		for (int i = 0; i < X.getRow(); ++i)
+			for (int j = 0; j < X.getCol(); ++j)
+				X.setVal(i, j, B.getVal(i, j));
+	}	
 	
 	public static void inverse(Matrix mtrx, Matrix result) throws NotSquareMatrix, IncompatibleMatrixExpt, SingularMatrixExpt
 	{

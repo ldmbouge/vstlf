@@ -80,7 +80,7 @@ R=0.00001*eye(ny);
 javaaddpath('/home/yuting/Projects/vstlf/uconn-vstlf.jar');
 import edu.uconn.vstlf.*;
 jann = neuro.ekf.EKFANN([43, 10, 12]);
-wChange = 1/2^17;
+wChange = 1/2^15;
 jann.setWeightChange(wChange);
 jQ = matrix.Matrix(Q);
 jR = matrix.Matrix(R);
