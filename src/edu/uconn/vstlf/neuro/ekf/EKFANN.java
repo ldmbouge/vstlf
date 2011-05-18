@@ -18,7 +18,7 @@ import edu.uconn.vstlf.neuro.WeightSet;
 
 public class EKFANN extends ANN {
 	static private double hiddenInput = 1.0;
-	private double weightChange = 1.27009514017118e-13;
+	private double weightChange = 3.051757812500000e-05;
 	
 	public void setWeightChange(double wc) { weightChange = wc; }
 	public double getWeightChange() { return weightChange; }
