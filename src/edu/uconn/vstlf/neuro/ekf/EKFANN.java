@@ -366,6 +366,8 @@ public class EKFANN extends ANN {
 		Matrix.multiply(false, true, P_t_t1, I_minus_KHMult, P_temp_mult);
 		Matrix.multiply(false, false, I_minus_KHMult, P_temp_mult, P_temp);
 		
+		Matrix.add(P_temp, KRK_trans);
+		
 		for (int i = 0; i < wn; ++i)
 			for (int j = 0; j < wn; ++j)
 				P.setVal(i, j, (P_temp.getVal(i, j) + P_temp.getVal(j, i))/2.0);

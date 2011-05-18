@@ -10,12 +10,19 @@ public class Matrix {
 	private double[][] mtrx_;
 	
 	public double[][] getArray() { return mtrx_; }
+	public void setArray(double[][] mtrx) { mtrx_ = mtrx; }
 	
 	public Matrix(int row, int column)
 	{
 		mtrx_ = new double[row][column];
 	}
 	
+	static public double[] multiply(Matrix mtrx, double[] colVec) throws Exception
+	{
+		double[] outVec = new double[mtrx.getRow()];
+		Matrix.multiply(mtrx, colVec, outVec);
+		return outVec;
+	}
 	
 	/*
 	public String toString()
@@ -122,19 +129,26 @@ public class Matrix {
 		String t1 = trans1 ? "T" : "N";
 		String t2 = trans2 ? "T" : "N";
 		DGEMM.DGEMM(t1, t2, row, col, k1, 1.0, m1.getArray(), m2.getArray(), 0.0, result.getArray());
-		
+
 		/*
-		for (int r = 0; r < m1.getRow(); ++r)
-			for (int c = 0; c < m2.getCol(); ++c) {
-				double v = 0.0;
-				for (int k = 0; k < m1.getCol(); ++k)
-					v += m1.getVal(r, k)*m2.getVal(k, c);
-				result.setVal(r, c, v);
-			}
-		*/
+		if (trans1 && !trans2)
+			multiply_trans1(m1, m2, result);
+		else if (trans2 && !trans1)
+			multiply_trans2(m1, m2, result);
+		else if (!trans1 && !trans2)
+			for (int r = 0; r < m1.getRow(); ++r)
+				for (int c = 0; c < m2.getCol(); ++c) {
+					double v = 0.0;
+					for (int k = 0; k < m1.getCol(); ++k)
+						v += m1.getVal(r, k)*m2.getVal(k, c);
+					result.setVal(r, c, v);
+				}
+		else
+			throw new IncompatibleMatrixExpt(m1, m2, "multiply matrices: unimplemented");
+			*/	
 	}
 	
-	/*
+	
 	// Multiply transpose(m1) with m2
 	public static void multiply_trans1(Matrix m1, Matrix m2, Matrix result) throws IncompatibleMatrixExpt
 	{
@@ -172,7 +186,7 @@ public class Matrix {
 				result.setVal(r, c, v);
 			}
 	}
-	*/
+	
 	
 	public static void multiply(double coeff, Matrix m)
 	{

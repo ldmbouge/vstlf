@@ -109,7 +109,7 @@ public class EKFTest {
 		ekf.setWeightChange(1.27009514017118e-6);
 		
 		Matrix P = Matrix.identityMatrix(weights.length); 
-		double gap = 10E-6;
+		double gap = 10E-10;
 
 		// First iteration
 		ekf.backwardPropagate(inputs1, outs1, weights, P, ekf.getQ(), ekf.getR());

@@ -80,7 +80,7 @@ R=0.00001*eye(ny);
 javaaddpath('/home/yuting/Projects/vstlf/uconn-vstlf.jar');
 import edu.uconn.vstlf.*;
 jann = neuro.ekf.EKFANN([43, 10, 12]);
-wChange = 1.27009514017118e-6;
+wChange = 1/2^17;
 jann.setWeightChange(wChange);
 jQ = matrix.Matrix(Q);
 jR = matrix.Matrix(R);
@@ -97,12 +97,14 @@ for TT=1:10
         tOut = TraOut(k,:)';
         jann.backwardPropTest(tIn, tOut, jx, jP, jQ, jR);
         [x,P,S]=nnekf2_test(x,tIn,tOut,P,Q,R, wChange);
+        cnt = 0;
         for i=1:numel(x)
-            if(x(i,1) ~= jx(i))
-                txt = ['at ', ' the ', num2str(k), 'th ', ' input'];
-                disp(txt);
+            if(abs(x(i,1) - jx(i).doubleValue()) > 10E-8)
+                cnt = cnt+1;
             end
         end
+        txt = ['iteration ', num2str(k), ': ', num2str(cnt), ' weights ', ' are ', ' different '];
+        disp(txt);
     end
 end
 %========== Start Validation====================
