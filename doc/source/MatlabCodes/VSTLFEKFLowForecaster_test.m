@@ -97,13 +97,13 @@ for TT=1:10
         tOut = TraOut(k,:)';
         jann.backwardPropTest(tIn, tOut, jx, jP, jQ, jR);
         [x,P,S]=nnekf2_test(x,tIn,tOut,P,Q,R, wChange);
-        cnt = 0;
-        for i=1:numel(x)
-            if(abs(x(i,1) - jx(i).doubleValue()) > 10E-8)
-                cnt = cnt+1;
-            end
+        jxAry = zeros(numel(x),1);
+        for i=1:numel(x) 
+            jxAry(i)=jx(i).doubleValue(); 
         end
-        txt = ['iteration ', num2str(k), ': ', num2str(cnt), ' weights ', ' are ', ' different '];
+        diff = x-jxAry;
+        cnt=sum(diff > 10E-7);
+        txt = ['iteration ', num2str(k), ': ', num2str(cnt), ' weights are different. max ', num2str(max(diff))];
         disp(txt);
     end
 end

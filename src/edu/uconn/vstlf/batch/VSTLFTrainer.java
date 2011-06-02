@@ -385,8 +385,8 @@ public class VSTLFTrainer {
 			for (int j = 0; j < inputSet[i].array().length; ++j) {
 				double v = inputSet[i].array()[j];
 				if (v > 1.0 || v < 0.0) {
-					System.err.println("Input out of range: " + v);
-					throw new Exception("Input out of range");
+					System.err.println("Input out of range: " + v + "(lvl " + i + " at " + t + ")");
+					//throw new Exception("Input out of range");
 				}
 			}
 					
@@ -418,8 +418,8 @@ public class VSTLFTrainer {
 				double v = targetSet[i].array()[j];
 				if (v > s_) s_ = v;
 				if (v > 1.0 || v < 0.0) {
-					System.err.println("Target out of range: " + v);
-					throw new Exception("Target out of range");
+					System.err.println("Target out of range: " + v + "(lvl " + i + " at " + t + ")");
+					//throw new Exception("Target out of range");
 				}
 			}
 		return targetSet;
