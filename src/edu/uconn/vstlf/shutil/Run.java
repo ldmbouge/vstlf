@@ -26,7 +26,6 @@
 package edu.uconn.vstlf.shutil;
 
 import edu.uconn.vstlf.config.Items;
-import edu.uconn.vstlf.test.EKFTraining;
 
 import java.util.TimeZone;
 
@@ -120,6 +119,9 @@ public class Run {
 		}
 		else if(cmd.equals("test")){
 			RunUnitTests.main(cargs);
+		}
+		else if(cmd.equals("ekf-train")) {
+			EKFTraining.main(cargs);
 		}
 		else{
 			System.out.println(USAGE());

@@ -23,7 +23,7 @@
  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ***********************************************************************/
 
-package edu.uconn.vstlf.test;
+package edu.uconn.vstlf.shutil;
 
 import java.io.*;
 import java.text.DateFormat;
