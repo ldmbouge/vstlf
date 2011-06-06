@@ -13,19 +13,14 @@ public class EKFANNBank extends ANNBank {
 
 	EKFANN[] anns_;
 	double[][] inputs_;
-	Matrix[] P_;
 	
 	private void init(int[][] lyrSz) throws Exception
 	{
 		inputs_ = new double[lyrSz.length][];
-		P_ = new Matrix[lyrSz.length];
 		for(int i = 0;i<lyrSz.length;i++) {
 			anns_[i] = new EKFANN(lyrSz[i]);
 			// Initialize the array storing the input in the last execution for back propagation
 			inputs_[i] = new double[lyrSz[i][0]];
-			// Initialize the P matrix for back propagation
-			int wn = anns_[i].getWeights().length;
-			P_[i]  = Matrix.identityMatrix(wn);
 		}
 	}
 	public EKFANNBank(int[][] lyrSz) throws Exception {
@@ -71,7 +66,7 @@ public class EKFANNBank extends ANNBank {
 			double[] weights = anns_[i].getWeights();
 			Matrix Q = anns_[i].getQ();
 			Matrix R = anns_[i].getR();
-			anns_[i].backwardPropagate(inputs, outputs, weights, P_[i], Q, R);
+			anns_[i].backwardPropagate(inputs, outputs, weights, anns_[i].getP(), Q, R);
 			anns_[i].setWeights(weights);
 		}
 	}

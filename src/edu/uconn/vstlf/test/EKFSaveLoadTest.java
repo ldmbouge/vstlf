@@ -6,6 +6,7 @@ import java.io.File;
 
 import org.junit.Test;
 
+import edu.uconn.vstlf.matrix.Matrix;
 import edu.uconn.vstlf.neuro.ekf.EKFANN;
 
 public class EKFSaveLoadTest {
@@ -14,7 +15,7 @@ public class EKFSaveLoadTest {
 	{
 		String testBank = "bank_test.ann";
 		int testId = 1;
-		EKFANN ann = EKFANN.load("anns/bank0.ann", testId);
+		EKFANN ann = EKFANN.load("bank0.ann", testId);
 		ann.save(testBank, testId);
 		EKFANN cmpAnn = EKFANN.load(testBank, testId);
 		double[] wSave = ann.getWeights();
@@ -23,6 +24,15 @@ public class EKFSaveLoadTest {
 		for (int i = 0; i < wSave.length; ++i)
 			assertTrue(wSave[i] == wLoad[i]);
 		
+		Matrix PSave = ann.getP();
+		Matrix PLoad = cmpAnn.getP();
+		assertTrue(PSave.getRow() == PLoad.getRow());
+		assertTrue(PSave.getCol() == PLoad.getCol());
+		for (int i = 0; i < PSave.getRow(); ++i)
+			for (int j = 0; j < PSave.getCol(); ++j)
+				assertTrue(PSave.getVal(i, j) == PLoad.getVal(i, j));
+
+
 		File f = new File(testBank);
 		f.delete();
 	}

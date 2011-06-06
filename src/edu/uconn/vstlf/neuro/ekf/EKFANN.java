@@ -14,7 +14,6 @@ import edu.uconn.vstlf.data.message.MessageCenter;
 import edu.uconn.vstlf.matrix.Matrix;
 import edu.uconn.vstlf.neuro.ANN;
 import edu.uconn.vstlf.neuro.WeightObj;
-import edu.uconn.vstlf.neuro.WeightSet;
 
 public class EKFANN extends ANN {
 	static private double hiddenInput = 1.0;
@@ -400,6 +399,14 @@ public class EKFANN extends ANN {
 		return H_t;
 	}
 	
+	public void setP(Matrix P)
+	{	P_ = P;  }
+	
+	public Matrix getP()
+	{
+		return P_;
+	}
+	
 	public Matrix getQ()
 	{
 		int wn = getWeightsSize();
@@ -491,11 +498,15 @@ public class EKFANN extends ANN {
 	@Override
 	public void save(String file, int id) throws Exception {
 		WeightObj[] curr = getWeightObjs();
-		WeightObj[] past = getWeightObjs();
-		WeightSet content = new WeightSet(id,getLayerSize(),curr,past);
+		double[] Pary = new double[P_.getRow()*P_.getCol()];
+		for (int i = 0; i < P_.getRow(); ++i)
+			for (int j = 0; j < P_.getCol(); ++j)
+				Pary[i*P_.getRow()+j] = P_.getVal(i, j);
+		EKFWeightSet content = new EKFWeightSet(id,getLayerSize(),curr, Pary);
+		
 		Storage db = StorageFactory.getInstance().createStorage();
 		db.open(file, Storage.DEFAULT_PAGE_POOL_SIZE);
-		Index<WeightSet> sets = (Index<WeightSet>)db.getRoot();
+		Index<EKFWeightSet> sets = (Index<EKFWeightSet>)db.getRoot();
 		if (sets == null) { 
             sets = db.createIndex(int.class, true);
             db.setRoot(sets);
@@ -511,20 +522,28 @@ public class EKFANN extends ANN {
 	static EKFANN load(String file, int id)throws Exception{
 		Storage db = StorageFactory.getInstance().createStorage();
 		db.open(file, Storage.DEFAULT_PAGE_POOL_SIZE);
-		Index<WeightSet> sets = (Index<WeightSet>)db.getRoot();
+		Index<EKFWeightSet> sets = (Index<EKFWeightSet>)db.getRoot();
 		if (sets == null) { 
             throw new Exception("There are no ANNs stored in the file '" + file +"'.");
         }
-		WeightSet content = sets.get(new Key(id));
+		EKFWeightSet content = sets.get(new Key(id));
 		if(content==null){
 			throw new Exception("ANN #"+id+"is not stored in the file '" + file +"'.");
 		}
 		EKFANN ann = new EKFANN(content._lyrSz);
-		WeightObj[] curr = content._curr;
+		WeightObj[] curr = content.getWeights();
 		for (int i = 0; i < curr.length; ++i) {
 			WeightObj wo = curr[i];
 			ann.setWeight(wo.lid(), wo.nid(), wo.cid(), wo.val());
 		}
+		
+		double[] Pary = content.getP();
+		Matrix P = new Matrix(curr.length, curr.length);
+
+		for (int i = 0; i < curr.length; ++i)
+			for (int j = 0; j < curr.length; ++j)
+				P.setVal(i, j, Pary[i*curr.length+j]);
+		ann.setP(P);
 		return ann;
 	}
 }
