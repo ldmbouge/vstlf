@@ -81,6 +81,13 @@ public class DataFeed {
 		Series[] inputSet = new Series[_lvls+1];
 		for(int i = 0;i<_lvls;i++){
 			inputSet[i] = idx.append(_norm[i].imageOf((phComps[i].subseries(121,132))));
+			for (int j = 0; j < inputSet[i].array().length; ++j) {
+				double v = inputSet[i].array()[j];
+				if (v > 1.0 || v < 0.0) {
+					System.err.println("Input out of range: " + v + "(lvl " + i + " at " + t + ")");
+					throw new Exception("Input out of range");
+				}
+			}
 		}//Then differentiate and normalize the low component.
 		phComps[_lvls] = phComps[_lvls].suffix(12).prefix(1).append(phComps[_lvls].suffix(12).differentiate().suffix(11));
 		inputSet[_lvls] = _normAbs.imageOf(phComps[_lvls].prefix(1)).append(_norm[_lvls].imageOf(phComps[_lvls].suffix(11)))
@@ -99,6 +106,14 @@ public class DataFeed {
 		Series prev = pdb.getLoad("filt", cal.addHoursTo(t, -11), cal.addHoursTo(t, -0)).daub4Separation(_lvls, _db4LD,_db4HD,_db4LR,_db4HR)[_lvls];
 		components[_lvls] = prev.append(components[_lvls].suffix(12));
 		targetSet[_lvls] = _norm[_lvls].imageOf(components[_lvls].differentiate().suffix(12));
+		for (int i = 0; i < targetSet.length; ++i)
+			for (int j = 0; j < targetSet[i].array().length; ++j) {
+				double v = targetSet[i].array()[j];
+				if (v > 1.0 || v < 0.0) {
+					System.err.println("Target out of range: " + v + "(lvl " + i + " at " + t + ")");
+					throw new Exception("Target out of range");
+				}
+			}
 		return targetSet;
 	}
 	
