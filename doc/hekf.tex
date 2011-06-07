@@ -93,9 +93,12 @@ The process of training low frequency network is as follows:
   \begin{equation} 
     \begin{split}
       P = & (I - K(t+1)*H(t+1))*P(t+1|t)*(I-K(t+1)*H(t+1))^T \\
-          & +K(t+1)*R(t+1)*K(t+1)^T \\
-      P&(t+1|t+1) = (P+P^T)/2
+          & +K(t+1)*R(t+1)*K(t+1)^T
     \end{split}
+  \end{equation}
+
+  \begin{equation}
+    P(t+1|t+1) = (P+P^T)/2
   \end{equation}
     $K$ is the Kalman gain. From above equations we get $\omega$ and $P$ for the next iteration.
 

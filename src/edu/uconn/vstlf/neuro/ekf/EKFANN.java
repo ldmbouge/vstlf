@@ -39,6 +39,11 @@ public class EKFANN extends ANN {
 	 */
 	private Vector<EKFNeuron[]> neurons_ = new Vector<EKFNeuron[]>();
 	
+	
+	/* 
+	 * Constructor of the EKF neural network
+	 * takes the size of each layer and create a new EKF network
+	 */
 	public EKFANN(int [] layersShape) throws Exception
 	{
 		layersShp_ = layersShape;
@@ -64,6 +69,7 @@ public class EKFANN extends ANN {
 		P_ = Matrix.identityMatrix(getWeights().length);
 	}
 	
+	/* get the weights of the EKF network */
 	public double[] getWeights() throws Exception
 	{
 		int n = getWeightsSize();
@@ -96,6 +102,8 @@ public class EKFANN extends ANN {
 		return w;
 	}
 	
+	/* set the weight from neuron [layer-1, fromIndex] to neuron[layer, neuronIndex] 
+	 */
 	public void setWeight(int layer, int neuronIndex, int fromIndex, double weight)
 	{
 		EKFNeuron[] neurons = neurons_.elementAt(layer);
@@ -103,6 +111,7 @@ public class EKFANN extends ANN {
 		weights[fromIndex] = weight;
 	}
 	
+	/* set weights of the EKF network */
 	public void setWeights(double[] weights) throws Exception
 	{
 		if (weights.length != getWeightsSize())
@@ -124,9 +133,12 @@ public class EKFANN extends ANN {
 			throw new Exception("Error while setting weights");
 	}
 	
+	/* get the number of layers */
 	public int getNumLayers() { return layersShp_.length; }
+	/* get the size of layer 'layerIndex'*/
 	public int getLayerSize(int layerIndex) { return layersShp_[layerIndex]; }
 	
+	/* get the number of weights in EKF network */
 	public int getWeightsSize()
 	{
 		int n = 0;
@@ -135,11 +147,13 @@ public class EKFANN extends ANN {
 		return n;
 	}
 	
+	/* get the number of weights to a neuron in layer 'layerIndex' */
 	private int getNeuronWeightSize(int layerIndex)
 	{
 		return getLayerSize(layerIndex-1)+1;
 	}
 	
+	/* run the neuron network with inputs and produces outputs */
 	public double[] execute(double[] inputs) throws Exception
 	{
 		setInput(inputs);
@@ -147,6 +161,7 @@ public class EKFANN extends ANN {
 		return getOutput();
 	}
 	
+	/* set the inputs to EKF network */
 	public void setInput(double[] input) throws Exception
 	{
 		System.arraycopy(input, 0, lastInput_, 0, input.length);
@@ -160,6 +175,7 @@ public class EKFANN extends ANN {
 		}
 	}
 	
+	/* get the outputs to the EKF network */
 	public double [] getOutput() {
 		double [] output = new double[getLayerSize(getNumLayers()-1)];
 		EKFNeuron[] outputLayer = neurons_.lastElement();
@@ -169,11 +185,13 @@ public class EKFANN extends ANN {
 		return output;
 	}
 	
+	/* forward propagate starting from layer 1*/
 	public void forwardPropagate() throws Exception
 	{
 		forwardPropagate(1, getNumLayers()-1);
 	}
 	
+	/* forward propagate starting from the 'startLayer' to 'endLayer' */
 	public void forwardPropagate(int startLayer, int endLayer) throws Exception
 	{
 		if (startLayer < 1 || startLayer >= getNumLayers())
@@ -196,6 +214,10 @@ public class EKFANN extends ANN {
 		
 	}
 	
+	/*
+	 * Forward propagate the weight change from neuron [toNeuronLayer-1, fromNeuronIndex]
+	 * to neuron [toNeuronLayer, toNeuronIndex]
+	 */
 	public double[] fowardPropagateWeightChange(int toNeuronLayer, int fromNeuronIndex, int toNeuronIndex, double weightChange) throws Exception
 	{
 		if (toNeuronLayer < 1 || toNeuronLayer >= getNumLayers())
@@ -256,21 +278,17 @@ public class EKFANN extends ANN {
 	}
 	
 	boolean spaceReserved_ = false;
-	//Matrix Q, R;
-	Matrix /* P_t_t1,*/  H_t, S_t, S_temp, S_t_inv, K_t, KHMult, RK_trans_mult, KRK_trans, P_temp_mult, P_temp;
+	Matrix H_t1, S_t1, S_temp, K_t1, KHMult, RK_trans_mult, KRK_trans, P_temp_mult, P_temp;
 	
+	/* reserve spaces for backward propagation */
 	public void ReserveBPSpace()
 	{
 		int wn = getWeightsSize();
 		int outn = neurons_.lastElement().length;
 		if (!spaceReserved_) {
-			//Q = new Matrix(wn, wn);
-			//R = new Matrix(outn, outn);
-			//P_t_t1 = new Matrix(wn, wn);
-			H_t = new Matrix(outn, getWeightsSize());
-			K_t = new Matrix(wn, outn);
-			S_t = new Matrix(outn, outn);
-			S_t_inv = new Matrix(outn, outn);
+			H_t1 = new Matrix(outn, getWeightsSize());
+			K_t1 = new Matrix(wn, outn);
+			S_t1 = new Matrix(outn, outn);
 			S_temp = new Matrix(wn, outn);
 			KHMult = new Matrix(wn, wn);
 			RK_trans_mult = new Matrix(outn, wn);
@@ -281,15 +299,12 @@ public class EKFANN extends ANN {
 		}
 	}
 	
+	/* release spaces for backward propagation */
 	public void ReleaseBPSpace()
 	{
-		//Q = null;
-		//R = null;
-		//P_t_t1 = null;
-		H_t = null;
-		K_t = null;
-		S_t = null;
-		S_t_inv = null;
+		H_t1 = null;
+		K_t1 = null;
+		S_t1 = null;
 		S_temp = null;
 		KHMult = null;
 		RK_trans_mult = null;
@@ -310,6 +325,10 @@ public class EKFANN extends ANN {
 		for (int i = 0; i < w.length; ++i) weights[i] = w[i];
 	}
 	
+	
+	/* Backward propagation, refer to 'doc/hekf.tex' file the "training iteration"
+	 * section for details. The comments shows which equations each step corresponds to.
+	 */
 	public void backwardPropagate(double[] inputs, double[] outputs, double[] weights, Matrix P, Matrix Q, Matrix R) throws Exception
 	{
 		int wn = getWeightsSize();
@@ -325,59 +344,74 @@ public class EKFANN extends ANN {
 		if (!isTraining_) ReserveBPSpace();
 		
 		setWeights(weights);
-		double[] w_t_t1 = weights;
-		Matrix P_t1_t1 = P;
-		Matrix P_t_t1 = P_t1_t1;
-		Matrix.add(P_t_t1, Q);
-		// forward propagation;
-		double[] z_t_t1 = execute(inputs);
+		
+		/* Back propagate from time t to t+1.
+		 * In the following names t1 means at time t+1, for example w_t1_t refers to
+		 * w(t+1|t) in the equations in 'doc/hekf.tex'
+		 */
+		
+		// equation (5)
+		double[] w_t1_t = weights;   	
+		
+		// equation (6)
+		Matrix P_t_t = P;				
+		Matrix P_t1_t = P_t_t;			
+		Matrix.add(P_t1_t, Q);			
+		
+		// equation (7)
+		double[] z_t1_t = execute(inputs);
+		
 		// get jacobian matrix
-		jacobian(H_t);
+		jacobian(H_t1);
 		
-		// compute S(t)
-		Matrix.multiply(false, true, P_t_t1, H_t, S_temp);
-		Matrix.multiply(false, false, H_t, S_temp, S_t);
-		Matrix.add(S_t, R);
+		// equation (8) compute S(t+1)
+		Matrix.multiply(false, true, P_t1_t, H_t1, S_temp);
+		Matrix.multiply(false, false, H_t1, S_temp, S_t1);
+		Matrix.add(S_t1, R);
 		
-		// compute K(t) = P(t|t-1)*H(t)'*S(t)^-1
-		// compute X(t) = H(t)'*S(t)^-1 first, it is the same to solve 
-		// S(t)'X(t)'=H(t)
-		Matrix X_t_trans = new Matrix(H_t.getRow(), H_t.getCol());
-		Matrix.solveLinearEqu(true, Matrix.copy(S_t), Matrix.copy(H_t), X_t_trans);
-		Matrix.multiply(false, true, P_t_t1, X_t_trans, K_t);
+		// equation(9) compute K(t+1) = P(t+1|t)*H(t+1)'*S(t+1)^-1
+		// compute X = H(t+1)'*S(t+1)^-1 first, it is the same to solve 
+		// S(t+1)'X'=H(t+1)
+		Matrix X_trans = new Matrix(H_t1.getRow(), H_t1.getCol()); // Matrix X'
+		// Solve S(t+1)'X'=H(t+1), get X' in X_trans
+		Matrix.solveLinearEqu(true, Matrix.copy(S_t1), Matrix.copy(H_t1), X_trans);
+		Matrix.multiply(false, true, P_t1_t, X_trans, K_t1);
 		
-		// Compute w(t|t)
+		// equation(10) Compute w(t+1|t+1)
 		double [] uz = new double[outn];
 		for (int i = 0; i < outn; ++i)
-			uz[i] = outputs[i] - z_t_t1[i];
-		double [] w_t_t = new double[wn];
-		Matrix.multiply(K_t, uz, w_t_t);
+			uz[i] = outputs[i] - z_t1_t[i];
+		double [] w_t1_t1 = new double[wn];
+		Matrix.multiply(K_t1, uz, w_t1_t1);
 		for (int i = 0; i < wn; ++i)
-			w_t_t[i] += w_t_t1[i];
+			w_t1_t1[i] += w_t1_t[i];
 		
-		Matrix.multiply(false, false, K_t, H_t, KHMult);
+		// equation(11)
+		Matrix.multiply(false, false, K_t1, H_t1, KHMult);
 		// Compute I-K(t)*H(t)
 		for (int i = 0; i < wn; ++i)
 			for (int j = 0; j < wn; ++j)
 				KHMult.setVal(i, j, (i == j ? 1.0 - KHMult.getVal(i, j) : -KHMult.getVal(i,j)));
 		Matrix I_minus_KHMult = KHMult;
 		
-		// Compute P(t|t)
-		Matrix.multiply(false, true, R, K_t, RK_trans_mult);
-		Matrix.multiply(false, false, K_t, RK_trans_mult, KRK_trans);
+		// Compute K(t+1)*R(t+1)*K(t+1)'
+		Matrix.multiply(false, true, R, K_t1, RK_trans_mult);
+		Matrix.multiply(false, false, K_t1, RK_trans_mult, KRK_trans);
 		
-		Matrix.multiply(false, true, P_t_t1, I_minus_KHMult, P_temp_mult);
+		// Compute (I - K(t+1)*H(t+1))*P(t+1|t)*(I-K(t+1)*H(t+1))'
+		Matrix.multiply(false, true, P_t1_t, I_minus_KHMult, P_temp_mult);
 		Matrix.multiply(false, false, I_minus_KHMult, P_temp_mult, P_temp);
 		
 		Matrix.add(P_temp, KRK_trans);
 		
+		// equation(12)
 		for (int i = 0; i < wn; ++i)
 			for (int j = 0; j < wn; ++j)
 				P.setVal(i, j, (P_temp.getVal(i, j) + P_temp.getVal(j, i))/2.0);
-		// copy back weights
-
+		
 		if (!isTraining_) ReleaseBPSpace();
-		System.arraycopy(w_t_t, 0, weights, 0, wn);
+		// copy back weights
+		System.arraycopy(w_t1_t1, 0, weights, 0, wn);
 	}
 	
 	public Matrix jacobian(Matrix H_t) throws Exception
@@ -424,6 +458,9 @@ public class EKFANN extends ANN {
 		return R;
 	}
 	
+	/*
+	 * Train EKF ANN with inputs and target outputs for 'iterations' iterations
+	 */
 	public void train(Series[] in, Series[] tg, int iterations) throws Exception
 	{
 		String methodName = "train";
@@ -454,6 +491,7 @@ public class EKFANN extends ANN {
 		MessageCenter.getInstance().put(new LogMessage(Level.INFO, EKFANNBank.class.getName(), methodName, "\tDone."));
 	}
 
+	/* exectution function with Series as inputs */
 	@Override
 	public Series execute(Series in) throws Exception {
 		return new Series(execute(in.array(false)),false);
@@ -483,6 +521,7 @@ public class EKFANN extends ANN {
 		return layersShp_;
 	}
 
+	/* a single update to the EKF network */
 	@Override
 	public void update(Series trg) throws Exception {
 		double[] outputs = trg.array(false);
@@ -495,6 +534,10 @@ public class EKFANN extends ANN {
 		setWeights(weights);
 	}
 
+	/*
+	 * Save the network to Perst database(non-Javadoc)
+	 * @see edu.uconn.vstlf.neuro.ANN#save(java.lang.String, int)
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void save(String file, int id) throws Exception {
@@ -518,6 +561,9 @@ public class EKFANN extends ANN {
 		db.close();		
 	}
 	
+	/*
+	 * Load the network from a perst database
+	 */
 	@SuppressWarnings("unchecked")
 	public
 	static EKFANN load(String file, int id)throws Exception{
