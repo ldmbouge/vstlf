@@ -39,6 +39,7 @@ public class Run {
 		
 		"Valid commands are:\n\n\t" +
 		"train\t\tUse historical load data to generate neural nets that \n\t\t\t\tcan be used in real-time VSTLF\n\n\t" +
+		"ekf-train\t\tUse historical load data to generate neural nets that \n\t\t\t\tcan be used in real-time VSTLF\n\n\t" +
 		"validate\tUse historical load data to test the quality of \n\t\t\t\tnetworks trained using the 'train' command\n\n\t" +
 		"run\t\tRun the real-time VSTLF system (headless.  output \n\t\t\t\tthrough xml stream)\n\n\t" +
 		"run-gui\t\tRun the real-time VSTLF system (requires this machine \n\t\t\t\tto support graphics via Java Swing)\n\n\t" +		

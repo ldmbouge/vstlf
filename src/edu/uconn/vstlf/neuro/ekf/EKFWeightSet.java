@@ -4,6 +4,7 @@ import org.garret.perst.Persistent;
 
 import edu.uconn.vstlf.neuro.WeightObj;
 
+/* The weights and covariance Matrix P for EKF ANN*/
 public class EKFWeightSet extends Persistent{
 	
 	long _id;

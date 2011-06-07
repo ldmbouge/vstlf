@@ -23,11 +23,16 @@ public class EKFANNBank extends ANNBank {
 			inputs_[i] = new double[lyrSz[i][0]];
 		}
 	}
+	
+	/* create a set of ANN networks */
 	public EKFANNBank(int[][] lyrSz) throws Exception {
 		anns_ = new EKFANN[lyrSz.length];
 		init(lyrSz);
 	}
 
+	/*
+	 * Create a ANN bank from a perst database
+	 */
 	public EKFANNBank(String file) throws Exception {
 		Storage db = StorageFactory.getInstance().createStorage();
 		db.open(file, Storage.DEFAULT_PAGE_POOL_SIZE);
@@ -48,6 +53,7 @@ public class EKFANNBank extends ANNBank {
 		init(lyrsz);
 	}
 
+	/* Run ANN banks*/
 	@Override
 	public Series[] execute(Series[] in) throws Exception {
 		Series[] out = new Series[anns_.length];
@@ -58,6 +64,7 @@ public class EKFANNBank extends ANNBank {
 		return out;
 	}
 
+	/* update ANN banks*/
 	@Override
 	public void update(Series[] tg) throws Exception {
 		for (int i = 0; i < anns_.length; ++i) {
@@ -71,6 +78,7 @@ public class EKFANNBank extends ANNBank {
 		}
 	}
 
+	/* train ANNs in the bank with 'iteratoins' iterations */
 	public void train(Series[][] in, Series[][] tg, int iterations)throws Exception{
 		Series[][] inf = new Series[in[0].length][in.length];
 		Series[][] tgf = new Series[tg[0].length][tg.length];
@@ -85,6 +93,7 @@ public class EKFANNBank extends ANNBank {
 			anns_[i].train(inf[i], tgf[i], iterations);
 	}
 	
+	/* save ANN bank to a perst database file */
 	public void save(String file) throws Exception{
 		for(int id=0;id<anns_.length;id++) anns_[id].save(file, id);
 	}
