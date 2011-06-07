@@ -317,10 +317,11 @@ public class EKFANN extends ANN {
 		int outn = neurons_.lastElement().length;
 		
 		// Test if elements in P is too small
-		for (int i = 0; i < P.getRow(); ++i)
+		/*for (int i = 0; i < P.getRow(); ++i)
 			for (int j = 0; j < P.getCol(); ++j)
 				if (P.getVal(i, j) != 0.0 && Math.abs(P.getVal(i, j)) < 10e-20)
 					throw new Exception(P.getVal(i, j) + "!!!!!!!!!P is too small!!!!!!!!!!!!!!");
+					*/
 		if (!isTraining_) ReserveBPSpace();
 		
 		setWeights(weights);
