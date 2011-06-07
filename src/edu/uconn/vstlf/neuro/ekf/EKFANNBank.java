@@ -9,6 +9,7 @@ import edu.uconn.vstlf.matrix.Matrix;
 import edu.uconn.vstlf.neuro.ANNBank;
 import edu.uconn.vstlf.neuro.WeightSet;
 
+
 public class EKFANNBank extends ANNBank {
 
 	EKFANN[] anns_;

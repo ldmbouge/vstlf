@@ -559,7 +559,17 @@ public class VSTLFTrainer {
 		}
 	}
 	
-	
+	/*
+	 * EKF training: there are 12 EKF ANN banks(bank0 to bank12). 
+	 * Each bank contains a set of EKF neural networks. The number of ANNs = daub decomposition level + 1
+	 * This method trains EKF ANN bank 'lo' to bank 'up'. 
+	 * For instance, if 'lo'=2 and 'up'=4. It trains bank2, bank3 and bank4
+	 * 
+	 * The process is:
+	 * 1. Decompose and normalize inputs and target outputs
+	 * 2. call EKFANN.train method to train EKF network for each level
+	 * 3. when training of the ith bank completes, save the ith bank in "bank'i'.ann"
+	 */
 	public static void trainEKFANNs(String loadFile, Date stTrain, Date edTrain, int lo, int up, int iterations)
 	{
 		try{

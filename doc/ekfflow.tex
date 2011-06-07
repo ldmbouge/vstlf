@@ -1,0 +1,51 @@
+\documentclass[letterpaper]{article}
+\usepackage{amssymb,amsmath}
+
+\title{Control Flow of EKF Training and Prediction}
+
+\begin{document}
+\maketitle
+
+
+\section{Training}
+EKF training: there are 12 EKF ANN banks(bank0 to bank11). Each bank contains a set of EKF neural networks. The number of ANNs in a bank = daub decomposition level + 1
+	
+
+vstlf.batch.VSTLFTrainer.trainEKFANNs method trains EKF ANN bank 'lo' to bank 'up'. For instance, if 'lo'=2 and 'up'=4 it trains bank2, bank3 and bank4. 
+
+
+The process is:
+\begin{enumerate}
+  \item get inputs by calling vstlf.batch.VSTLFTrainer.inputSetFor and get outputs by calling vstlf.batch.VSTLFTrainer.targetSetFor
+  \item decompose and normalize inputs and target outputs
+  \item call EKFANN.train method to train EKF network for each level
+  \item when training of the ith bank completes, call ANNBank.save method to save the ith bank in a perst database called "bank'i'.ann"
+\end{enumerate}
+
+
+EKFANN.train method calls EKFANN.backwardPropagate method for each pair of input and output. (refer to 'doc/hefk.tex' for details of backpropagation algorithm)
+
+
+\section{Prediction}
+
+Prediction is done in vstlf.realtime.FiveMinuteProcess class. Each time a new five minute input arrives, the FiveMinuteProcess.run method
+
+\begin{enumerate}
+  \item calls the ANNBank.update method to update the network. When using EKFANNBank, it calls the EKFANN.update method, which in turn calls the EKFANN.backwardPropagate method. And it sets the new weights of EKFANN.
+  \item calls the ANNBank.execute method. When using EKFANNBank, the EKFANNBank calls the  EKFANN.execute method, which in turn calls the EKFANN.forwardPropagate method to compute the outputs.
+\end{enumerate}
+
+\subsection{Input and Output data}
+The input data and output data for prediction and update are get from vstlf.realtime.DataFeed.
+\begin{enumerate}
+  \item DataFeed.inputSetFor method provides input data to the neural network
+  \item DataFeed.targetSetFor method provides output data to the nerual network
+\end{enumerate}
+
+
+\subsection{Config}
+There is one entry in the config file called ``anntype'', when ``anntype=1'' the prediction will use normal network. when ``anntype=2'', the prediction will use EKF ANN.
+
+\section{Attention}
+**Attention! Currently on the 'Matrix' branch the code to feed input data is hard coded in vstlf.DataFeed. SimpleFeedForward neural networks and EKF networks need different input data. The 'Matrix' branch only works for EKF ANN right now.**
+\end{document}

@@ -460,6 +460,7 @@ public class EKFANN extends ANN {
 	
 	/*
 	 * Train EKF ANN with inputs and target outputs for 'iterations' iterations
+	 * For each input and output it calls backwardPropagate to adjust NN weights.
 	 */
 	public void train(Series[] in, Series[] tg, int iterations) throws Exception
 	{
