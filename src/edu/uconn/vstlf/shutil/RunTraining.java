@@ -161,7 +161,9 @@ public class RunTraining {
 			MessageCenter.getInstance().setHandler(new VSTLFMsgLogger("vstlf.log", new DummyMsgHandler()));
 			MessageCenter.getInstance().init();
 			edu.uconn.vstlf.batch.VSTLFTrainer.train(tfName, st, ed, lo, hi);
-			MessageCenter.getInstance().put(new VSTLFMessage(VSTLFMessage.Type.EOF));
+			//MessageCenter.getInstance().put(new VSTLFMessage(VSTLFMessage.Type.EOF));
+			MessageCenter.getInstance().put(new VSTLFMessage(VSTLFMessage.Type.StopMessageCenter));
+			MessageCenter.getInstance().join();
 			System.out.println("Training Complete");
 		} catch (Exception e) {
 		    System.out.println(e.toString());

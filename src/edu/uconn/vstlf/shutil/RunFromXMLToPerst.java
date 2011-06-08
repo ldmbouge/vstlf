@@ -106,7 +106,9 @@ public class RunFromXMLToPerst {
 					}
 				}
 				
-				MessageCenter.getInstance().put(new VSTLFMessage(VSTLFMessage.Type.EOF));
+				//MessageCenter.getInstance().put(new VSTLFMessage(VSTLFMessage.Type.EOF));
+				MessageCenter.getInstance().put(new VSTLFMessage(VSTLFMessage.Type.StopMessageCenter));
+				MessageCenter.getInstance().join();
 			}
 			catch (Exception e) {
 				e.printStackTrace();
