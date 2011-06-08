@@ -26,6 +26,11 @@
 package edu.uconn.vstlf.database;
 import java.util.HashMap;
 
+import edu.uconn.vstlf.data.message.DummyMsgHandler;
+import edu.uconn.vstlf.data.message.MessageCenter;
+import edu.uconn.vstlf.data.message.VSTLFMessage;
+import edu.uconn.vstlf.data.message.VSTLFMsgLogger;
+
 public class Reader {
 
 	public static void main(String[] args) {
@@ -33,6 +38,8 @@ public class Reader {
 		map.put("info",new GetInfo());
 		map.put("serie",new DumpSerie());
 		try{
+			MessageCenter.getInstance().setHandler(new VSTLFMsgLogger("vstlf.log", new DummyMsgHandler()));
+			MessageCenter.getInstance().init();
 			System.out.format("#arguments: %d\n",args.length);
 			for(int k=0;k < args.length;k++)
 				System.out.format("arg[%d] = %s\n",k,args[k]);
@@ -46,6 +53,8 @@ public class Reader {
 								  "\tReader serie <filename> <seriename> <increment>\n");
 					
 			}
+			MessageCenter.getInstance().put(new VSTLFMessage(VSTLFMessage.Type.StopMessageCenter));
+			MessageCenter.getInstance().join();
 		}
 		catch(Exception e){
 			e.printStackTrace();

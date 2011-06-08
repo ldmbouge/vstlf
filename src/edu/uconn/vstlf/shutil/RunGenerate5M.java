@@ -59,8 +59,9 @@ public class RunGenerate5M {
 					Date ed = RunTraining.parseDate(args[3]);
 					producer.execute(st, ed);
 				}
-				
-				MessageCenter.getInstance().put(new VSTLFMessage(VSTLFMessage.Type.EOF));
+				//MessageCenter.getInstance().put(new VSTLFMessage(VSTLFMessage.Type.EOF));
+				MessageCenter.getInstance().put(new VSTLFMessage(VSTLFMessage.Type.StopMessageCenter));
+				MessageCenter.getInstance().join();
 			}
 			catch (Exception e) {
 				e.printStackTrace();
