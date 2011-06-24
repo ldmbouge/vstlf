@@ -181,6 +181,26 @@ public class Series {
 	}
 	
 	/**
+	 * Creates in a single shot a new series with the concatenation of the arrays (varargs) passed in
+	 * @param arrays  a sequence of arrays to append (in order)
+	 * @return a new serie with all that data (receiver + all the arrays a0,a1,a2,....)
+	 * @throws Exception
+	 */
+	public Series append(double[]... arrays) throws Exception {
+		int tLen = _array.length;
+		for(double[] a : arrays) {
+			tLen += a.length;
+		}
+		double[] na = new double[tLen];
+		System.arraycopy(_array, 0, na, 0, _array.length);
+		int ofs = _array.length;
+		for(double[] a : arrays) {
+			System.arraycopy(a,0,na,ofs,a.length);
+			ofs += a.length;
+		}		
+		return new Series(na,false);
+	}
+	/**
 	 * Returns a series that is this series in reverse order.
 	 */
 	public Series reverse()throws Exception{
@@ -247,7 +267,7 @@ public class Series {
 		for(int i=0;i<array.length;){
 			do{
 				array[i]+=_array[j++];
-				}while(j<(i+1)*mod);
+			}while(j<(i+1)*mod);
 			array[i++]/=mod;
 		}
 		return new Series(array,false);
