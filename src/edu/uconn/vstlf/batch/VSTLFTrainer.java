@@ -333,13 +333,13 @@ public class VSTLFTrainer {
 	////////////////////////////////////////////////////////////////////////////////////////////
 	public static Series[] inputSetFor(Date t,Calendar cal, PowerDB pdb)throws Exception{
 		///Time Index
-		double[] wdi = new double[7];
-		double[] hri = new double[24];
-		double[] mid = new double[12];
+		double[] wdi = new double[7];     // week-day index
+		double[] hri = new double[24];    // hour index 
+		double[] mid = new double[12];    // 5 minute block index
 		hri[cal.getHour(t)] = 1;
 		wdi[cal.getDayOfWeek(t)-1] = 1;
 		mid[cal.getMonth(t)] = 1;
-		
+		// The index arrays are full of 0 except for the entries identifying the start time t
 		
 		
 		double[] sunHr = new double[3];
@@ -353,15 +353,17 @@ public class VSTLFTrainer {
 		Date zDate = _gmt.newDate(zYr, zMonth-1, zDay, zTime.getHour(), zTime.getMinute(), zTime.getSecond());
 		zDate = cal.lastTick(300, zDate);
 		int tHour = cal.getHour(t), zHour = cal.getHour(zDate);
-		sunHr[0] = (tHour+1==zHour)?1:0;  sunHr[1] = (tHour==zHour)?1:0;  sunHr[2] = (tHour-1==zHour)?1:0;
+		sunHr[0] = (tHour+1==zHour)?1:0;  
+		sunHr[1] = (tHour==zHour)?1:0;  
+		sunHr[2] = (tHour-1==zHour)?1:0;
 		if(sunHr[1]==1){
-			int zMin = cal.getMinute(zDate)/5; sunMin[zMin] = 1;
+			int zMin = cal.getMinute(zDate)/5; 
+			sunMin[zMin] = 1;
 		}
-		Series idx = new Series(hri,false)
-			 .append(new Series(wdi,false))
-			 .append(new Series(mid,false))
-			 .append(new Series(sunHr,false))
-			 .append(new Series(sunMin,false));
+		// The UGLY block above initializes 15 inputs that identify the sunset time. 
+		
+		Series idx = new Series(hri,false).append(wdi,mid,sunHr,sunMin);
+		// So idx is a vector of 7 + 24 + 12 + 3 + 12 inputs giving the start time + sunset time of that day. 
 		
 		//System.err.println("---------USING-------"+t);
 		//get load		
@@ -372,9 +374,16 @@ public class VSTLFTrainer {
 		LogSpikes(beforePatchPrevHour, prevHour, cal.addHoursTo(t, -11), t, 500);
 		Series[] phComps = prevHour.daub4Separation(_lvls,_db4LD,_db4HD,_db4LR,_db4HR);
 		Series[] inputSet = new Series[_lvls+1];
+		// This next line picks up the last hour worth of data from each of the H,LH,LLH,... decomposition
+		// transforms them and add them at the end of the input vector. The offsets 121/132 correspond to 12 observations (1 hour)
+		// and appear to be the last one (since the read from PDB was for hours (t-11 to t)  => 12 * 11 = 132, 10 * 12 = 120
 		for(int i = 0;i<_lvls;i++){
 			inputSet[i] = idx.append(_norm[i].imageOf((phComps[i].subseries(121,132))));
-		}//Then differentiate and normalize the low component.
+		}
+		//Then differentiate and normalize the low component. So this only deals with the last LLLLLL
+		// The first line extract the first value (absolute anchor) and computes a vector of differences t_{i+1} - t_i
+		// The second line applies the normalization to the vector just obtained.  Note that it uses two different
+		// normalization transforms for the anchor and the differentials (_normAbs and _norm). 
 		phComps[_lvls] = phComps[_lvls].suffix(12).prefix(1).append(phComps[_lvls].suffix(12).differentiate().suffix(11));
 		inputSet[_lvls] = _normAbs.imageOf(phComps[_lvls].prefix(1)).append(_norm[_lvls].imageOf(phComps[_lvls].suffix(11)))
 								.append(idx);
@@ -384,6 +393,23 @@ public class VSTLFTrainer {
 	////////////////////////////////////////////////////////////////////////////////////////////
 	//Define target Vector Set
 	///////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * [ldm] This is very messy. It must be cleaned up.
+	 * Apparently:
+	 * 1. It loads the load data for the time internal (t-10,t+1) (t is an hour number)
+	 * 2. It patches that set.
+	 * 3. It applies DB4 and obtains (H,LH,LL)  (2 levels, 3 streams) and only retains the last hour for H,LH
+	 * 4. It normalizes those and obtains (n(H-suffix),n(LH-suffix),LL)   [last one is not normalized now]
+	 * 5. Now it loads the load again, but for the interval (t-11,t)  (one hour earlier)
+	 * 6. It does _NOT_ patches the spikes in there?
+	 * 7. It applies the DB4 and obtains (H',LH',LL') and it throws away everything but LL'
+	 * 8. Then it extracts the last hour from LL and sticks it behind LL'  LL"= LL' ~ suffix(1h,LL)
+	 * 9. Finally, it creates a differential of LL" and takes the 1h suffix of that which is then normalized.
+	 * 
+	 * The output is therefore a NORMALIZED differential of the lowest component of the last hour (hour t)
+	 * Overall we get back  (n(H-suffix),n(LH-suffix),diff(LL"-suffix))
+	 * The organization makes no sense to me. This seems contrived. 
+	 */
 	public static Series[] targetSetFor(Date t,Calendar cal, PowerDB pdb)throws Exception{
 		Series[] targetSet = new Series[_lvls+1];
 		Series load = pdb.getLoad("filt", cal.addHoursTo(t, -10), cal.addHoursTo(t, 1));

@@ -190,7 +190,12 @@ public class Calendar extends GregorianCalendar {
 						 get(_min) + ":" +
 						 get(_sec);
 	}
-	
+	/**
+	 * Get the beginning of a sz seconds block (aligned: i.e., 12:00, 12:05, 12:10,....
+	 * @param sz the number of seconds in a block
+	 * @param d  the time within the block (we want to get the beginning of it)
+	 * @return the time at the beginning of the block. For instance for 12:37:42 we would get back: 12:35
+	 */
 	public Date beginBlock(int sz,java.util.Date d){
 		int size = sz*1000;
 		long t = d.getTime();
@@ -203,6 +208,12 @@ public class Calendar extends GregorianCalendar {
 		return new Date(t - (t%size));
 	}
 	
+	/**
+	 * This returns the end of an sz seconds block that contains time d.
+	 * @param sz  the length of the block in seconds
+	 * @param d the time identifying a block
+	 * @return the end time of the block.
+	 */
 	public Date endBlock(int sz, java.util.Date d){
 		int size = sz*1000;
 		long t = d.getTime();
