@@ -238,13 +238,17 @@ public class FiveMinuteProcess extends Thread {
 		Series prevHour = pdb.getLoad("filt", cal.addHoursTo(t, -11), t);
 		//WTF?for(int w = 2;w<10;w++)prevHour = prevHour.patchSpikesLargerThan(500, w);
 		Series[] phComps = prevHour.daub4Separation(2,_db4LD,_db4HD,_db4LR,_db4HR);
+		Series[] decompLoads = new Series[3];
+		for (int i = 0; i < 3; ++i)
+			decompLoads[i] = phComps[i].suffix(12);
 		Series[] inputSet = new Series[3];
 		for(int i = 0;i<2;i++){
-			inputSet[i] = idx.append(_norm[i].imageOf((phComps[i].subseries(121,132))));
+			inputSet[i] = idx.append(_norm[i].imageOf(decompLoads[i]));
 		}
-		phComps[2] = phComps[2].suffix(12).prefix(1).append(phComps[2].suffix(12).differentiate().suffix(11));
-		inputSet[2] = _normAbs.imageOf(phComps[2].prefix(1)).append(_norm[2].imageOf(phComps[2].suffix(11)))
-								.append(idx);
+		decompLoads[2] = decompLoads[2].prefix(1).append(decompLoads[2].differentiate().suffix(11));
+		Series last11NormVals = _norm[2].imageOf(decompLoads[2].suffix(11));
+		Series firstNormVal = _normAbs.imageOf(decompLoads[2].prefix(1));
+		inputSet[2] = firstNormVal.append(last11NormVals).append(idx);
 		return inputSet;		
 	}
 	
