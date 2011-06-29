@@ -257,12 +257,17 @@ public class FiveMinuteProcess extends Thread {
 		Series load = pdb.getLoad("filt", cal.addHoursTo(t, -10), cal.addHoursTo(t, 1));
 		//WTF?for(int w = 2;w<10;w++)load = load.patchSpikesLargerThan(500, w);
 		Series[] components = load.daub4Separation(2,_db4LD,_db4HD,_db4LR,_db4HR);
+		Series[] targLoads = new Series[3];
+		for (int i = 0; i < 3; ++i)
+			targLoads[i] = components[i].suffix(12);
+		
 		for(int i = 0;i<2;i++){
-			targetSet[i] = _norm[i].imageOf(components[i].suffix(12));
+			targetSet[i] = _norm[i].imageOf(targLoads[i]);
 		}
+		
 		Series prev = pdb.getLoad("filt", cal.addHoursTo(t, -11), cal.addHoursTo(t, -0)).daub4Separation(2, _db4LD,_db4HD,_db4LR,_db4HR)[2];
-		components[2] = prev.append(components[2].suffix(12));
-		targetSet[2] = _norm[2].imageOf(components[2].differentiate().suffix(12));
+		Series targSet2 = prev.append(targLoads[2]);
+		targetSet[2] = _norm[2].imageOf(targSet2.differentiate().suffix(12));
 		return targetSet;
 	}
 	
