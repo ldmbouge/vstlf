@@ -109,6 +109,7 @@ public class PredictionEngine {
 			targOut[i] = updBlk.getUpdateInput();
 		}
 		
+		//Update the network
 		bank.update(targOut);
 	}
 }
