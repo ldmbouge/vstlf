@@ -1,9 +1,9 @@
-package edu.uconn.vstlf.prediction;
+package edu.uconn.vstlf.block;
 
 import java.util.Date;
-import java.util.Vector;
 
 import edu.uconn.vstlf.data.Calendar;
+import edu.uconn.vstlf.data.doubleprecision.Series;
 
 public class WeekIndexBlock extends InputBlock {
 
@@ -13,16 +13,11 @@ public class WeekIndexBlock extends InputBlock {
 		wdi_[cal.getDayOfWeek(t)-1] = 1;
 	}
 	
-	@Override
-	public Vector<InputBlock> deriveInputBlocks() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
-	public double[] getInput() {
+	public Series getInput() throws Exception {
 		// TODO Auto-generated method stub
-		return wdi_;
+		return new Series(wdi_, false);
 	}
 
 }

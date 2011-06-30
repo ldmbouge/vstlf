@@ -143,6 +143,15 @@ public class SimpleFeedForwardANN {
 		return execute();
 	}
 	
+	public double[] getInput()
+	{
+		double[] input = new double[_output[0].length-1];
+		for(int i = 0;i<input.length ;i++){
+			input[i] = _output[0][i];
+		}
+		return input;
+	}
+	
 	public Series execute(Series in)throws Exception{
 		return new Series(execute(in.array(false)),false);
 	}
@@ -183,7 +192,7 @@ public class SimpleFeedForwardANN {
 	 * Executes the back-propagation learning routine.
 	 * @param desiredOut The output that we'd like the net to have produced from the last input.
 	 */
-	public void update(double[] desiredOut){
+	public void update(double[] desiredOut){		
 		//Set the errors of the output nodes and update their weights.
 		for(int nid = 0;nid<_output[_nbLayers-1].length-1;nid++){
 			_error[_nbLayers-1][nid] = (desiredOut[nid] - _output[_nbLayers-1][nid])*

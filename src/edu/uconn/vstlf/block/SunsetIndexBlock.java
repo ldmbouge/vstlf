@@ -1,7 +1,6 @@
-package edu.uconn.vstlf.prediction;
+package edu.uconn.vstlf.block;
 
 import java.util.Date;
-import java.util.Vector;
 
 import com.web_tomorrow.utils.suntimes.SunTimes;
 import com.web_tomorrow.utils.suntimes.SunTimesException;
@@ -9,6 +8,7 @@ import com.web_tomorrow.utils.suntimes.Time;
 
 import edu.uconn.vstlf.config.Items;
 import edu.uconn.vstlf.data.Calendar;
+import edu.uconn.vstlf.data.doubleprecision.Series;
 
 public class SunsetIndexBlock extends InputBlock {
 
@@ -39,16 +39,11 @@ public class SunsetIndexBlock extends InputBlock {
 		System.arraycopy(sunMin, 0, sunsetIndex_, sunHr.length, sunMin.length);
 	}
 	
-	@Override
-	public Vector<InputBlock> deriveInputBlocks() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
-	public double[] getInput() {
+	public Series getInput() throws Exception {
 		// TODO Auto-generated method stub
-		return sunsetIndex_;
+		return new Series(sunsetIndex_, false);
 	}
 
 }

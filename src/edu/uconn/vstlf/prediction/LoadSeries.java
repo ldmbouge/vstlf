@@ -1,10 +1,6 @@
 package edu.uconn.vstlf.prediction;
 
 import java.util.Date;
-import java.util.Vector;
-
-import com.web_tomorrow.utils.suntimes.SunTimesException;
-
 import edu.uconn.vstlf.data.Calendar;
 import edu.uconn.vstlf.data.doubleprecision.Series;
 
@@ -12,7 +8,7 @@ import edu.uconn.vstlf.data.doubleprecision.Series;
  * A load series is a series of load
  * The last point in the series has the currentTime stamp
  */
-public class LoadSeries extends InputBlock {
+public class LoadSeries {
 
 	Series load_;
 	Date currTime_;
@@ -24,26 +20,38 @@ public class LoadSeries extends InputBlock {
 		cal_ = cal;
 	}
 	
+	Calendar getCal() { return cal_; }
+	Date getCurTime() { return currTime_; }
+	Series getLoad() { return load_; }
+	
 	/*
-	 * The load clock derives the time indices
-	 * and the decomposed inputs
-	 * @see edu.uconn.vstlf.prediction.InputBlock#deriveInputBlocks()
+	 * get the load starting from st to ed. The interval is half-closed (st, ed]
+	 * which means the load at st is not in the returned results. But the load
+	 * at ed is.
 	 */
-	@Override
-	public Vector<InputBlock> deriveInputBlocks() throws SunTimesException {
-		Vector<InputBlock> drvBlks = new Vector<InputBlock>();
-		drvBlks.add(new HourIndexBlock(currTime_, cal_));
-		drvBlks.add(new WeekIndexBlock(currTime_, cal_));
-		drvBlks.add(new MonthIndexBlock(currTime_, cal_));
-		drvBlks.add(new SunsetIndexBlock(currTime_, cal_));
-
-		return drvBlks;
+	Series getLoad(Date st, Date ed) throws Exception
+	{
+		if (st.after(currTime_) || ed.after(currTime_))
+			throw new Exception("date out of range");
+		
+		long stOff = (currTime_.getTime()-st.getTime())/1000;
+		long edOff = (currTime_.getTime()-ed.getTime())/1000;
+		
+		int stIndex = load_.length()-(int)(stOff/300)+1;
+		int edIndex = load_.length()-(int)(edOff/300);		
+		
+		return load_.subseries(stIndex, edIndex);
 	}
-
-	@Override
-	public double[] getInput() {
-		// TODO Auto-generated method stub
-		return null;
+	
+	// get a sub series until time t
+	LoadSeries getSubSeries(Date t) throws Exception
+	{
+		if (t.after(currTime_))
+			throw new Exception("Cannot get sub load series until " + t + " from a series until " + currTime_);
+		
+		long offSecs = (currTime_.getTime() - t.getTime())/1000;
+		int offset = (int)(offSecs/300);
+		Series subS = load_.prefix(load_.length()-offset);
+		return new LoadSeries(subS, t, cal_);
 	}
-
 }

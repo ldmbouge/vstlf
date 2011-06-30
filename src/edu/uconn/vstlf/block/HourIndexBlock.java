@@ -1,9 +1,9 @@
-package edu.uconn.vstlf.prediction;
+package edu.uconn.vstlf.block;
 
 import java.util.Date;
-import java.util.Vector;
 
 import edu.uconn.vstlf.data.Calendar;
+import edu.uconn.vstlf.data.doubleprecision.Series;
 
 public class HourIndexBlock extends InputBlock {
 
@@ -14,15 +14,9 @@ public class HourIndexBlock extends InputBlock {
 	}
 	
 	@Override
-	public Vector<InputBlock> deriveInputBlocks() {
+	public Series getInput() throws Exception {
 		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public double[] getInput() {
-		// TODO Auto-generated method stub
-		return hri_;
+		return new Series(hri_, false);
 	}
 
 }

@@ -1,9 +1,9 @@
-package edu.uconn.vstlf.prediction;
+package edu.uconn.vstlf.block;
 
 import java.util.Date;
-import java.util.Vector;
 
 import edu.uconn.vstlf.data.Calendar;
+import edu.uconn.vstlf.data.doubleprecision.Series;
 
 public class MonthIndexBlock extends InputBlock {
 
@@ -13,15 +13,10 @@ public class MonthIndexBlock extends InputBlock {
 		mid_[cal.getMonth(t)] = 1;	
 	}
 	
-	@Override
-	public Vector<InputBlock> deriveInputBlocks() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
-	public double[] getInput() {
-		return mid_;
+	public Series getInput() throws Exception {
+		return new Series(mid_, false);
 	}
 
 }

@@ -267,6 +267,12 @@ public class PerstPowerDB extends PowerDB {
 		return r;
 	}
 
+	/*
+	 * Documented by Yuting Wang
+	 * get the load starting from st to ed. The interval is half-closed (st, ed]
+	 * which means the load at st is not in the returned results. But the load
+	 * at ed is.
+	 */
 	public synchronized Series getLoad(String s, Date st, Date ed)throws Exception{
 		Calendar cal = Items.makeCalendar();
 		Date strt = cal.beginBlock(_inc,st), end = cal.beginBlock(_inc,ed);
@@ -288,6 +294,7 @@ public class PerstPowerDB extends PowerDB {
 				throw new Exception("Writing past the end of the load array");
 			load[(int)off] = p.getValue();
 		}
+		
 		_db.endThreadTransaction();
 		return new Series(load,false);
 	}
