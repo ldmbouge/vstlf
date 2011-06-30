@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding = "UTF-8"?>
+
+<Config>
+  <DecomposeLevel nlvls = "2"/>
+
+  <Network lvl = "0">
+    <InputBlock type = "HourIndex"/>
+    <InputBlock type = "WeekIndex"/>
+    <InputBlock type = "MonthIndex"/>
+    <InputBlock type = "SunsetIndex"/>
+    <InputBlock type = "InputLoad" lvl = "0"/>
+    <OutputBlock type = "OutputLoad" lvl = "0"/>
+    <UpdateBlock type = "UpdateLoad" lvl = "0"/>
+  </Network>
+
+  <Network lvl = "1">
+    <InputBlock type = "HourIndex"/>
+    <InputBlock type = "WeekIndex"/>
+    <InputBlock type = "MonthIndex"/>
+    <InputBlock type = "SunsetIndex"/>
+    <InputBlock type = "InputLoad" lvl = "1"/>
+    <OutputBlock type = "OutputLoad" lvl = "1"/>
+    <UpdateBlock type = "UpdateLoad" lvl = "1"/>
+  </Network>
+
+  <Network lvl = "2">
+    <InputBlock type = "InputLoad" lvl = "2"/>
+    <InputBlock type = "HourIndex"/>
+    <InputBlock type = "WeekIndex"/>
+    <InputBlock type = "MonthIndex"/>
+    <InputBlock type = "SunsetIndex"/>
+    <OutputBlock type = "OutputLoad" lvl = "2"/>
+    <UpdateBlock type = "UpdateLoad" lvl = "2"/>
+  </Network>
+
+</Config>
