@@ -26,6 +26,8 @@
 package edu.uconn.vstlf.shutil;
 
 import edu.uconn.vstlf.config.Items;
+
+import java.io.File;
 import java.util.TimeZone;
 
 public class Run {
@@ -54,6 +56,8 @@ public class Run {
 		//Try to load the config file.//////////////////////////////
 		Exception baditems = null;
 		try{
+			File f = new File("config.xml");
+			if (!f.exists()) throw new Exception("config.xml does not exist");
 			Items.load(Items.file());
 			TimeZone.setDefault(TimeZone.getTimeZone(Items.get(Items.TimeZone))); // force the chosen timezone. 
 		}
