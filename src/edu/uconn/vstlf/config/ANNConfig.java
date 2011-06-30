@@ -33,7 +33,7 @@ public class ANNConfig {
 		 Element root = (Element)doc.getDocumentElement();
 
 		 NodeList dcElems = root.getElementsByTagName("Network");
-		 int nANNs = DaubConfig.getInstance().getDaubSpec().getNumLevels();
+		 int nANNs = DaubConfig.getInstance().getDaubSpec().getNumLevels()+1;
 		 
 		 if (dcElems.getLength() != nANNs)
 			 throw new Exception("Number of networks is not compatible to the daub decomposition. Please check the config file");

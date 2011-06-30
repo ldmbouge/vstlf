@@ -24,6 +24,7 @@
 ***********************************************************************/
 
 package edu.uconn.vstlf.realtime;
+import java.io.IOException;
 import java.util.Date;
 import java.util.logging.Level;
 //import java.util.Vector;
@@ -34,6 +35,8 @@ import edu.uconn.vstlf.data.message.MessageCenter;
 import edu.uconn.vstlf.data.message.VSTLFMessage;
 import edu.uconn.vstlf.database.*;
 import edu.uconn.vstlf.neuro.*;
+import edu.uconn.vstlf.prediction.LoadSeries;
+import edu.uconn.vstlf.prediction.PredictionEngine;
 import edu.uconn.vstlf.config.Items;
 import com.web_tomorrow.utils.suntimes.*;
 
@@ -67,6 +70,12 @@ public class FiveMinuteProcess extends Thread {
 	boolean _useSimDay;
 	double _filterThreshold;
 
+	private PredictionEngine predEngine_;
+	private LoadSeries loadSeries_;
+	// how much data should the load series store
+	// default from now back 15 hours
+	private int loadSeriesWindow = 15; 
+	
 	FiveMinuteProcess(MessageCenter notif, PCBuffer<VSTLF5MPoint> buf, PowerDB db) {
 		_input = buf;		
 		_notif = notif;
@@ -88,6 +97,16 @@ public class FiveMinuteProcess extends Thread {
 		_doFilter = true;
 		_filterThreshold = 200;
 		_useSimDay = false;
+		
+		try {
+			predEngine_ = new PredictionEngine(_annBanks);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public void run() {
@@ -101,8 +120,18 @@ public class FiveMinuteProcess extends Thread {
 			Date t = thePoint.getStamp(); double v = thePoint.getValue(); int n = thePoint.getNumObs();
 			_db.addLoad("raw", t, v);												//Store it in the DB
 			_db.commit();
-			macroFilter(t);
+			macroFilter(t);			
 			_notif.put(new FiveMinMessage(t,v,n));
+			
+			Date ed = _db.last("filt");
+			Date st = _cal.addHoursTo(ed, -loadSeriesWindow);
+			try {
+				// update the load series window
+				loadSeries_ = new LoadSeries(_db.getLoad("filt", st, ed), ed, _cal);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			doUpdate();														//Update on 1hourAgo
 			doPrediction();
 		}
@@ -164,6 +193,9 @@ public class FiveMinuteProcess extends Thread {
 	 */
 	private void doPrediction() {
 		try{
+			Series pred = predEngine_.predict(loadSeries_);
+			Date stamp = loadSeries_.getCurTime();
+			/*
 			Date stamp = _db.last("filt");
 			// First do the prediction.
 			int off = _cal.getMinute(stamp);
@@ -180,6 +212,7 @@ public class FiveMinuteProcess extends Thread {
 			prev = prev.daub4Separation(2, _db4LD,_db4HD,_db4LR,_db4HR)[2];
 			out[2] = out[2].undifferentiate(prev.suffix(1).element(1));
 			pred = pred.plus(out[2]);
+			*/
 			_notif.put(new PredictionMessage(stamp,pred.array()));
 		}
 		catch(Exception e){
@@ -190,18 +223,22 @@ public class FiveMinuteProcess extends Thread {
 	private void doUpdate(){
 		try{
 			//Update on the most recent entire hour
+			predEngine_.update(loadSeries_);
+			/*
 			Date stamp = _cal.addHoursTo(_db.last("filt"), -1);
 			//execute
 			int off = _cal.getMinute(stamp);
 			_annBanks[off/5].execute(inputSetFor(stamp,_cal,_db));
 			//and then back propagate
 			_annBanks[off/5].update(targetSetFor(stamp,_cal,_db));
+			*/
 		}
 		catch(Exception e){
 			_notif.put(new VSTLFRealTimeExceptionMessage(e));
 		}
 		
 	}
+	
 	
 	public Series[] inputSetFor(Date t,Calendar cal, PowerDB pdb)throws Exception{
 		///Time Index

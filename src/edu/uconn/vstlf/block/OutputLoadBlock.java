@@ -21,12 +21,14 @@ public class OutputLoadBlock extends OutputBlock {
 		// TODO Auto-generated method stub
 		Series nnOut = output;
 		NormalizingFunction denorm = DataFeed.getDenormFuncs()[lvl_];
+		Series result;
 		if (lvl_ != nLvls_)
-			return denorm.imageOf(nnOut);
+			result = denorm.imageOf(nnOut);
 		else {
 			Series dOut = denorm.imageOf(nnOut);
-			return dOut.undifferentiate(maxLvlInput_.suffix(1).element(1));
+			result = dOut.undifferentiate(maxLvlInput_.suffix(1).element(1));
 		}
+		return result;
 	}
 
 }

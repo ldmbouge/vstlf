@@ -20,9 +20,9 @@ public class LoadSeries {
 		cal_ = cal;
 	}
 	
-	Calendar getCal() { return cal_; }
-	Date getCurTime() { return currTime_; }
-	Series getLoad() { return load_; }
+	public Calendar getCal() { return cal_; }
+	public Date getCurTime() { return currTime_; }
+	public Series getLoad() { return load_; }
 	
 	/*
 	 * get the load starting from st to ed. The interval is half-closed (st, ed]

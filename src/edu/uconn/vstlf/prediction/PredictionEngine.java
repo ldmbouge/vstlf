@@ -68,7 +68,7 @@ public class PredictionEngine {
 		// Denormalize the outputs
 		Series pred = new Series(12);
 		for (int i = 0; i < numAnns; ++i)
-			pred.plus(outBlks[i].getOutput(out[i]));
+			pred = pred.plus(outBlks[i].getOutput(out[i]));
 		
 		return pred;
 	}

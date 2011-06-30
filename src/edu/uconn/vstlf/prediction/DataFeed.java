@@ -3,6 +3,7 @@ package edu.uconn.vstlf.prediction;
 import java.util.Date;
 import java.util.TreeMap;
 
+import edu.uconn.vstlf.config.Items;
 import edu.uconn.vstlf.data.Calendar;
 import edu.uconn.vstlf.data.doubleprecision.NormalizingFunction;
 import edu.uconn.vstlf.data.doubleprecision.Series;
@@ -13,7 +14,7 @@ public class DataFeed {
 	private Calendar cal_;
 	private Date curTime_;
 	
-	private TreeMap<Integer, Series[]> decompLoads_;
+	private TreeMap<Integer, Series[]> decompLoads_ = new TreeMap<Integer, Series[]>();
 
 	public Series[] getDecomposedLoads(int shiftHour) throws Exception 
 	{ 
@@ -30,7 +31,9 @@ public class DataFeed {
 	
 	public int getNDecompLvls() { return dbSpec_.getNumLevels(); }
 	
-	static private NormalizingFunction _normAbs, _denormAbs;
+	static private NormalizingFunction 
+	_normAbs = new NormalizingFunction(Items.getMinimumLoad(),Items.getMaximumLoad(),0,1),
+	_denormAbs = new NormalizingFunction(0,1,Items.getMinimumLoad(),Items.getMaximumLoad());
 	static private NormalizingFunction[] _norm = {new NormalizingFunction(-500,500,0,1), //h
 				  new NormalizingFunction(-500,500,0,1),	//lh
 				  new NormalizingFunction(-.1,.1,0,1)}, 
@@ -48,6 +51,8 @@ public class DataFeed {
 	{
 		loadSeries_ = loadSeries;		
 		dbSpec_ = dbSpec;
+		curTime_ = loadSeries.getCurTime();
+		cal_ = loadSeries.getCal();
 	}
 	
 	private Series[] decomposeLoads(int shiftHour) throws Exception
