@@ -106,7 +106,7 @@ public class FiveMinuteProcess extends Thread {
 			Date st = _cal.addHoursTo(ed, -loadSeriesWindow);
 			try {
 				// update the load series window
-				loadSeries_ = new LoadSeries(_db.getLoad("filt", st, ed), ed, _cal);
+				loadSeries_ = new LoadSeries(_db.getLoad("filt", st, ed), ed, _cal, 300);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

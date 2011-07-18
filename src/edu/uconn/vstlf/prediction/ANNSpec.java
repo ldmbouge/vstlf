@@ -23,6 +23,7 @@ public class ANNSpec {
 		inputSpecs_ = inputSpecs;
 		outputSpecs_ = outputSpecs;
 		updateSpecs_ = updateSpecs;
+		lyrSz_ = lyrSz;
 	}
 	
 	public Vector<InputBlock> getInputBlocks(DataFeed feed) throws Exception

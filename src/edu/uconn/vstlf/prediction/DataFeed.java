@@ -63,7 +63,7 @@ public class DataFeed {
 			throw new Exception("Cannot decompose the load at " + ed  + ", load only available at " + curTime_);
 		
 		//get load		
-		Series prevHour = loadSeries_.getLoad(st, ed);
+		Series prevHour = loadSeries_.getSubSeries(st, ed).getLoad();
 		
 		int nlvls = dbSpec_.getNumLevels();
 		Series[] phComps = prevHour.daub4Separation(nlvls, 

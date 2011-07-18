@@ -25,6 +25,7 @@
 
 package edu.uconn.vstlf.batch;
 
+import java.io.File;
 import java.util.Date;
 import java.util.Vector;
 import java.util.logging.Level;
@@ -35,6 +36,10 @@ import edu.uconn.vstlf.data.message.MessageCenter;
 import edu.uconn.vstlf.database.PowerDB;
 import edu.uconn.vstlf.database.perst.*;
 import edu.uconn.vstlf.neuro.*;
+import edu.uconn.vstlf.prediction.ANNSpec;
+import edu.uconn.vstlf.prediction.LoadSeries;
+import edu.uconn.vstlf.prediction.PredictionEngine;
+import edu.uconn.vstlf.config.ANNConfig;
 import edu.uconn.vstlf.config.Items;
 
 import com.web_tomorrow.utils.suntimes.*;
@@ -216,116 +221,120 @@ public class VSTLFTrainer {
 								   double eh, double elh, double ellh, double elllh, double ellll, int lo, int up){
 		try{
 			String methodName = "train";
-			for(int offs=lo;offs<=up;offs++){
-				MessageCenter.getInstance().put(
-						new LogMessage(Level.INFO, VSTLFTrainer.class.getName(), methodName, 
-								"Training System for offset: "+ 5*offs +" minutes."));
-				///////////////////////////////////////////////////////////////////////////////////
-				//Initialize db and cal et cetera
-				///////////////////////////////////////////////////////////////////////////////////
-				Calendar cal = new Calendar();
-				PowerDB loadHist = new PerstPowerDB(loadFile,300);
-				loadHist.open();
-				///////////////////////////////////////////////////////////////////////////////////
-				//Define test parameters//
-				//////////////////////////////////////////////////////////////////////////////////
-				Date ts = stTrain;    				//st train
-				Date curr = edTrain;					//ed train
-				
-				ts = cal.addMinutesTo(ts, 5*offs);
-				curr = cal.addMinutesTo(curr, 5*offs);
-				NormalizingFunction[] normalizers = {new NormalizingFunction(-500,500,0,1), //h
-													 new NormalizingFunction(-500,500,0,1),	//lh
-													 new NormalizingFunction(-500,500,0,1),//llh
-													 new NormalizingFunction(-500,500,0,1),//lllh
-													 new NormalizingFunction(-.1,.1,0,1)};//llll
-				NormalizingFunction[] denormalizers = {new NormalizingFunction(0,1,-500,500),
-													   new NormalizingFunction(0,1,-500,500),//ditto
-													   new NormalizingFunction(0,1,-500,500),
-													   new NormalizingFunction(0,1,-500,500),
-													   new NormalizingFunction(0,1,-.1,.1)};
-				int[][] layerSizes = {{12+15+12+24+7,6,12},
-									  {12+15+12+24+7,13,12},
-									  {12+15+12+24+7,12,12},
-									  {12+15+12+24+7,13,12},
-									  {12+15+12+24+7,18,12}};
-				int[] times = {th,tlh,tllh,tlllh,tllll};
-				double[] errors = {eh,elh,ellh,elllh,ellll};
-				_norm = new NormalizingFunction[_lvls+1];
-				_denorm = new NormalizingFunction[_lvls+1];
-				int[] sec = new int[_lvls+1];
-				double[] mse = new double[_lvls+1];
-				int[][] lyrSz = new int[_lvls+1][];
-				for(int i = 0;i<_lvls;i++){
-					_norm[i] = normalizers[i];
-					_denorm[i] = denormalizers[i];
-					sec[i] = times[i];
-					mse[i] = errors[i];
-					lyrSz[i] = layerSizes[i];
-				}
-				_norm[_lvls] = normalizers[4];
-				_denorm[_lvls] = denormalizers[4];
-				double minload = new Double(Items.MinLoad.value());
-				double maxload = new Double(Items.MaxLoad.value());
-				_normAbs = new NormalizingFunction(minload,maxload,0,1);
-				_denormAbs = new NormalizingFunction(0,1,minload,maxload);
-				sec[_lvls] = times[4];
-				mse[_lvls] = errors[4];
-				lyrSz[_lvls] = layerSizes[4];
-				
-				////////////////////////////////////////////////////////////////////////////////
-				//Build training set
-				/////////////////////////////////////////////////////////////////////////////////
-				Vector<Series[]>inS = new Vector<Series[]>(), tgS = new Vector<Series[]>();
-				MessageCenter.getInstance().put(
-						new LogMessage(Level.INFO, VSTLFTrainer.class.getName(),
-								methodName, "Building training set from "+ cal.string(ts)+" to "+ cal.string(curr)));
-				while(ts.before(curr)){
-					//	System.err.println((++xxx)+": Added "+ cal.string(ts));
-						tgS.add(targetSetFor(ts,cal,loadHist));
-						inS.add(inputSetFor(ts, cal, loadHist));
-						//System.err.println(ts);
-						Series[] set = inS.lastElement();
-						for(int i = 0;i<set.length;i++){
-							if(set[i].countOf(Double.NaN)>0){
-								MessageCenter.getInstance().put(
-										new LogMessage(Level.INFO, VSTLFTrainer.class.getName(),
-												methodName, ts.toString()));
-								throw new Exception("WTF?");
-							}
-						}
-						ts = cal.addMinutesTo(ts, 60);
-					}
-				if(inS.size()!=tgS.size()) throw new Exception("#tg!=#in");
-				Series[][] inputS = new Series[inS.size()][], targS = new Series[tgS.size()][];
-				for(int i=0;i<targS.length;i++){
-					inputS[i] = inS.elementAt(i);
-					targS[i] = tgS.elementAt(i);
-				}
-				MessageCenter.getInstance().put(
-						new LogMessage(Level.INFO, VSTLFTrainer.class.getName(),
-								methodName, inputS.length + "\nTraining set contains "+inS.size()+" points.  "));
-				///////////////////////////////////////////////////////////////////////////////
-				//Make ANNs and Train
-				///////////////////////////////////////////////////////////////////////////////
+			
+			MessageCenter.getInstance().put(
+					new LogMessage(Level.INFO, VSTLFTrainer.class.getName(), methodName, 
+							"Training Neural Networks " + lo + " to " + up));
+
+			Calendar cal = new Calendar();
+			
+			///////////////////////////////////////////////////////////////////////////////////
+			//Initialize db and cal et cetera
+			///////////////////////////////////////////////////////////////////////////////////
+			PowerDB loadHist = new PerstPowerDB(loadFile,300);
+			loadHist.open();
+
+			////////////////////////////////////////////////////////////////////////////////
+			//Build training set
+			/////////////////////////////////////////////////////////////////////////////////
+			Series load = loadHist.getLoad("filt", stTrain, edTrain);
+			CheckLoadIntegrity("Target data set", load, stTrain);
+			Series beforePatchLoad = load;
+			load = patchSpikesLargerThan(load, 500, 2, 10);
+			LogSpikes(beforePatchLoad, load, stTrain, edTrain, 500);
+			LoadSeries loadSeries = new LoadSeries(load, edTrain, cal, 300);
+			
+			/////////////////////////////////////
+			//// Create the pred engine
+			/////////////////////////////////////
+			ANNSpec[] annSpecs = ANNConfig.getInstance().getANNSpecs();
+			int nANNInBank = annSpecs.length;
+			int[][] lyrSz = new int[nANNInBank][];
+			for (int i = 0; i < nANNInBank; ++i)
+				lyrSz[i] = annSpecs[i].getLayerSize();
+
+			ANNBank[] annBanks = new ANNBank[12];
+			PredictionEngine predEngine = new PredictionEngine(annBanks);
+			
+			///////////////////////////////////////////////////////////////////////////////
+			//Make ANNs
+			///////////////////////////////////////////////////////////////////////////////
+			for(int offs=0;offs<=11;offs++){
 				ANNBank anns;
 				try{
-					anns= new ANNBank("bank"+offs+".ann");
+					File f = new File("bank"+offs+".ann");
+					if (f.exists())
+						anns= new ANNBank("bank"+offs+".ann");
+					else
+						anns = new ANNBank(lyrSz);
 				}
 				catch(Exception e){
-					anns = new ANNBank(lyrSz);
+					throw e;
 				}
-				long t0 = System.currentTimeMillis();
-				anns.train(inputS, targS, sec,mse);
-				MessageCenter.getInstance().put(
-						new LogMessage(Level.INFO, VSTLFTrainer.class.getName(),
-								methodName, "after "+ (System.currentTimeMillis()-t0)));
-				anns.save("bank"+offs+".ann");
-				loadHist.close();
+				annBanks[offs] = anns;
 			}
+
+			
+			/////////////////////////////////
+			int[] times = {th,tlh,tllh,tlllh,tllll};
+			double[] errors = {eh,elh,ellh,elllh,ellll};
+			int[] sec = new int[nANNInBank];
+			double[] mse = new double[nANNInBank];
+			for(int i = 0;i<nANNInBank-1;i++){
+				sec[i] = times[i];
+				mse[i] = errors[i];
+			}
+			sec[nANNInBank-1] = times[4];
+			mse[nANNInBank-1] = errors[4];
+			
+			//////////////////////////////////////////////
+			/// Train the network
+			/////////////////////////////////////////////
+			for(int offs=lo;offs<=up;offs++){
+				ANNBank anns = annBanks[offs];
+				
+				for (int i = 0; i < nANNInBank; ++i) {
+					// disable all the networks except the network i at bank offs
+					for (int bid = 0; bid < 12; ++bid)
+						for (int annId = 0; annId < nANNInBank; ++annId)
+							annBanks[bid].disableNetwork(annId);
+					anns.enableNetwork(i);
+					
+					trainWithPredEngine(loadSeries, predEngine, sec[i]);
+				}
+				
+				
+				annBanks[offs].save("bank"+offs+".ann");
+			}
+			
+			loadHist.close();
 		}catch(Exception e){
 			e.printStackTrace();
 		}
+	}
+	
+	
+	public static void trainWithPredEngine(LoadSeries trainLoad, PredictionEngine pred, int seconds) throws Exception
+	{
+		long st = System.currentTimeMillis();
+		long dt = seconds*1000;
+		
+		Calendar cal = trainLoad.getCal();
+		// set the when the training should start from
+		Date stTrain = cal.addHoursTo(trainLoad.getStartTime(), 15);
+		Date edTrain = trainLoad.getCurTime();
+		Date trainTime = stTrain;
+		do{
+			LoadSeries ls = trainLoad.getSubSeries(cal.addHoursTo(trainTime, -15), trainTime);
+			pred.update(ls);
+			trainTime = cal.addSecondsTo(trainTime, 300);
+			if (trainTime.after(edTrain)) trainTime = stTrain;
+		} while(System.currentTimeMillis() < st+dt);
+		MessageCenter.getInstance().put(new LogMessage(Level.INFO, "VSTLFTrainer", "trainWithPredEngine", "\tDone."));
+
+		MessageCenter.getInstance().put(
+				new LogMessage(Level.INFO, VSTLFTrainer.class.getName(),
+						"trainWithPredEngine", "after "+ (System.currentTimeMillis()-st)));
 	}
 	
 	//////////////////////////////////////////////////////////////////////////////////////////////

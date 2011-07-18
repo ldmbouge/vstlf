@@ -23,23 +23,15 @@ public class PredictionEngine {
 	private ANNSpec[] annSpecs_;
 	
 	private ANNBank[] annBanks_;
-	
-	private boolean[] disableBanks_;
-	
+		
 	public PredictionEngine(ANNBank[] banks) throws Exception, IOException
 	{
 		annBanks_ = banks;
 		
 		daubSpec_ = DaubConfig.getInstance().getDaubSpec();
-		annSpecs_ = ANNConfig.getInstance().getANNSpecs();
-		
-		disableBanks_ = new boolean[banks.length];
+		annSpecs_ = ANNConfig.getInstance().getANNSpecs();		
 	}
 	
-	public void disableBank(int bankId, boolean dis)
-	{ 
-		disableBanks_[bankId] = dis; 
-	}
 			
 	/*
 	 * Perform a prediction with a load series
@@ -52,7 +44,6 @@ public class PredictionEngine {
 		// Select bank
 		int off = loadSeries.getCal().getMinute(loadSeries.getCurTime());
 		int bankId = off/5;
-		if (disableBanks_[bankId]) return null;
 		ANNBank bank = annBanks_[bankId];
 		
 		// Prepare inputs
@@ -104,9 +95,7 @@ public class PredictionEngine {
 		
 		// Select bank (use the bank for the previous hour)
 		int off = prevSeries.getCal().getMinute(prevSeries.getCurTime());
-		int bankId = off/5;
-		if (disableBanks_[bankId]) return;
-		
+		int bankId = off/5;		
 		ANNBank bank = annBanks_[bankId];
 		
 		// Prepare target output
