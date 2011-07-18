@@ -114,13 +114,13 @@ public class RunValidation {
 				}
 			}
 			
-			double[][] result = edu.uconn.vstlf.batch.VSTLFTrainer.test(tfName, st, ed, lo, hi);
+			//double[][] result = edu.uconn.vstlf.batch.VSTLFTrainer.test(tfName, st, ed, lo, hi);
 			System.out.println("Validation Complete\n\nMean Error in MW:");
 			System.out.println("Bank\t5m\t10m\t15m\t20m\t25m\t30m\t35m\t40m\t45m\t50m\t55m\t1h");
 			for(int i = lo;i<=hi;i++){
 				System.out.format("\n%d:\t",i);
-				for(int j = 0;j<12;j++)
-					System.out.format("%.1f\t", result[i][j]);
+				//for(int j = 0;j<12;j++)
+					//System.out.format("%.1f\t", result[i][j]);
 			}
 			MessageCenter.getInstance().put(new VSTLFMessage(VSTLFMessage.Type.EOF));
 		} catch (Exception e) {

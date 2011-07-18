@@ -41,7 +41,7 @@ public class TargetSetForTst {
 		db.open();
 		Calendar cal = new Calendar();
 		Date t = RunTraining.parseDate("2009/3/19 - 10:05:00");
-		VSTLFTrainer.targetSetFor(t, cal, db);
+		//VSTLFTrainer.targetSetFor(t, cal, db);
 		db.close();
 	}
 }

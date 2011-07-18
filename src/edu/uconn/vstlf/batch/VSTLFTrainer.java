@@ -27,7 +27,7 @@ package edu.uconn.vstlf.batch;
 
 import java.io.File;
 import java.util.Date;
-import java.util.Vector;
+//import java.util.Vector;
 import java.util.logging.Level;
 import edu.uconn.vstlf.data.Calendar;
 import edu.uconn.vstlf.data.doubleprecision.*;
@@ -40,21 +40,21 @@ import edu.uconn.vstlf.prediction.ANNSpec;
 import edu.uconn.vstlf.prediction.LoadSeries;
 import edu.uconn.vstlf.prediction.PredictionEngine;
 import edu.uconn.vstlf.config.ANNConfig;
-import edu.uconn.vstlf.config.Items;
+//import edu.uconn.vstlf.config.Items;
 
-import com.web_tomorrow.utils.suntimes.*;
+//import com.web_tomorrow.utils.suntimes.*;
 
 public class VSTLFTrainer {		
 	
 	//////////////////////////////////////////////////////////
 	//Number of decomposition levels  0 to 4/////////////////
-	static int _lvls = 2;
+	//static int _lvls = 2;
 	//////////////////////////////////////////////////////////
 	
-	static NormalizingFunction[] _norm, _denorm;
-	static NormalizingFunction _normAbs, _denormAbs;
+	//static NormalizingFunction[] _norm, _denorm;
+	//static NormalizingFunction _normAbs, _denormAbs;
 	//static SimilarDaySelector _selector;
-	static Calendar _gmt = new Calendar("GMT");
+	//static Calendar _gmt = new Calendar("GMT");
 	
 	static int _lo, _up;
 	
@@ -63,6 +63,7 @@ public class VSTLFTrainer {
 		_up = up;
 	}
 		
+	/*
 	public static double[][] test (String loadFile, Date stTest, Date edTest, int lo, int up)
 	{
 		try{
@@ -208,6 +209,7 @@ public class VSTLFTrainer {
 		}
 		return null;
 	}
+	*/
 	
 	///////////////////////////////////////////////////////////////////////////////////
 	//Training////////////////////////////////////////////////////////////////////////
@@ -337,6 +339,7 @@ public class VSTLFTrainer {
 						"trainWithPredEngine", "after "+ (System.currentTimeMillis()-st)));
 	}
 	
+	/*
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	//Define Input Vector Set
 	////////////////////////////////////////////////////////////////////////////////////////////
@@ -398,6 +401,7 @@ public class VSTLFTrainer {
 								.append(idx);
 		return inputSet;		
 	}
+	*/
 	
 	////////////////////////////////////////////////////////////////////////////////////////////
 	//Define target Vector Set
@@ -419,6 +423,7 @@ public class VSTLFTrainer {
 	 * Overall we get back  (n(H-suffix),n(LH-suffix),diff(LL"-suffix))
 	 * The organization makes no sense to me. This seems contrived. 
 	 */
+	/*
 	public static Series[] targetSetFor(Date t,Calendar cal, PowerDB pdb)throws Exception{
 		Series[] targetSet = new Series[_lvls+1];
 		Series load = pdb.getLoad("filt", cal.addHoursTo(t, -10), cal.addHoursTo(t, 1));
@@ -437,6 +442,7 @@ public class VSTLFTrainer {
 		targetSet[_lvls] = _norm[_lvls].imageOf(components[_lvls].differentiate().suffix(12));
 		return targetSet;
 	}
+	*/
 	
 	private static Series patchSpikesLargerThan(Series s, 
 			double threshold, int minWidth, int maxWidth) throws Exception
@@ -574,7 +580,7 @@ public class VSTLFTrainer {
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	//Constants
 	//////////////////////////////////////////////////////////////////////////////////////
-	
+	/*
 	static double[] _db8LD = {0.2303778133, 0.7148465706, 0.6308807679, -0.0279837694, -0.1870348117, 0.0308413818, 0.0328830117, -0.0105974018};
 	static double[] _db8HD = {-0.0105974018, -0.0328830117, 0.0308413818, 0.1870348117, -0.0279837694, -0.6308807679, 0.7148465706, -0.2303778133};
 	static double[] _db8LR = {-0.0105974018, 0.0328830117, 0.0308413818, -0.1870348117, -0.0279837694, 0.6308807679, 0.7148465706, 0.2303778133};
@@ -587,5 +593,6 @@ public class VSTLFTrainer {
     static double[] _db4HD = {_db4LD[3], -_db4LD[2], _db4LD[1], -_db4LD[0]};
     static double[] _db4LR = {_db4LD[3], _db4LD[2], _db4LD[1], _db4LD[0]};
     static double[] _db4HR = {_db4HD[3], _db4HD[2], _db4HD[1], _db4HD[0]};
+    */
     
  }
