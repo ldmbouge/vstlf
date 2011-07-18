@@ -12,10 +12,13 @@ public class ANNSpec {
 	private Vector<BlockSpec> inputSpecs_;
 	private BlockSpec outputSpecs_;
 	private BlockSpec updateSpecs_;
-
+	private int[] lyrSz_;
+	
+	public int[] getLayerSize() { return lyrSz_; }
 	
 	public ANNSpec(Vector<BlockSpec> inputSpecs,
-			BlockSpec outputSpecs, BlockSpec updateSpecs)
+			BlockSpec outputSpecs, BlockSpec updateSpecs,
+			int[] lyrSz)
 	{
 		inputSpecs_ = inputSpecs;
 		outputSpecs_ = outputSpecs;

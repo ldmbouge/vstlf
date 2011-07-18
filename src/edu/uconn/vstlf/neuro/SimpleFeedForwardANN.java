@@ -131,11 +131,14 @@ public class SimpleFeedForwardANN {
 	/**
 	 * Performs the typical feed forward neural net computation.
 	 * @param input Array of values presented to the input layer.
+	 * @throws Exception 
 	 */
-	public double[] execute(double[] input){
-		if(input.length!=_output[0].length-1) 
+	public double[] execute(double[] input) throws Exception{
+		if(input.length!=_output[0].length-1) {
 			MessageCenter.getInstance().put(new LogMessage(Level.INFO,
 					SimpleFeedForwardANN.class.getName(), "execute(double[])", input.length+"!="+(_output[0].length-1)));
+			throw new Exception("Input to the neural network is not compatible with the network layer out!");
+		}
 		//Set input values
 		for(int i = 0;i<_output[0].length-1;i++){
 			_output[0][i] = input[i];

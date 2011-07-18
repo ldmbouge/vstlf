@@ -64,6 +64,12 @@ public class ANNConfig {
 		Element updateElem = (Element)e.getElementsByTagName("UpdateBlock").item(0);
 		BlockSpec updateSpec = BlockSpec.createFromElement(updateElem);
 		
-		return new ANNSpec(inputSpecs, outputSpec, updateSpec);
+		 // get the network layer out
+		 String[] lyrStrs = e.getAttribute("layers").split(",");
+		 int[] lyrSz = new int[lyrStrs.length];
+		 for (int l = 0; l < lyrSz.length; ++l)
+			 lyrSz[l] = Integer.parseInt(lyrStrs[l]);
+		 
+		return new ANNSpec(inputSpecs, outputSpec, updateSpec, lyrSz);
 	}
 }

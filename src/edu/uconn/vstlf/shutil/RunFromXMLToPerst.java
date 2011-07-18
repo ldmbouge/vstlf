@@ -98,7 +98,7 @@ public class RunFromXMLToPerst {
 				for (int i = 0; i < xmlFiles.size(); ++i) {
 					PerstPowerDB theDB = PerstPowerDB.fromXML(outf.getName(), inc, xmlFiles.elementAt(i).getPath());
 					if (theDB!=null) {
-						System.out.print(".");
+						System.out.println(xmlFiles.get(i));
 						System.out.flush();
 					} else {
 						System.err.println("\nFailed importing "+xmlFiles.elementAt(i).getPath());
