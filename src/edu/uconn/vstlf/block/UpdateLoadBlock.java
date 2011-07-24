@@ -26,7 +26,7 @@ public class UpdateLoadBlock extends UpdateBlock {
 			return DataFeed.getNormFuncs()[lvl_].imageOf(refOut_);
 		else {
 			Series targSet = lastMaxInput_.append(refOut_);
-			return DataFeed.getNormFuncs()[lvl_].imageOf(targSet.differentiate().suffix(12));
+			return DataFeed.getNormFuncs()[lvl_].imageOf(targSet.differentiate().suffix(refOut_.length()));
 		}
 	}
 
