@@ -53,16 +53,16 @@ public class ANNConfig {
 		NodeList inputElems = e.getElementsByTagName("InputBlock");
 		for (int i = 0; i < inputElems.getLength(); ++i) {
 			Element inputE = (Element)inputElems.item(i);
-			inputSpecs.add(BlockSpec.createFromElement(inputE));
+			inputSpecs.add(BlockSpec.createFromElement(inputE, e));
 		}
 		
 		// get output block
 		Element outputElem = (Element)e.getElementsByTagName("OutputBlock").item(0);
-		BlockSpec outputSpec = BlockSpec.createFromElement(outputElem);
+		BlockSpec outputSpec = BlockSpec.createFromElement(outputElem, e);
 		
 		// get the update block
 		Element updateElem = (Element)e.getElementsByTagName("UpdateBlock").item(0);
-		BlockSpec updateSpec = BlockSpec.createFromElement(updateElem);
+		BlockSpec updateSpec = BlockSpec.createFromElement(updateElem, e);
 		
 		 // get the network layer out
 		 String[] lyrStrs = e.getAttribute("layers").split(",");

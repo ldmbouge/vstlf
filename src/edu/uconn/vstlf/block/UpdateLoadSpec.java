@@ -5,9 +5,14 @@ import edu.uconn.vstlf.prediction.DataFeed;
 
 public class UpdateLoadSpec extends BlockSpec {
 
-	private int lvl_;
+	private int lvl_, nInputHours_, nOutputHours_;
 	
-	public UpdateLoadSpec(int lvl) {lvl_ = lvl; }
+	public UpdateLoadSpec(int lvl, int nInputHours, int nOutputHours) 
+	{
+		lvl_ = lvl;
+		nInputHours_ = nInputHours;
+		nOutputHours_ = nOutputHours;
+	}
 	
 	@Override
 	public
@@ -28,8 +33,8 @@ public class UpdateLoadSpec extends BlockSpec {
 	UpdateBlock getUpdateBlock(DataFeed feed) throws Exception {
 		// TODO Auto-generated method stub
 		int nLvls = feed.getNDecompLvls();
-		Series refOut = feed.getDecomposedLoads(0)[lvl_];
-		Series lastMaxInput = feed.getDecomposedLoads(-1)[nLvls];
+		Series refOut = feed.getDecomposedLoads(0, nOutputHours_)[lvl_];
+		Series lastMaxInput = feed.getDecomposedLoads(-nOutputHours_, nInputHours_)[nLvls];
 		return new UpdateLoadBlock(refOut, lastMaxInput, lvl_, nLvls);
 	}
 

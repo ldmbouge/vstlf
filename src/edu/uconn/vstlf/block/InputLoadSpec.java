@@ -5,18 +5,19 @@ import edu.uconn.vstlf.prediction.DataFeed;
 
 
 public class InputLoadSpec extends BlockSpec {
-	private int lvl_;
+	private int lvl_, nInputHours_;
 	
-	public InputLoadSpec(int lvl)
+	public InputLoadSpec(int lvl, int nInputHours)
 	{
 		lvl_ = lvl;
+		nInputHours_ = nInputHours;
 	}
 
 	@Override
 	public
 	InputBlock getInputBlock(DataFeed feed) throws Exception {
 		// TODO Auto-generated method stub
-		Series input = feed.getDecomposedLoads(0)[lvl_];
+		Series input = feed.getDecomposedLoads(0, nInputHours_)[lvl_];
 		return new InputLoadBlock(input, lvl_, feed.getNDecompLvls());
 	}
 

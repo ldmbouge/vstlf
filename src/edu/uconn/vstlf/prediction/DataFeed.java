@@ -16,13 +16,24 @@ public class DataFeed {
 	
 	private TreeMap<Integer, Series[]> decompLoads_ = new TreeMap<Integer, Series[]>();
 
-	public Series[] getDecomposedLoads(int shiftHour) throws Exception 
+	/*
+	 * get decomposed load from 
+	 * curTime_.addHours(-(shiftHour+nHours)) to
+	 * curTime_.addHours(-shiftHour)
+	 */
+	public Series[] getDecomposedLoads(int shiftHour, int nHours) throws Exception 
 	{ 
-		Series[] rslt = decompLoads_.get(shiftHour);
-		if (rslt == null) {
-			rslt = decomposeLoads(shiftHour);
-			decompLoads_.put(shiftHour, rslt);
+		Series[] dcLoads = decompLoads_.get(shiftHour);
+		if (dcLoads == null) {
+			dcLoads = decomposeLoads(shiftHour);
+			decompLoads_.put(shiftHour, dcLoads);
 		}
+		
+		Series[] rslt = new Series[dcLoads.length];
+		for (int i = 0; i < dcLoads.length; ++i) {
+			rslt[i] = dcLoads[i].suffix(12*nHours);
+		}
+		
 		return rslt;
 	}
 	
@@ -66,12 +77,8 @@ public class DataFeed {
 		Series prevHour = loadSeries_.getSubSeries(st, ed).getLoad();
 		
 		int nlvls = dbSpec_.getNumLevels();
-		Series[] phComps = prevHour.daub4Separation(nlvls, 
+		Series[] decompLoads = prevHour.daub4Separation(nlvls, 
 				dbSpec_.getDB4LD(), dbSpec_.getDB4HD(), dbSpec_.getDB4LR(), dbSpec_.getDB4HR());
-		Series[] decompLoads = new Series[nlvls+1];
-		for (int i = 0; i < nlvls+1; ++i) {
-			decompLoads[i] = phComps[i].suffix(12);
-		}
 		return decompLoads;
 	}
 	
