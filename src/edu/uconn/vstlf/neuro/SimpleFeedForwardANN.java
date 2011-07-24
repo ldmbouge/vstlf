@@ -25,7 +25,6 @@
 
 package edu.uconn.vstlf.neuro;
 
-import edu.uconn.vstlf.data.doubleprecision.MeanFunction;
 import edu.uconn.vstlf.data.doubleprecision.Series;
 import edu.uconn.vstlf.data.message.LogMessage;
 import edu.uconn.vstlf.data.message.MessageCenter;
@@ -194,8 +193,15 @@ public class SimpleFeedForwardANN {
 	/**
 	 * Executes the back-propagation learning routine.
 	 * @param desiredOut The output that we'd like the net to have produced from the last input.
+	 * @throws Exception 
 	 */
-	public void update(double[] desiredOut){		
+	public void update(double[] desiredOut) throws Exception{
+		int outLen = getOutput().length;
+		if(desiredOut.length!=outLen) {
+			MessageCenter.getInstance().put(new LogMessage(Level.INFO,
+					SimpleFeedForwardANN.class.getName(), "update(double[])", desiredOut.length+"!="+outLen));
+			throw new Exception("Output to the neural network is not compatible with the network layer out!");
+		}
 		//Set the errors of the output nodes and update their weights.
 		for(int nid = 0;nid<_output[_nbLayers-1].length-1;nid++){
 			_error[_nbLayers-1][nid] = (desiredOut[nid] - _output[_nbLayers-1][nid])*
@@ -228,7 +234,7 @@ public class SimpleFeedForwardANN {
 		}
 	}
 	
-	public void update(Series trg){
+	public void update(Series trg) throws Exception{
 		update(trg.array(false));
 	}
 	
@@ -266,6 +272,7 @@ public class SimpleFeedForwardANN {
 		return r;
 	}
 	
+	/*
 	public void train(Series[] in, Series[] tg,double err)throws Exception{
 		String methodName = "train";
 		MessageCenter.getInstance().put(new LogMessage(Level.INFO, SimpleFeedForwardANN.class.getName(), methodName, "Training..."));
@@ -358,6 +365,7 @@ public class SimpleFeedForwardANN {
 		}while(System.currentTimeMillis() < st+dt);
 		MessageCenter.getInstance().put(new LogMessage(Level.INFO, SimpleFeedForwardANN.class.getName(), methodName, "\tDone."));
 	}
+	*/
 	
 	@SuppressWarnings("unchecked")
 	public void save(String file, int id){

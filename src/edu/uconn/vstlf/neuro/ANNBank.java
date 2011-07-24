@@ -73,6 +73,7 @@ public class ANNBank{
 		for(int id=0;id<_anns.length;id++) _anns[id].save(file, id);
 	}
 	
+	/*
 	public void train(Series[][] in, Series[][] tg, double[] err)throws Exception{
 		Series[][] inf = new Series[in[0].length][in.length];
 		Series[][] tgf = new Series[tg[0].length][tg.length];
@@ -118,6 +119,7 @@ public class ANNBank{
 		for(int i = 0;i<_anns.length;i++)
 			_anns[i].train(inf[i], tgf[i], seconds[i],err[i]);
 	}
+	*/
 	
 	public Series[] execute(Series[] in)throws Exception{
 		Series[] out = new Series[_anns.length];
@@ -132,8 +134,8 @@ public class ANNBank{
 	public void update(Series[] tg)throws Exception{
 		for(int i = 0;i<_anns.length;i++)
 			if (!_disableANNs[i]) {
-				logAccErrors(i, tg[i], new Series(_anns[i].getOutput(), false));
 				_anns[i].update(tg[i]);
+				logAccErrors(i, tg[i], new Series(_anns[i].getOutput(), false));
 			}
 	}
 	

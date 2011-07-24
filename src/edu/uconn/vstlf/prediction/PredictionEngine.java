@@ -68,7 +68,7 @@ public class PredictionEngine {
 		Series[] out = bank.execute(input);
 		
 		// Denormalize the outputs
-		Series pred = new Series(12);
+		Series pred = new Series(out[0].length());
 		for (int i = 0; i < numAnns; ++i)
 			pred = pred.plus(outBlks[i].getOutput(out[i]));
 		
