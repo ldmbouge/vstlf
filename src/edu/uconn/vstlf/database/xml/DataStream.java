@@ -80,7 +80,7 @@ public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCen
 		_buf = _bufWriter.getBuffer();
 		_df = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
 		
-		outHour_ = ANNConfig.getInstance().getANNSpecs()[0].getOutputHours();
+		outHour_ = ANNConfig.getOutputHours();
 
 		try {
 		   _sum = new Series(outHour_*12);

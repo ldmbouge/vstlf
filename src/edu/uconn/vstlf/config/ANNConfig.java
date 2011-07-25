@@ -21,6 +21,11 @@ public class ANNConfig {
 		return inst_;
 	}
 	
+	static public int getOutputHours() throws Exception
+	{
+		return getInstance().getANNSpecs()[0].getOutputHours();
+	}
+	
 	private ANNSpec[] annSpecs_;
 	public ANNSpec[] getANNSpecs() { return annSpecs_; }
 	
@@ -72,4 +77,5 @@ public class ANNConfig {
 		 
 		return new ANNSpec(inputSpecs, outputSpec, updateSpec, lyrSz);
 	}
+
 }
