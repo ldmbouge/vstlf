@@ -35,5 +35,6 @@ public class InputLoadSpec extends BlockSpec {
 		return null;
 	}
 	
+	public int getHours() { return nInputHours_; }
 	
 }

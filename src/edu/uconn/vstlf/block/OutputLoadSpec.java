@@ -35,5 +35,4 @@ public class OutputLoadSpec extends BlockSpec {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 }

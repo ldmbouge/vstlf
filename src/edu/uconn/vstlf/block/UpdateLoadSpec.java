@@ -38,4 +38,13 @@ public class UpdateLoadSpec extends BlockSpec {
 		return new UpdateLoadBlock(refOut, lastMaxInput, lvl_, nLvls);
 	}
 
+	public int getInputHours()
+	{
+		return nInputHours_;
+	}
+	
+	public int getOutputHours()
+	{
+		return nOutputHours_;
+	}
 }

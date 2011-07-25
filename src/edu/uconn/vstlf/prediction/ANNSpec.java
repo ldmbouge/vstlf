@@ -4,8 +4,11 @@ import java.util.Vector;
 
 import edu.uconn.vstlf.block.BlockSpec;
 import edu.uconn.vstlf.block.InputBlock;
+//import edu.uconn.vstlf.block.InputLoadSpec;
 import edu.uconn.vstlf.block.OutputBlock;
+//import edu.uconn.vstlf.block.OutputLoadSpec;
 import edu.uconn.vstlf.block.UpdateBlock;
+import edu.uconn.vstlf.block.UpdateLoadSpec;
 
 public class ANNSpec {
 
@@ -13,6 +16,10 @@ public class ANNSpec {
 	private BlockSpec outputSpecs_;
 	private BlockSpec updateSpecs_;
 	private int[] lyrSz_;
+	
+	//private InputLoadSpec inLoadSpec_;
+	//private OutputLoadSpec outLoadSpec_;
+	private UpdateLoadSpec updLoadSpec_;
 	
 	public int[] getLayerSize() { return lyrSz_; }
 	
@@ -24,6 +31,17 @@ public class ANNSpec {
 		outputSpecs_ = outputSpecs;
 		updateSpecs_ = updateSpecs;
 		lyrSz_ = lyrSz;
+		
+		/*
+		for (int i = 0; i < inputSpecs.size(); ++i)
+			if ((InputLoadSpec)(inputSpecs.get(i)) != null) {
+				inLoadSpec_ = (InputLoadSpec)(inputSpecs.get(i));
+				break;
+			}
+		
+		outLoadSpec_ = (OutputLoadSpec)(outputSpecs);
+		*/
+		updLoadSpec_ = (UpdateLoadSpec)(updateSpecs);
 	}
 	
 	public Vector<InputBlock> getInputBlocks(DataFeed feed) throws Exception
@@ -37,6 +55,16 @@ public class ANNSpec {
 	public OutputBlock getOutputBlock(DataFeed feed) throws Exception
 	{
 		return outputSpecs_.getOutputBlock(feed);
+	}
+	
+	public int getInputHours()
+	{
+		return updLoadSpec_.getInputHours();
+	}
+	
+	public int getOutputHours()
+	{
+		return updLoadSpec_.getOutputHours();
 	}
 	
 	public UpdateBlock getUpdateBlock(DataFeed feed) throws Exception

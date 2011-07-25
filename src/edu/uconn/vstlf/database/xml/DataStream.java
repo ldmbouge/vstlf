@@ -57,6 +57,8 @@ public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCen
 	
 	private boolean _test = false;
 	
+	private int outHour_;
+	
 	public void SetTest(boolean tst) { _test = tst; }
 	
 	Series _aveP;
@@ -72,18 +74,20 @@ public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCen
 	PowerDB _db;
 	public void setDB(PowerDB db) { _db = db; }
 	
-	public DataStream(){
+	public DataStream() throws Exception{
 		_cal = Items.makeCalendar();
 		_bufWriter = new StringWriter();
 		_buf = _bufWriter.getBuffer();
 		_df = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
 		
+		outHour_ = ANNConfig.getInstance().getANNSpecs()[0].getOutputHours();
+
 		try {
-		   _sum = new Series(12);
-		   _sumP = new Series(12);
-		   _sumOfSquares = new Series(12);
-		   _ovr = new Series(12);
-		   _und = new Series(12);
+		   _sum = new Series(outHour_*12);
+		   _sumP = new Series(outHour_*12);
+		   _sumOfSquares = new Series(outHour_*12);
+		   _ovr = new Series(outHour_*12);
+		   _und = new Series(outHour_*12);
 		   _nbErr = 0;
 		   logger = new VSTLFMsgLogger("err.log", null);
 		}
@@ -93,7 +97,7 @@ public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCen
 		}
 	}
 
-	public DataStream(InputStream in){
+	public DataStream(InputStream in) throws Exception{
 		this();
 		if(in!=null)
 			_in = new BufferedReader(new InputStreamReader(in));
@@ -102,7 +106,7 @@ public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCen
 		_isInput = true; _isOutput = false;
 	}
 	
-	public DataStream(OutputStream out){
+	public DataStream(OutputStream out) throws Exception{
 		this();
 		if(out!=null)
 			_out = new PrintWriter(out);
@@ -111,12 +115,12 @@ public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCen
 		_isInput = false; _isOutput = true;
 	}
 	
-	public DataStream(IsoVstlf src, OutputStream dst){
+	public DataStream(IsoVstlf src, OutputStream dst) throws Exception{
 		this(dst);
 		_srvr = src;
 	}
 	
-	public DataStream(InputStream src, IsoVstlf dst){
+	public DataStream(InputStream src, IsoVstlf dst) throws Exception{
 		this(src);
 		_srvr = dst;
 	}
@@ -218,10 +222,10 @@ public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCen
 		try {
 			if (at.getTime() % (1000*60*60) == 0)
 				MessageCenter.getInstance().put(new LogMessage(Level.INFO, "DataStream", "fiveMTick", "Aggregate 5m points for "+ at));
-			Date ovr1HrAgo = _cal.addMinutesTo(at, -65);
+			Date ovrNHrAgo = _cal.addMinutesTo(at, -5-60*outHour_);
 			Date fvMinsAgo = _cal.addMinutesTo(at, -5);
-			Series pred = _db.getForecast(ovr1HrAgo);
-			Series act = _db.getLoad("filt", ovr1HrAgo, fvMinsAgo);
+			Series pred = _db.getForecast(ovrNHrAgo);
+			Series act = _db.getLoad("filt", ovrNHrAgo, fvMinsAgo);
 			if(pred!=null && act.countOf(Double.NaN)==0 &&!_db.last("filt").before(at)){
 				Series error = new MAEFunction().imageOf(act,pred);
 				Series errorP = new MAPEFunction().imageOf(act,pred);
@@ -372,7 +376,7 @@ public class DataStream implements edu.uconn.vstlf.realtime.VSTLFNotificationCen
 			double [] maxovr = _ovr.array(false);
 			double [] maxund = _und.array(false);
 			_out.println("Minutes Ahead\tMAPE\t\t\t\tMAE\t\t\t\tStDev\t\t\t\tMax Ovr Err\t\t\tMax Und Err");
-			for (int i = 0; i < 12; ++i) 
+			for (int i = 0; i < outHour_*12; ++i) 
 				_out.println( (i+1)*5 + "\t\t" + mape[i] + "\t\t" + mae[i] + "\t\t" + stdev[i] + "\t\t" + maxovr[i] + "\t\t" + maxund[i]);
 			_out.flush();
 	}
