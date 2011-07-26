@@ -1,9 +1,22 @@
 <?xml version="1.0" encoding = "UTF-8"?>
 
-<Config>
+<vstlf:config>
+	<vstlf:item key="anntype" value="1" />
+	<vstlf:item key="minload" value="5000" />
+	<vstlf:item key="maxload" value="28000" />
+	<vstlf:item key="timezone" value="America/New_York" />
+	<vstlf:item key="longitude" value="-72.6166667" />
+	<vstlf:item key="latitude" value="42.2041667" />
+	<vstlf:item key="filter-micro-spikes" value="true" />
+	<vstlf:item key="filter-macro-spikes" value="true" />
+	<vstlf:item key="micro-spike-thresh" value="50" />
+	<vstlf:item key="macro-spike-thresh" value="500" />
+	<vstlf:item key="max-data-delay" value="16" />
+	<vstlf:item key="testmode" value="false" />
+
   <DecomposeLevel nlvls = "2"/>
 
-  <Network lvl = "0" layers = "70,6,24">
+  <Network lvl = "0" layers = "70,6,24" train_mins = "10">
     <InputBlock type = "HourIndex"/>
     <InputBlock type = "WeekIndex"/>
     <InputBlock type = "MonthIndex"/>
@@ -13,7 +26,7 @@
     <UpdateBlock type = "UpdateLoad" lvl = "0"/>
   </Network>
 
-  <Network lvl = "1" layers = "70,13,24">
+  <Network lvl = "1" layers = "70,13,24" train_mins = "20">
     <InputBlock type = "HourIndex"/>
     <InputBlock type = "WeekIndex"/>
     <InputBlock type = "MonthIndex"/>
@@ -23,7 +36,7 @@
     <UpdateBlock type = "UpdateLoad" lvl = "1"/>
   </Network>
 
-  <Network lvl = "2" layers = "70,12,24">
+  <Network lvl = "2" layers = "70,12,24" train_mins = "120">
     <InputBlock type = "InputLoad" lvl = "2" hours="1"/>
     <InputBlock type = "HourIndex"/>
     <InputBlock type = "WeekIndex"/>
@@ -33,4 +46,4 @@
     <UpdateBlock type = "UpdateLoad" lvl = "2"/>
   </Network>
 
-</Config>
+</vstlf:config>

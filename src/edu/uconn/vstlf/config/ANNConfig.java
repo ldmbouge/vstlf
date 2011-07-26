@@ -69,13 +69,15 @@ public class ANNConfig {
 		Element updateElem = (Element)e.getElementsByTagName("UpdateBlock").item(0);
 		BlockSpec updateSpec = BlockSpec.createFromElement(updateElem, e);
 		
-		 // get the network layer out
-		 String[] lyrStrs = e.getAttribute("layers").split(",");
-		 int[] lyrSz = new int[lyrStrs.length];
-		 for (int l = 0; l < lyrSz.length; ++l)
-			 lyrSz[l] = Integer.parseInt(lyrStrs[l]);
+		// get the network layer out
+		String[] lyrStrs = e.getAttribute("layers").split(",");
+		int[] lyrSz = new int[lyrStrs.length];
+		for (int l = 0; l < lyrSz.length; ++l)
+			lyrSz[l] = Integer.parseInt(lyrStrs[l]);
 		 
-		return new ANNSpec(inputSpecs, outputSpec, updateSpec, lyrSz);
+		// get the training length
+		int trainSecs = Integer.parseInt(e.getAttribute("train_mins"))*60;
+		return new ANNSpec(inputSpecs, outputSpec, updateSpec, lyrSz, trainSecs);
 	}
 
 }

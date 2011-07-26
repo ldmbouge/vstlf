@@ -54,7 +54,7 @@ public enum Items{
 	MaxDataLag("max-data-delay","16"),
 	TestMode("testmode", "false");
 	
-	private static String _filename = "./anns/config";
+	private static String _filename = "config.xml";
 
 	
 	private String _key;

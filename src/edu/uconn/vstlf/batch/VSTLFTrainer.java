@@ -275,19 +275,7 @@ public class VSTLFTrainer {
 				}
 				annBanks[offs] = anns;
 			}
-
 			
-			/////////////////////////////////
-			int[] times = {th,tlh,tllh,tlllh,tllll};
-			double[] errors = {eh,elh,ellh,elllh,ellll};
-			int[] sec = new int[nANNInBank];
-			double[] mse = new double[nANNInBank];
-			for(int i = 0;i<nANNInBank-1;i++){
-				sec[i] = times[i];
-				mse[i] = errors[i];
-			}
-			sec[nANNInBank-1] = times[4];
-			mse[nANNInBank-1] = errors[4];
 			
 			//////////////////////////////////////////////
 			/// Train the network
@@ -302,7 +290,7 @@ public class VSTLFTrainer {
 							annBanks[bid].disableNetwork(annId);
 					anns.enableNetwork(i);
 					
-					trainWithPredEngine(loadSeries, predEngine, sec[i]);
+					trainWithPredEngine(loadSeries, predEngine, annSpecs[i].getTrainSecs());
 				}
 				
 				

@@ -17,6 +17,8 @@ public class ANNSpec {
 	private BlockSpec updateSpecs_;
 	private int[] lyrSz_;
 	
+	private int trainSecs_;
+	
 	//private InputLoadSpec inLoadSpec_;
 	//private OutputLoadSpec outLoadSpec_;
 	private UpdateLoadSpec updLoadSpec_;
@@ -25,12 +27,13 @@ public class ANNSpec {
 	
 	public ANNSpec(Vector<BlockSpec> inputSpecs,
 			BlockSpec outputSpecs, BlockSpec updateSpecs,
-			int[] lyrSz)
+			int[] lyrSz, int trainSecs)
 	{
 		inputSpecs_ = inputSpecs;
 		outputSpecs_ = outputSpecs;
 		updateSpecs_ = updateSpecs;
 		lyrSz_ = lyrSz;
+		trainSecs_ = trainSecs;
 		
 		/*
 		for (int i = 0; i < inputSpecs.size(); ++i)
@@ -70,5 +73,10 @@ public class ANNSpec {
 	public UpdateBlock getUpdateBlock(DataFeed feed) throws Exception
 	{
 		return updateSpecs_.getUpdateBlock(feed);
+	}
+	
+	public int getTrainSecs() 
+	{
+		return trainSecs_;
 	}
 }
