@@ -41,6 +41,7 @@ import edu.uconn.vstlf.prediction.LoadSeries;
 import edu.uconn.vstlf.prediction.PredictionEngine;
 import edu.uconn.vstlf.config.ANNConfig;
 //import edu.uconn.vstlf.config.Items;
+import edu.uconn.vstlf.config.Items;
 
 //import com.web_tomorrow.utils.suntimes.*;
 
@@ -315,7 +316,7 @@ public class VSTLFTrainer {
 		Date edTrain = trainLoad.getCurTime();
 		Date trainTime = stTrain;
 		do{
-			LoadSeries ls = trainLoad.getSubSeries(cal.addHoursTo(trainTime, -15), trainTime);
+			LoadSeries ls = trainLoad.getSubSeries(cal.addHoursTo(trainTime, -(Items.getDecompWindow()+3)), trainTime);
 			pred.update(ls);
 			trainTime = cal.addSecondsTo(trainTime, 300);
 			if (trainTime.after(edTrain)) trainTime = stTrain;
