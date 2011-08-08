@@ -52,6 +52,7 @@ public enum Items{
 	MicroSpikeThreshold("micro-spike-thresh", "50"),
 	MacroSpikeThreshold("macro-spike-thresh", "500"),
 	MaxDataLag("max-data-delay","16"),
+	DecompWindow("decomp-window", "11"),
 	TestMode("testmode", "false");
 	
 	private static String _filename = "config.xml";
@@ -123,6 +124,10 @@ public enum Items{
 	}
 	public static int getMaximumDataLag(){
 		return new Integer(get(Items.MaxDataLag));
+	}
+	
+	public static int getDecompWindow() {
+		return new Integer(get(Items.DecompWindow));
 	}
 	
 	public static synchronized void load(String filename)throws Exception{

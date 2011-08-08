@@ -69,7 +69,7 @@ public class DataFeed {
 	private Series[] decomposeLoads(int shiftHour) throws Exception
 	{
 		Date ed = cal_.addHoursTo(curTime_, shiftHour);
-		Date st = cal_.addHoursTo(curTime_, -11 + shiftHour);
+		Date st = cal_.addHoursTo(curTime_, -Items.getDecompWindow() + shiftHour);
 		if (shiftHour > 0) 
 			throw new Exception("Cannot decompose the load at " + ed  + ", load only available at " + curTime_);
 		

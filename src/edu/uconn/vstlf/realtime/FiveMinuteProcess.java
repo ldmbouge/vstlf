@@ -56,7 +56,7 @@ public class FiveMinuteProcess extends Thread {
 	private LoadSeries loadSeries_;
 	// how much data should the load series store
 	// default from now back 15 hours
-	private int loadSeriesWindow = 15; 
+	private int loadSeriesWindow = Items.getDecompWindow()+3; 
 	
 	FiveMinuteProcess(MessageCenter notif, PCBuffer<VSTLF5MPoint> buf, PowerDB db) {
 		_input = buf;		
