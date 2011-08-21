@@ -9,6 +9,7 @@ import edu.uconn.vstlf.block.InputBlock;
 import edu.uconn.vstlf.block.OutputBlock;
 import edu.uconn.vstlf.block.UpdateBlock;
 import edu.uconn.vstlf.config.ANNConfig;
+import edu.uconn.vstlf.config.BankSelConfig;
 import edu.uconn.vstlf.config.DaubConfig;
 import edu.uconn.vstlf.data.doubleprecision.Series;
 import edu.uconn.vstlf.neuro.ANNBank;
@@ -32,7 +33,7 @@ public class PredictionEngine {
 		annSpecs_ = ANNConfig.getInstance().getANNSpecs();		
 	}
 	
-			
+	
 	/*
 	 * Perform a prediction with a load series
 	 */
@@ -43,7 +44,7 @@ public class PredictionEngine {
 		
 		// Select bank
 		int off = loadSeries.getCal().getMinute(loadSeries.getCurTime());
-		int bankId = off/5;
+		int bankId = BankSelConfig.getInstance().select(off);
 		ANNBank bank = annBanks_[bankId];
 		
 		// Prepare inputs
@@ -95,7 +96,7 @@ public class PredictionEngine {
 		
 		// Select bank (use the bank for the previous hour)
 		int off = prevSeries.getCal().getMinute(prevSeries.getCurTime());
-		int bankId = off/5;		
+		int bankId = BankSelConfig.getInstance().select(off);
 		ANNBank bank = annBanks_[bankId];
 		
 		// Prepare target output

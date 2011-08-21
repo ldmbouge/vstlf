@@ -47,4 +47,18 @@
     <UpdateBlock type = "UpdateLoad" lvl = "2"/>
   </Network>
 
+  <BankSelection>
+    <Item mins_off = "0" use_bank = "0"/>
+    <Item mins_off = "5" use_bank = "1"/>
+    <Item mins_off = "10" use_bank = "2"/>
+    <Item mins_off = "15" use_bank = "3"/>
+    <Item mins_off = "20" use_bank = "4"/>
+    <Item mins_off = "25" use_bank = "5"/>
+    <Item mins_off = "30" use_bank = "6"/>
+    <Item mins_off = "35" use_bank = "7"/>
+    <Item mins_off = "40" use_bank = "8"/>
+    <Item mins_off = "45" use_bank = "9"/>
+    <Item mins_off = "50" use_bank = "10"/>
+    <Item mins_off = "55" use_bank = "11"/>
+  </BankSelection>
 </vstlf:config>
