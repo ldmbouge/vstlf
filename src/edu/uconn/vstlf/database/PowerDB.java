@@ -40,6 +40,8 @@ public abstract class PowerDB {
 	
 	public abstract Series getLoad(String s, Date st,Date ed)throws Exception;
 	
+	public abstract Series getForecast(String s, Date st, Date ed,int fiveMOfs) throws Exception;
+	
 	public abstract double getLoad(String s, Date t) throws Exception;
 		
 	public abstract void removeBefore(String s, Date t);
