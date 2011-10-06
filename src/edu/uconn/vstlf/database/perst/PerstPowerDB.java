@@ -273,7 +273,7 @@ public class PerstPowerDB extends PowerDB {
 	 * which means the load at st is not in the returned results. But the load
 	 * at ed is.
 	 */
-	public synchronized Series getLoad(String s, Date st, Date ed)throws Exception{
+	public synchronized Series getLoad(String s, Date st, Date ed) throws Exception{
 		Calendar cal = Items.makeCalendar();
 		Date strt = cal.beginBlock(_inc,st), end = cal.beginBlock(_inc,ed);
 		int inc = _inc*1000;
@@ -285,19 +285,75 @@ public class PerstPowerDB extends PowerDB {
 			load[k] = Double.NaN;
 		long off=-1;
 		while(i.hasNext()){
-			PerstDataPoint p = (PerstDataPoint)i.next();
-			p.setTime(cal.lastTick(1, new Date(p.getTime())));
-			//System.err.println("Time: "+p.getTime() + "("+new Date(p.getTime())+")\tValue: "+p.getValue());
-			off = (p.getTime()-strt.getTime())/inc - 1; // [ldm] -1 makes no sense to me.
-			if (off< 0) continue;
-			if (off >= load.length) 
-				throw new Exception("Writing past the end of the load array");
-			load[(int)off] = p.getValue();
+			Tick point = i.next();
+			if (point instanceof PerstDataPoint) {
+				PerstDataPoint p = (PerstDataPoint)point;
+				p.setTime(cal.lastTick(1, new Date(p.getTime())));
+				//System.err.println("Time: "+p.getTime() + "("+new Date(p.getTime())+")\tValue: "+p.getValue());
+				off = (p.getTime()-strt.getTime())/inc - 1; // [ldm] -1 makes no sense to me.
+				if (off< 0) continue;
+				if (off >= load.length) 
+					throw new Exception("Writing past the end of the load array");
+				load[(int)off] = p.getValue();
+			} else if (point instanceof PerstForecastPoint) {
+				PerstForecastPoint p = (PerstForecastPoint)point;
+				//p.setTime(cal.lastTick(1, new Date(p.getTime())));
+				//System.err.println("Time: "+p.getTime() + "("+new Date(p.getTime())+")\tValue: "+p.getValue());
+				off = (p.getTime()-strt.getTime())/inc - 1; // [ldm] -1 makes no sense to me.
+				if (off< 0) continue;
+				if (off >= load.length) 
+					throw new Exception("Writing past the end of the load array");
+				load[(int)off] = p.getValue()[0];
+				
+			} else throw new Exception("Unexpected data type in serie (expecting ForecastPoint or DataPoint).");
 		}
 		
 		_db.endThreadTransaction();
 		return new Series(load,false);
 	}
+	
+	
+	public synchronized Series getForecast(String s, Date st, Date ed,int fiveMOfs) throws Exception {
+		assert(s.equals("pred"));
+		Calendar cal = Items.makeCalendar();
+		Date strt = cal.beginBlock(_inc,st), end = cal.beginBlock(_inc,ed);
+		int inc = _inc*1000;
+		_db.beginThreadTransaction(Storage.READ_ONLY_TRANSACTION);
+		Iterator<Tick> i = _fields.get(s).iterator(strt, end);
+		int lng = (int)((long)(end.getTime()-strt.getTime())/(long)inc);// + 1;
+		double[] load = new double[lng];
+		for(int k=lng-1;k>=0;k--)
+			load[k] = Double.NaN;
+		long off=-1;
+		while(i.hasNext()){
+			Tick point = i.next();
+			if (point instanceof PerstDataPoint) {
+				PerstDataPoint p = (PerstDataPoint)point;
+				p.setTime(cal.lastTick(1, new Date(p.getTime())));
+				//System.err.println("Time: "+p.getTime() + "("+new Date(p.getTime())+")\tValue: "+p.getValue());
+				off = (p.getTime()-strt.getTime())/inc - 1; // [ldm] -1 makes no sense to me.
+				if (off< 0) continue;
+				if (off >= load.length) 
+					throw new Exception("Writing past the end of the load array");
+				load[(int)off] = p.getValue();
+			} else if (point instanceof PerstForecastPoint) {
+				PerstForecastPoint p = (PerstForecastPoint)point;
+				//p.setTime(cal.lastTick(1, new Date(p.getTime())));
+				//System.err.println("Time: "+p.getTime() + "("+new Date(p.getTime())+")\tValue: "+p.getValue());
+				off = (p.getTime()-strt.getTime())/inc - 1; // [ldm] -1 makes no sense to me.
+				if (off< 0) continue;
+				if (off >= load.length) 
+					throw new Exception("Writing past the end of the load array");
+				load[(int)off] = p.getValue()[fiveMOfs];
+				
+			} else throw new Exception("Unexpected data type in serie (expecting ForecastPoint or DataPoint).");
+		}
+		
+		_db.endThreadTransaction();
+		return new Series(load,false);
+	}
+	
+	
 	
 	public Series getValues(String s, Date st, Date ed)throws Exception{
 		return getLoad(s,st,ed);
