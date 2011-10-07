@@ -37,6 +37,7 @@ public class Reader {
 		HashMap<String,Command> map = new HashMap<String,Command>();
 		map.put("info",new GetInfo());
 		map.put("serie",new DumpSerie());
+		map.put("csv", new CreateCSV());
 		try{
 			MessageCenter.getInstance().setHandler(new VSTLFMsgLogger("vstlf.log", new DummyMsgHandler()));
 			MessageCenter.getInstance().init();
@@ -49,9 +50,9 @@ public class Reader {
 			else {
 				System.out.format("usage is: Reader [info|serie] ...\n" +
 								  "\twith the command specific arguments:\n" +
-								  "\tReader info <filename>\n"+
-								  "\tReader serie <filename> <seriename> <increment>\n");
-					
+								  "\tReader info  <filename>\n"+
+								  "\tReader serie <filename> <seriename> <increment>\n"+
+								  "\tReader csv   <filename> <seriename> <increment> <outputFilename\n");
 			}
 			MessageCenter.getInstance().put(new VSTLFMessage(VSTLFMessage.Type.StopMessageCenter));
 			MessageCenter.getInstance().join();
